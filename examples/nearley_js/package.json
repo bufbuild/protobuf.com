@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "regen": "nearleyc protobuf-grammar.ne -o protobuf-grammar.js",
+    "start": "./proto2ast.js < example.proto > example-ast.json"
+  },
+  "dependencies": {
+    "moo": "^0.5.1",
+    "nearley": "^2.20.1"
+  }
+}

@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package test.users.v1;
+
+message User {
+  uint64 uid = 1;
+
+  message Name {
+    string last_name = 1;
+    string first_name = 2;
+    string middle_initial = 3;
+  }
+  Name name = 2;
+
+  message Adddress {
+    string street_line1 = 1;
+    string street_line2 = 2;
+    string city = 3;
+    string state_province = 4;
+    string postal_code = 5;
+    string country = 6;
+  }
+  Address address = 3;
+}
+
+service UserService {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+}
+
+message CreateUserRequest {
+  Name name = 1;
+  Address address = 2;
+}
+
+message CreateUserResponse {
+  uint64 uid = 1;
+}
+
+message DeleteUserRequest {
+  uint64 uid = 1;
+}
+
+message DeleteUserResponse {
+}
+
+message UpdateUserRequest {
+  User user = 1;
+}
+
+message UpdateUserResponse {
+}
+
+message GetUserRequest {
+  uint64 uid = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+

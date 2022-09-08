@@ -1,0 +1,493 @@
+/* stylelint-disable docusaurus/copyright-header */
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Work+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400&display=block");
+
+/*
+ * These are Infima variables.
+ * Ref: https://github.com/facebookincubator/infima/blob/v0.2.0-alpha.29/packages/core/styles/common/variables.pcss
+ */
+:root {
+  /* Infima Colors */
+  --ifm-color-primary: #161ede; /* buf-blue from bufbuild/core */
+  --ifm-color-primary-light: rgb(119, 225, 255);
+  --ifm-color-primary-dark: #191e8c;
+  --ifm-color-primary-darker: #191e8c;
+  --ifm-color-primary-darkest: #191e8c;
+  --ifm-font-color-base: #090a3a; /* standard font color from bufbuild/core */
+  --ifm-color-orange: #f97316; /* for strong contrasts */
+  --ifm-color-gray: #475569;
+
+  /* Colors specific to the buf header and footer */
+  --buf-footer-color: #93B4BE;
+  --buf-footer-color-light: #acb3b6;
+  --buf-light-button-color: rgba(9, 10, 58, 0.6);
+  --buf-light-button-border-color: #dbdce7;
+  --buf-searchbox-placeholder-color: #3e4049;
+  --buf-gray-slack-icon: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.21651 12.6332C4.21651 13.7947 3.27776 14.7335 2.11625 14.7335C0.954744 14.7335 0.0159912 13.7947 0.0159912 12.6332C0.0159912 11.4717 0.954744 10.533 2.11625 10.533H4.21651V12.6332ZM5.26664 12.6332C5.26664 11.4717 6.20539 10.533 7.3669 10.533C8.52841 10.533 9.46716 11.4717 9.46716 12.6332V17.8839C9.46716 19.0454 8.52841 19.9841 7.3669 19.9841C6.20539 19.9841 5.26664 19.0454 5.26664 17.8839V12.6332Z' fill='rgba(9, 10, 58, 0.6)'/%3E%3Cpath d='M7.36682 4.20052C6.20531 4.20052 5.26656 3.26177 5.26656 2.10026C5.26656 0.938753 6.20531 0 7.36682 0C8.52833 0 9.46708 0.938753 9.46708 2.10026V4.20052H7.36682ZM7.36682 5.26656C8.52833 5.26656 9.46708 6.20531 9.46708 7.36682C9.46708 8.52833 8.52833 9.46708 7.36682 9.46708H2.10026C0.938753 9.46708 0 8.52833 0 7.36682C0 6.20531 0.938753 5.26656 2.10026 5.26656H7.36682Z' fill='rgba(9, 10, 58, 0.6)'/%3E%3Cpath d='M15.7836 7.36682C15.7836 6.20531 16.7224 5.26656 17.8839 5.26656C19.0454 5.26656 19.9841 6.20531 19.9841 7.36682C19.9841 8.52833 19.0454 9.46708 17.8839 9.46708H15.7836V7.36682ZM14.7335 7.36682C14.7335 8.52833 13.7947 9.46708 12.6332 9.46708C11.4717 9.46708 10.533 8.52833 10.533 7.36682V2.10026C10.533 0.938753 11.4717 0 12.6332 0C13.7947 0 14.7335 0.938753 14.7335 2.10026V7.36682Z' fill='rgba(9, 10, 58, 0.6)'/%3E%3Cpath d='M12.6332 15.7836C13.7947 15.7836 14.7335 16.7224 14.7335 17.8839C14.7335 19.0454 13.7947 19.9841 12.6332 19.9841C11.4717 19.9841 10.533 19.0454 10.533 17.8839V15.7836H12.6332ZM12.6332 14.7335C11.4717 14.7335 10.533 13.7947 10.533 12.6332C10.533 11.4717 11.4717 10.533 12.6332 10.533H17.8998C19.0613 10.533 20 11.4717 20 12.6332C20 13.7947 19.0613 14.7335 17.8998 14.7335H12.6332Z' fill='rgba(9, 10, 58, 0.6)'/%3E%3C/svg%3E%0A");
+  --buf-blue-slack-icon: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.21651 12.6332C4.21651 13.7947 3.27776 14.7335 2.11625 14.7335C0.954744 14.7335 0.0159912 13.7947 0.0159912 12.6332C0.0159912 11.4717 0.954744 10.533 2.11625 10.533H4.21651V12.6332ZM5.26664 12.6332C5.26664 11.4717 6.20539 10.533 7.3669 10.533C8.52841 10.533 9.46716 11.4717 9.46716 12.6332V17.8839C9.46716 19.0454 8.52841 19.9841 7.3669 19.9841C6.20539 19.9841 5.26664 19.0454 5.26664 17.8839V12.6332Z' fill='%23191E8C'/%3E%3Cpath d='M7.36682 4.20052C6.20531 4.20052 5.26656 3.26177 5.26656 2.10026C5.26656 0.938753 6.20531 0 7.36682 0C8.52833 0 9.46708 0.938753 9.46708 2.10026V4.20052H7.36682ZM7.36682 5.26656C8.52833 5.26656 9.46708 6.20531 9.46708 7.36682C9.46708 8.52833 8.52833 9.46708 7.36682 9.46708H2.10026C0.938753 9.46708 0 8.52833 0 7.36682C0 6.20531 0.938753 5.26656 2.10026 5.26656H7.36682Z' fill='%23191E8C'/%3E%3Cpath d='M15.7836 7.36682C15.7836 6.20531 16.7224 5.26656 17.8839 5.26656C19.0454 5.26656 19.9841 6.20531 19.9841 7.36682C19.9841 8.52833 19.0454 9.46708 17.8839 9.46708H15.7836V7.36682ZM14.7335 7.36682C14.7335 8.52833 13.7947 9.46708 12.6332 9.46708C11.4717 9.46708 10.533 8.52833 10.533 7.36682V2.10026C10.533 0.938753 11.4717 0 12.6332 0C13.7947 0 14.7335 0.938753 14.7335 2.10026V7.36682Z' fill='%23191E8C'/%3E%3Cpath d='M12.6332 15.7836C13.7947 15.7836 14.7335 16.7224 14.7335 17.8839C14.7335 19.0454 13.7947 19.9841 12.6332 19.9841C11.4717 19.9841 10.533 19.0454 10.533 17.8839V15.7836H12.6332ZM12.6332 14.7335C11.4717 14.7335 10.533 13.7947 10.533 12.6332C10.533 11.4717 11.4717 10.533 12.6332 10.533H17.8998C19.0613 10.533 20 11.4717 20 12.6332C20 13.7947 19.0613 14.7335 17.8998 14.7335H12.6332Z' fill='%23191E8C'/%3E%3C/svg%3E%0A");
+  --buf-gray-github-icon: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10.0001 0C4.47791 0 0 4.5904 0 10.2532C0 14.7833 2.86533 18.6266 6.83867 19.9824C7.33844 20.0773 7.52192 19.76 7.52192 19.4891C7.52192 19.2446 7.51265 18.437 7.50834 17.5802C4.72631 18.2005 4.13927 16.3705 4.13927 16.3705C3.68437 15.1854 3.02894 14.8702 3.02894 14.8702C2.12163 14.2339 3.09733 14.2469 3.09733 14.2469C4.10151 14.3193 4.63026 15.3035 4.63026 15.3035C5.52217 16.871 6.96965 16.4178 7.5403 16.1559C7.63006 15.4932 7.88922 15.0409 8.1752 14.7848C5.95405 14.5256 3.61913 13.6464 3.61913 9.71766C3.61913 8.59825 4.00977 7.6836 4.64947 6.96556C4.54564 6.70731 4.20335 5.66448 4.74635 4.25218C4.74635 4.25218 5.58609 3.97661 7.49708 5.30317C8.29476 5.07599 9.15024 4.96206 10.0001 4.95816C10.8499 4.96206 11.7061 5.07599 12.5052 5.30317C14.4139 3.97661 15.2525 4.25218 15.2525 4.25218C15.7968 5.66448 15.4544 6.70731 15.3505 6.96556C15.9917 7.6836 16.3797 8.59825 16.3797 9.71766C16.3797 13.6557 14.0403 14.5228 11.8135 14.7767C12.1722 15.0949 12.4918 15.7188 12.4918 16.6754C12.4918 18.0473 12.4802 19.1514 12.4802 19.4891C12.4802 19.762 12.6602 20.0817 13.1671 19.981C17.1383 18.6237 20 14.7818 20 10.2532C20 4.5904 15.5227 0 10.0001 0Z' fill='rgba(9, 10, 58, 0.6)'/%3E%3C/svg%3E%0A");
+  --buf-blue-github-icon: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10.0001 0C4.47791 0 0 4.5904 0 10.2532C0 14.7833 2.86533 18.6266 6.83867 19.9824C7.33844 20.0773 7.52192 19.76 7.52192 19.4891C7.52192 19.2446 7.51265 18.437 7.50834 17.5802C4.72631 18.2005 4.13927 16.3705 4.13927 16.3705C3.68437 15.1854 3.02894 14.8702 3.02894 14.8702C2.12163 14.2339 3.09733 14.2469 3.09733 14.2469C4.10151 14.3193 4.63026 15.3035 4.63026 15.3035C5.52217 16.871 6.96965 16.4178 7.5403 16.1559C7.63006 15.4932 7.88922 15.0409 8.1752 14.7848C5.95405 14.5256 3.61913 13.6464 3.61913 9.71766C3.61913 8.59825 4.00977 7.6836 4.64947 6.96556C4.54564 6.70731 4.20335 5.66448 4.74635 4.25218C4.74635 4.25218 5.58609 3.97661 7.49708 5.30317C8.29476 5.07599 9.15024 4.96206 10.0001 4.95816C10.8499 4.96206 11.7061 5.07599 12.5052 5.30317C14.4139 3.97661 15.2525 4.25218 15.2525 4.25218C15.7968 5.66448 15.4544 6.70731 15.3505 6.96556C15.9917 7.6836 16.3797 8.59825 16.3797 9.71766C16.3797 13.6557 14.0403 14.5228 11.8135 14.7767C12.1722 15.0949 12.4918 15.7188 12.4918 16.6754C12.4918 18.0473 12.4802 19.1514 12.4802 19.4891C12.4802 19.762 12.6602 20.0817 13.1671 19.981C17.1383 18.6237 20 14.7818 20 10.2532C20 4.5904 15.5227 0 10.0001 0Z' fill='%23191E8C'/%3E%3C/svg%3E%0A");
+
+  --buf-white-00: #ffffff;
+  --buf-white-01: #FAFAFA;
+
+  --buf-grey-01: #ebebeb;
+  --buf-grey-02: #b7b7b7;
+  --buf-grey-03: #909090;
+  --buf-grey-04: #5e5e5e;
+
+  --buf-ink-blue-00: #f8f8ff;
+  --buf-ink-blue-01: #e6e6fc;
+  --buf-ink-blue-02: #161ede;
+  --buf-ink-blue-03: #090a3a;
+  --buf-ink-blue-04: #6f6fbd;
+
+  --buf-marine-blue-01: #EFF9FC;
+  --buf-marine-blue-05: #648B99;
+
+  --buf-ink-blue-01-hover: #F0F0FF;
+  --buf-ink-blue-01-active: #CBCBF3;
+  --buf-ink-blue-01-disabled: #E6E6FC;
+  --buf-ink-blue-02-hover: #4C5CE8;
+  --buf-ink-blue-02-active: #181FC2;
+  --buf-ink-blue-02-disabled: #A2A5F2;
+  --buf-ink-blue-03-hover: #191E8C;
+  --buf-ink-blue-03-active: #11146B;
+  --buf-ink-blue-03-disabled: #090A3A;
+
+  /* Fonts */
+  --ifm-font-family-base: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --ifm-font-family-monospace: ui-monospace, "SFMono-Regular", Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  --ifm-heading-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --buf-mono-font: "DM Mono", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+  --buf-sans-font: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+
+  /* Reduce border radius of the large pagination buttons at the bottom */
+  --ifm-pagination-nav-border-radius: 2px;
+
+  /* Custom chevron for the left hand sidebar */
+  --ifm-menu-link-sublist-icon: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g transform="matrix(0.88,0,0,0.88,1.3,1.3)"><path d="M11.505,8.838L11.071,9.271L8,6.2L4.929,9.271L4.496,8.837L8,5.333L11.505,8.838Z" style="fill:rgb(9,10,58);"/></g></svg>');
+
+  /* Increase navbar height. We set the variable here because it is used in multiple
+       places in the layout, not just in the Navbar component we override. */
+  --ifm-navbar-height: 70px;
+
+  /* If we upgrade docusaurus from 2.0.0-beta.3, and yellow blockquotes introduced
+    in 2.0.0-beta.4 are still present, we can use the styles blow to change them to a
+    more sensible gray:
+    --ifm-blockquote-background-color: transparent;
+    --ifm-blockquote-border-color: #dadde1;
+    --ifm-blockquote-border-left-width: 6px;
+    --ifm-blockquote-shadow: none;
+    --ifm-blockquote-foreground-color: #6a737d;
+     */
+
+  /* Admonition colors (derived from https://github.com/favoloso/remarkable-admonitions/blob/master/styles/docusaurus-admonitions.css) */
+  --ifm-color-success: rgba(46, 204, 113, 0.1);
+  --ifm-color-info: rgba(52, 152, 219, 0.1);
+  --ifm-color-danger: rgba(231, 76, 60, 0.1);
+  --ifm-color-warning: rgba(230, 126, 34, 0.1);
+
+  /* Syntax widget */
+  --syntax-color-constant: var(--ifm-color-gray);
+  --syntax-color-variable: var(--ifm-color-primary);
+  --syntax-color-default: var(--ifm-color-orange);
+}
+
+/* Infima v0.2.0-alpha.26 does not apply it's heading font family variable to
+   headings, so we do */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--ifm-heading-font-family);
+}
+
+/* Slightly increase the font size of the right-hand sidebar. "Swizzling"
+   does not work here without duplicating the entire original source, so
+   we aim for the class name. */
+.table-of-contents {
+  font-size: 0.85rem;
+}
+
+/**
+ * Styles the highlighted lines in code blocks, for example:
+ *
+ * ```yaml title=buf.yaml {2}
+ * foo:
+ *   bar
+ * ```
+ * Would highlight line 2.
+ */
+.docusaurus-highlight-code-line {
+  background-color: rgba(0, 0, 32, 0.05);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+}
+html[data-theme="dark"] .docusaurus-highlight-code-line {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+:root {
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 32, 0.05);
+}
+
+/* If you have a different syntax highlighting theme for dark mode. */
+[data-theme="dark"] {
+  /* Color which works with dark mode syntax highlighting theme */
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+figure {
+  text-align: center;
+}
+
+figcaption {
+  font-weight: 100;
+  font-size: 1.2rem;
+  text-align: right;
+}
+
+/* Admonition blocks */
+.admonition {
+  color: var(--ifm-font-color-base);
+}
+
+.admonition .prism-code {
+  border: 1px solid var(--ifm-color-gray);
+}
+
+.admonition.admonition-success,
+.admonition.admonition-tip {
+  border: 2px solid rgb(0, 200, 83);
+}
+
+.admonition.admonition-info {
+  border: 2px solid #3498db;
+}
+
+.admonition.admonition-note {
+  border: 2px solid #9ca3af;
+  background-color: #f3f4f6;
+}
+
+.admonition.admonition-danger {
+  border: 2px solid #e74c3c;
+}
+
+.admonition.admonition-warning {
+  border: 2px solid #e67e22;
+}
+
+.admonition-heading {
+  text-transform: none;
+}
+
+.admonition ul,
+.admonition pre {
+  margin: 0;
+}
+
+.admonition a {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.admonition a:hover {
+  text-decoration: underline;
+}
+
+/* Markdown blockquotes */
+blockquote {
+  color: rgb(0, 0, 0);
+  background-color: rgb(246, 248, 250);
+  border-left: 4px solid var(--ifm-color-primary);
+}
+
+/**
+ * Some overrides for docusaurus defaults.
+ **/
+
+.dropdown > .navbar__link:after {
+  content: none;
+}
+
+.menu__list-item--collapsed .menu__link--sublist:after, .menu__list-item--collapsed .menu__caret:before {
+  transform: rotateZ(0deg);
+}
+
+.navbar-sidebar .menu__link {
+  color: var(--buf-ink-blue-03);
+}
+
+.navbar__inner .dropdown__menu {
+  top: calc(100% - var(--ifm-navbar-item-padding-vertical));
+  padding: 26px 29px;
+  min-width: 16rem;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08), 0px 8px 20px rgba(0, 0, 0, 0.03);
+  border-radius: 2px;
+  left: 50%;
+}
+
+.navbar__inner .dropdown--hoverable .dropdown__menu {
+  transform: translate(-50%, -20px);
+}
+
+.navbar__inner .dropdown--hoverable:hover .dropdown__menu {
+  transform: translate(-50%, 0);
+}
+
+.navbar__inner .dropdown__menu .dropdown__link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-transform: none;
+  margin-top: 0px;
+  padding: 9px 0;
+}
+
+.navbar__inner .dropdown__menu .dropdown__link:not([disabled]):hover {
+  background-color: transparent;
+  color: var(--ifm-color-primary);
+}
+
+.menu__link[disabled],
+.navbar__inner .dropdown__menu .dropdown__link[disabled] {
+  color: var(--buf-grey-03);
+}
+
+.menu__link[disabled]:hover,
+.navbar__inner .dropdown__menu .dropdown__link[disabled]:hover {
+  background-color: transparent;
+}
+
+.menu__link > .pill,
+.dropdown__link > .pill {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px 6px 0px;
+  background: var(--buf-grey-01);
+  border-radius: 2px;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  height: 20px;
+}
+
+.dropdown__menu > li + li:before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 1px;
+  background-color: #dbdcec;
+}
+
+/* Convert mobile nav to slide down */
+.navbar-sidebar {
+  transform: translate3d(0, -100%, 0);
+  bottom: unset;
+}
+
+.navbar-sidebar .menu__list .menu__list {
+  margin-top: 0;
+  padding-left: 0;
+}
+
+.navbar-sidebar .menu__list-item:not(:first-child) {
+  margin-top: 0;
+}
+
+.navbar-sidebar ul.menu__list > li > a {
+  text-transform: uppercase;
+  font-family: var(--buf-mono-font);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 28px;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-sidebar ul.menu__list > li:not(:last-child) > *:not(.menu__list)::after,
+.navbar-sidebar ul.menu__list > li > ul.menu__list > li > a::after {
+  all: unset;
+  transform: none !important;
+  content: "";
+  border-bottom: 1px solid var(--buf-grey-01);
+  position: absolute;
+  width: calc(100% - (var(--ifm-menu-link-padding-horizontal) * 2));
+  bottom: 0;
+}
+
+/* .navbar-sidebar ul.menu__list > li > .menu__link--active::after {
+  border-color: var(--buf-ink-blue-02) !important;
+} */
+
+.navbar-sidebar .menu__list-item:not(.menu__list-item--collapsed) > .menu__link.menu__link--sublist,
+.navbar-sidebar .menu__list-item > .menu__list {
+  background-color: var(--buf-ink-blue-00);
+  border-bottom: 1px solid var(--buf-grey-01);
+}
+
+
+.navbar-sidebar .menu__list-item > ul > li > a {
+  text-transform: none;
+  font-size: 1rem;
+}
+
+.navbar-sidebar .menu__link--active:not(.menu__link--sublist),
+.navbar-sidebar .menu__link:hover,
+.navbar-sidebar .menu__list-item.menu__list-item--collapsed:hover {
+  background: transparent;
+}
+
+.navbar-sidebar .navbar-sidebar__backdrop {
+  background: rgba(9, 10, 58, 0.15);
+}
+
+.navbar-sidebar .navbar-sidebar__back {
+  color: var(--buf-ink-blue-02);
+  background: transparent;
+  border-bottom: 1px solid var(--buf-grey-01);
+  padding-bottom: 1.25rem;
+}
+
+
+.navbar-sidebar .menu__link:hover:not([disabled]) {
+  color: var(--buf-ink-blue-02);
+}
+
+.navbar-sidebar .menu__link.menu__link--sublist {
+  cursor: pointer;
+}
+
+.theme-doc-sidebar-container {
+  font-size: 0.875rem;
+}
+
+.theme-doc-breadcrumbs {
+  display: none;
+}
+
+.navbar__items:not(.navbar__items--right) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.navbar__items--right {
+  display: none;
+}
+
+.table-of-contents {
+  font-size: 0.85rem;
+}
+
+.menu__list .menu__link--active {
+  color: inherit;
+}
+
+.navbar-sidebar__item.menu {
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar__brand {
+  height: 50px;
+}
+
+.navbar__brand > .navbar__logo {
+  height: 100%;
+}
+
+.navbar-sidebar__items > .navbar-sidebar__item:nth-of-type(2) .menu__list > li > a {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  text-transform: none;
+  min-height: 54px;
+  color: var(--buf-ink-blue-03);
+  padding-left: 1rem;
+}
+
+.navbar-sidebar__items > .navbar-sidebar__item:nth-of-type(2) {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.navbar-sidebar__items > .navbar-sidebar__item:nth-of-type(2) .menu__list-item-collapsible > a {
+  min-height: 54px;
+  padding-left: 1rem;
+  padding-right: 26px;
+}
+
+.navbar-sidebar__items > .navbar-sidebar__item:nth-of-type(2) .menu__list-item-collapsible:hover {
+  background: none;
+}
+
+.navbar-sidebar__items > .navbar-sidebar__item:nth-of-type(2) .menu__link:hover:not([disabled]) {
+  color: var(--buf-ink-blue-03);
+}
+
+.navbar-sidebar__items > .navbar-sidebar__item:nth-of-type(2) ul.menu__list > li:not(:last-child) > .menu__list-item-collapsible::after {
+  width: 100vw;
+}
+
+.navbar-sidebar__items > .navbar-sidebar__item:nth-of-type(2) ul.menu__list > li > ul.menu__list > li > a::after {
+  width: calc(100% - 2rem);
+}
+
+@media (min-width: 997px) {
+  .mobile-only {
+    display: none;
+  }
+}
+
+@media (max-width: 996px) {
+  .navbar-sidebar {
+    max-height: 100vh;
+  }
+
+  .navbar-sidebar__items {
+    height: calc(100vh - var(--ifm-navbar-height));
+  }
+
+  .navbar-sidebar__item.menu > .menu__list {
+    overflow: auto;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+  .navbar__inner > .navbar__items:not(.navbar__items--right) {
+    flex-direction: row-reverse;
+  }
+  .navbar__toggle {
+    border: 1px solid var(--buf-grey-01);
+    border-radius: 2px;
+    font-size: 1rem;
+    gap: .5rem;
+    line-height: 20px;
+    margin: 0;
+    padding: 9px 1rem;
+    align-items: center;
+    font-family: var(--buf-mono-font);
+    display: flex;
+    text-transform: uppercase;
+  }
+}
