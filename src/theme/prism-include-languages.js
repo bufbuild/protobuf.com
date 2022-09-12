@@ -19,7 +19,7 @@ export default function prismIncludeLanguages(PrismObject) {
   // Go-style EBNF (https://pkg.go.dev/golang.org/x/exp/ebnf)
   // is a little different than EBNF that Prism supports.
   PrismObject.languages.ebnf.string.pattern = /"[^"\r\n]*"|`[^`\r\n]*`/; // support back-tick string, not single-quote
-  PrismObject.languages.ebnf.operator.pattern = /[-=…|*/!]/; // … is a range operator
-
+  PrismObject.languages.ebnf.operator.pattern = /[-=…|*/!.]/; // '…' is a range operator; '.' is end of rule
+  PrismObject.languages.ebnf.definition.pattern = /(?:^|\.)([\t ]*)[a-z]\w*(?:[ \t]+[a-z]\w*)*(?=\s*=)/im
   delete globalThis.Prism;
 }
