@@ -1284,8 +1284,8 @@ enclosing message, other than the fact that their fully-qualified name includes 
 of the enclosing message.
 
 A top-level message is considered to be at a nesting depth of 1. Its children are at a
-nesting depth of 2, and so on. The nesting depth must be _less than_ 32. So it is an error
-to have a message with a nesting depth of 32 or higher.
+nesting depth of 2, and so on. It is an error to have a message with a nesting depth of
+32 or higher.
 
 ### Fields
 
