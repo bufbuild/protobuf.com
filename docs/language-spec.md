@@ -286,6 +286,11 @@ hex_digits      = hex_digit { hex_digit } .
 0x0f6db2
 ```
 
+Note that octal and hexadecimal integer literals must be _less
+than_ 2<sup>64</sup> (0x10000000000000000 in hex; 02000000000000000000000 in octal). If they
+are beyond this limit, they are invalid numeric literals. If a decimal literal is beyond this
+limit (>= 18,446,744,073,709,551,616), it is treated as if it were a `float_literal`.
+
 Below is the rule for `float_literal`, which supports scientific notation for extremely
 large and small values:
 ```ebnf
@@ -499,6 +504,10 @@ being the outermost namespace, then `bar`, and finally `baz`.
 So all the elements in two files, with packages `foo.bar.baz`
 and `foo.bar.buzz` for example, reside in the `foo` and `foo.bar`
 namespaces.
+
+A full package name, with any whitespace removed, must be less than
+512 characters long. It also must contain no more than 100 dots (i.e.
+101 components or fewer).
 
 ### Imports
 
@@ -1137,10 +1146,9 @@ single:1 repeated:["a", "b", "c", "d", "e", "f"]
 ```
 
 Field names may refer to normal fields. But if the name is enclosed in brackets (`[` and `]`)
-then it refers to an extension field. For extension fields, the extension's fully-qualified
-name must be used (but no leading dot is allowed). Importantly, relative references to extensions
-are not allowed inside the text format. So even if the named extension is in the same package
-where the option value is defined, the name must be fully qualified.
+then it refers to an extension field. For extension fields, the reference is not allowed to
+include a leading dot (indicating it is already fully-qualified). Extension names in the text
+format are resolved in the same fashion as other [relative references](#relative-references).
 
 List literals are only valid inside the text format, which means they can be used in option
 values only inside a message literal. So, for repeated options that are not nested inside a
@@ -1274,6 +1282,10 @@ In addition to being a composite data type, messages are also a level of namespa
 Nested messages, enums, and extensions declared inside a message have no relation to the
 enclosing message, other than the fact that their fully-qualified name includes the name
 of the enclosing message.
+
+A top-level message is considered to be at a nesting depth of 1. Its children are at a
+nesting depth of 2, and so on. It is an error to have a message with a nesting depth of
+32 or higher.
 
 ### Fields
 
