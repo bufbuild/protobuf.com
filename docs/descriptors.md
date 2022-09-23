@@ -1818,11 +1818,18 @@ When a new token is identified, the lexer performs the following steps:
 2. _Store the transformed array_. Overwrite the array of comments for the token
    with the newly computed array of groups.
 
-3. _Optionally donate the first comment to the previous token_. If this is the first
-   token identified by the lexer _or_ if the current token and the previous token are
-   on the same line, this step is skipped. The first comment in the array should be
-   attributed as a trailing comment for the previous token if all the following
-   criteria are met:
+3. _Discard comments if they cannot be attributed_. If both the previous and current
+   token are on the same line, it is ambiguous to which token any comments between
+   should be attributed. So they are attributed to neither and ignored.
+
+   Similarly, if there is one comment between the tokens which starts on the same
+   line as the previous token and ends on the same line as the current token, it is
+   unclear to which token it should be attributed, so it is ignored.
+
+4. _Optionally donate the first comment to the previous token_. If this is the first
+   token identified by the lexer, thre is no previous token, so this step is skipped.
+   The first comment in the array should be attributed as a trailing comment for the
+   previous token if all the following criteria are met:
 
    * The first comment starts on the same line as the previous token or the line
      immediately after it. In other words, the start line of the first comment minus
@@ -1834,7 +1841,7 @@ When a new token is identified, the lexer performs the following steps:
        In other words, the line of the current token minus the end line of the first
        comment is greater than one.
      * The new token is a [punctuation or operator token](./language-spec.md#punctuation-and-operators)
-       other than a dot (`.`).
+       that closes a scope or grouping: one of `)`, `]`, or `}`.
 
    "Donating" the comment means removing it from the current token's array of
    comments and storing it as the trailing comment for the previous token.
@@ -1851,12 +1858,7 @@ When a new token is identified, the lexer performs the following steps:
    leading comment on the [_r_brace_](./language-spec.md#punctuation-and-operators)
    token (`}`). We instead want to attribute the comment as a trailing comment on the
    _l_brace_ token (`{`) so it can be considered a trailing comment for the message
-   `Foo`. (See [above](#trailing-comments-for-block-elements) for why.) Punctuation is
-   generally "ceremony" in the syntax, and a nearby comment is certainly intended for
-   a more meaningful lexical element (like an identifier).
-
-   The dot token (`.`) is different since it is used as the first token in a type name,
-   and a type name is a meaningful lexical element.
+   `Foo`. (See [above](#trailing-comments-for-block-elements) for why.)
 
 At the end of this process, the lexer's "previous token" can be updated to be the
 current token, for use in this process when the subsequent token is found.
