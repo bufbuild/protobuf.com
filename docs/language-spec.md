@@ -970,7 +970,7 @@ the table above) as the context message. For each name component, we do the
 following:
 
 * The current name component must be a field defined on the context message.
-  If the name is parenthesized, it refers to a custom option, which must ba an
+  If the name is parenthesized, it refers to a custom option, which must be an
   extension field on the context message. If the context message has no such
   field or extension, the option name is not valid.
 * If there are no more name components, the option name has been successfully
