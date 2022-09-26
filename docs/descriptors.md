@@ -1827,7 +1827,7 @@ When a new token is identified, the lexer performs the following steps:
    unclear to which token it should be attributed, so it is ignored.
 
 4. _Optionally donate the first comment to the previous token_. If this is the first
-   token identified by the lexer, thre is no previous token, so this step is skipped.
+   token identified by the lexer, there is no previous token, so this step is skipped.
    The first comment in the array should be attributed as a trailing comment for the
    previous token if all the following criteria are met:
 
