@@ -340,7 +340,7 @@ double_quoted_string_literal = `"` { !("\n" | "\x00" | `"` | `\`) | rune_escape_
 
 rune_escape_seq    = simple_escape_seq | hex_escape_seq | octal_escape_seq | unicode_escape_seq .
 simple_escape_seq  = `\` ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | `\` | "'" | `"` | "?" ) .
-hex_escape_seq     = `\` "x" hex_digit hex_digit .
+hex_escape_seq     = `\` ( "x" | "X" ) hex_digit [ hex_digit ] .
 octal_escape_seq   = `\` octal_digit [ octal_digit [ octal_digit ] ] .
 unicode_escape_seq = `\` "u" hex_digit hex_digit hex_digit hex_digit |
                      `\` "U" hex_digit hex_digit hex_digit hex_digit
@@ -353,6 +353,7 @@ unicode_escape_seq = `\` "u" hex_digit hex_digit hex_digit hex_digit |
 "A string with \"nested quotes\" in it"
 'Another with \'nested quotes\' inside'
 "Some whitespace:\n\r\t\v"
+'Hex escaped bytes: \x01\x2\X03\X4'
 'A string with a literal back-slash \\ in it'
 "A string that has a NULL character in hex: \x00"
 "Another with a NULL in octal: \00"
