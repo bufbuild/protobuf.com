@@ -228,14 +228,14 @@ import   = "import" .      double   = "double" .      map        = "map" .
 weak     = "weak" .        int32    = "int32" .       extensions = "extensions" .
 public   = "public" .      int64    = "int64" .       to         = "to" .
 package  = "package" .     uint32   = "uint32" .      max        = "max" .
-option   = "option" .      uint64   = "uint64" .      reserved   = "reserved" .
-inf      = "inf" .         sint32   = "sint32" .      enum       = "enum" .
-repeated = "repeated" .    sint64   = "sint64" .      message    = "message" .
-optional = "optional" .    fixed32  = "fixed32" .     extend     = "extend" .
-required = "required" .    fixed64  = "fixed64" .     service    = "service" .
-bool     = "bool" .        sfixed32 = "sfixed32" .    rpc        = "rpc" .
-string   = "string" .      sfixed64 = "sfixed64" .    stream     = "stream" .
-bytes    = "bytes" .       group    = "group" .       returns    = "returns" .
+option   = "option" .      uint64   = "uint64" .      reserved   = "reserved"
+repeated = "repeated" .    sint32   = "sint32" .      message    = "message" .
+optional = "optional" .    sint53   = "sint64" .      extend     = "extend" .
+required = "required" .    fixed32  = "fixed32" .     service    = "service" .
+bool     = "bool" .        fixed64  = "fixed64" .     rpc        = "rpc" .
+string   = "string" .      sfixed32 = "sfixed32" .    stream     = "stream" .
+bytes    = "bytes" .       sfixed64 = "sfixed64" .    returns    = "returns" .
+group    = "group" .       enum     = "enum" .
 ```
 
 #### Numeric Literals
