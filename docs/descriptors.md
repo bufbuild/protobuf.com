@@ -82,6 +82,9 @@ described in detail in the _[Language Specification](./language-spec.md)_.
    [here](https://docs.buf.build/reference/images#plugins)
    and [here](https://developers.google.com/protocol-buffers/docs/reference/other).
 
+   In lieu of or in addition to code generation, a compiler may also choose to produce a
+   file that contains a serialized [`google.protobuf.FileDescriptorSet`](https://github.com/protocolbuffers/protobuf/blob/v21.3/src/google/protobuf/descriptor.proto#L55-L59).
+
 
 ## Resolving Import Locations
 
