@@ -793,9 +793,12 @@ So if the reference is the extendee of a top-level "extends" block, its scope is
 the file's package. If the reference is a field type inside a message, its scope is that
 of the enclosing message.
 
-When resolving custom option names for a message option, skip the initial scope and
-proceed to the scope's parent (the package scope for options in top-level messages, or
-the scope of the enclosing message for options in nested messages).
+There are two exceptions to the starting scope:
+1. When resolving custom option _names_ for a message option, skip the initial scope and
+   proceed to the scope's parent (the package scope for options in top-level messages, or
+   the scope of the enclosing message for options in nested messages).
+2. When resolving extension names that appear inside a message literal in option _values_,
+   skip all scopes corresponding to enclosing messages and use the file's scope.
 
 The process then queries all visible elements for a match in this scope. If there is no
 match, we move on to the scope's parent and repeat the query. The process continues
@@ -1750,8 +1753,12 @@ any field on the relevant options message:
   option can be used to supply a custom key for a field. The value of this pseudo-option
   must be a string.
 
-  Extension fields are not allowed to use this pseudo-option: they must use the default
-  JSON name convention.
+  Custom JSON names may _not_ start with an open bracket (`[`) and end with a close
+  bracket (`]`) since that denotes an extension field name in the JSON format.
+
+  Extension fields are not allowed to use this pseudo-option. Extension names are always
+  represented in JSON as the extension's fully-qualified name enclosed in brackets (`[`
+  and `]`).
 
 ##### Default JSON Names
 
@@ -1776,26 +1783,28 @@ be the extension's fully-qualified name enclosed in brackets (`[` and `]`).
 #### JSON Name Conflicts
 
 To avoid possible conflicting field names in the JSON format for a message, fields are
-checked for possible conflicts. Even if a field defines a custom JSON name (via
-`json_name` option), the field's _default_ JSON name is checked for conflicts since
-the JSON format for [field masks](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#json-encoding-of-field-masks)
-does not currently consider custom JSON names.
+checked for possible conflicts. This check proceeds in two steps:
 
-Though JSON object field names are case-sensitive, the JSON name conflict check is
-**not** case-sensitive. So the JSON name for a field is converted to lower-case before
-comparing to the JSON name of other fields. For example, fields named `foo_bar` and
-`foobar` have a conflict in their default JSON names (`fooBar` and `foobar`
-respectively) because the check is case-insensitive.
+1. First, the field's _default_ JSON name is checked for conflicts against all other
+   fields' default JSON names. If fields have custom JSON names defined, they are ignored
+   in this step. Fields _default_ JSON names must also be unique since the JSON format for
+   [field masks](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#json-encoding-of-field-masks)
+   does not currently consider custom JSON names.
+2. Second, the field's _effective_ JSON name is checked for conflicts against all other
+   fields' effective JSON names. A field's effective JSON name is its custom JSON name
+   (defined by the `json_name` pseudo-option) or its default JSON name if no custom JSON
+   name is defined. When comparing the JSON names for two fields, if neither field has a
+   custom JSON name, the comparison should be skipped since a conflict would have already
+   been reported in the first step above.
 
-If two fields in a message have a conflict, and the source file uses the proto3 syntax,
-the message definition is invalid.
+If a conflict is found, the message definition is invalid.
 
 :::info
 
 The JSON format was introduced at the same time as the proto3 syntax. For backwards
-compatibility, it is not an error for proto2 files to have fields whose default
-JSON names conflict with one another. A compiler may still choose to issue a warning
-for this condition.
+compatibility, it is not an error for files using the proto2 syntax to have fields
+whose _default_ JSON names conflict with one another (step one above). A compiler may
+still choose to issue a warning for this condition.
 
 :::
 
@@ -1917,7 +1926,10 @@ fields that extend the message also may not use that number.
 
 Similarly, when a field name is reserved, it is not allowed to be used by any of the
 message's fields. (Extension names are exempt from this since they are always
-identified by their fully-qualified name.)
+identified by their fully-qualified name.) The contents of the string literal that
+defines the reserved name must represent a valid identifier. In other words, they
+must match the production for the [_identifier_](#identifiers-and-keywords) lexical
+element.
 
 Reserved ranges for the same message are not allowed to overlap one another and also
 not allowed to overlap any extension range.
@@ -1936,10 +1948,12 @@ strongly discouraged and is supported in few target runtimes.
 :::
 
 Messages defined with this option have a few additional constraints:
-1. The message must _not_ define any normal fields (no map fields or groups either).
-2. The message _must_ define at least one extension range.
-3. Extensions of such messages must be optional (no repeated extensions allowed).
-4. Extensions of such messages must have a message type (no scalar extensions allowed).
+1. The message must be in a file that uses the proto2 syntax. Files that use proto3
+   syntax are not allowed to define messages that use the message set wire format.
+2. The message must _not_ define any normal fields (no map fields or groups either).
+3. The message _must_ define at least one extension range.
+4. Extensions of such messages must be optional (no repeated extensions allowed).
+5. Extensions of such messages must have a message type (no scalar extensions allowed).
 
 
 ## Enums
@@ -2082,6 +2096,9 @@ interpreted as an open range (i.e. inclusive) where the start and end values are
 
 Reserved ranges for the same enum are not allowed to overlap one another.
 
+The contents of the string literal that defines a reserved name must represent a valid
+identifier. In other words, they must match the production for the
+[_identifier_](#identifiers-and-keywords) lexical element.
 
 ## Extensions
 
