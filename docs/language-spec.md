@@ -1226,7 +1226,7 @@ message MyOptionData {
 message MyMessage {
     // highlight-start
     option (extra) = {
-        [googleapis.com/foo.bar.MyOptionData]: {
+        [type.googleapis.com/foo.bar.MyOptionData]: {
             name: "foobar"
             id: 42
         }
@@ -1235,9 +1235,22 @@ message MyMessage {
 }
 ```
 
-With this syntax, the message type indicated in the type URL must be visible
-to the file (e.g. it must be declared in the file or in an imported file).
+The reference compiler, `protoc`, only supports this syntax when the domain
+in the URL is "type.googleapis.com" or "type.googleprod.com". The definition
+of the named message is resolved the same way as if a field type referred to
+the message. Therefore, the message type indicated in the type URL *must be
+[visible](#visibility) to the file*.
 
+:::note
+The compiler does _not_ make an HTTP request for the given URL to resolve the details
+of the type. Instead, it relies on available sources that are included in the compilation
+operation.
+
+Alternate compilers could support URLs with domains other than "type.googleapis.com" and
+"type.googleprod.com". However, such support is hampered by the fact that the grammar
+does not currently support additional path components in the type URL and does not even
+support the full range of allowed characters in a URL path component.
+:::
 
 ## Messages
 
