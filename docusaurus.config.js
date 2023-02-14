@@ -46,11 +46,17 @@ const config = {
         theme: {
           customCss: require.resolve("./src/css/custom.css")
         },
-        gtag: {
-          trackingID: process.env.GOOGLE_ANALYTICS_GTAG,
-          anonymizeIP: true,
-        },
       })
+    ]
+  ],
+
+  plugins: [
+    [
+      "@docusaurus/plugin-google-gtag",
+      {
+        trackingID: process.env.GOOGLE_ANALYTICS_GTAG,
+        anonymizeIP: true
+      }
     ]
   ],
 
