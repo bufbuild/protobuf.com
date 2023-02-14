@@ -2,6 +2,7 @@
 // Note: type annotations allow type checking and IDEs autocompletion
 
 const lightCodeTheme = require("prism-react-renderer/themes/github");
+const gaTrackingID = process.env.GOOGLE_ANALYTICS_GTAG ?? "";
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -48,6 +49,14 @@ const config = {
         }
       })
     ]
+  ],
+
+  plugins: [
+    (gaTrackingID !== "") ?
+      ["@docusaurus/plugin-google-gtag",{
+        trackingID: gaTrackingID,
+        anonymizeIP: true,
+      }]:null
   ],
 
   themeConfig:
