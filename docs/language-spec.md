@@ -1177,7 +1177,7 @@ named field:
 | `float`, `double`                                            | _FloatLiteral_, _UintLiteral_, _IntLiteral_, _identifier_ ‡ |
 | `bool`                                                       | _identifier_ §                                              |
 | `string`, `bytes`                                            | _StringLiteral_                                             |
-| An enum type                                                 | _identifier_                                                |
+| An enum type                                                 | _identifier_, _UintLiteral_ ¶, _IntLiteral_ ¶               |
 | A message type                                               | _MessageLiteral_                                            |
 
 __*__ Integer field types can only use _UintLiteral_ and _IntLiteral_ values if the
@@ -1195,6 +1195,12 @@ __§__ Boolean field types can only use identifiers `true`, `false`, `True`, `Fa
 `T`, and `F` as values. Note that all of these may be used inside the text format, in a
 message literal. But for non-message options (e.g. option values _outside_ the text format),
 only `true` and `false` can be used.
+
+__¶__ Enum fields may only use numeric values inside a message literal. If the enum type
+is _open_ (defined in a file using proto3 syntax) then any value is allowed as long as
+it is in the range for 32-bit integers: [-2<sup>31</sup>,2<sup>31</sup>). If the enum type
+is _closed_ (defined in a file using proto2 syntax) then the numeric value must match one
+of the enum's known named values.
 
 #### Any Messages
 
@@ -1992,6 +1998,15 @@ enum JobState {
   FAILED = 4;
 }
 ```
+
+Enums defined inside files using the proto3 syntax are considered **open**. That means
+that other numeric values, outside the set of named enum values, are acceptable. Enums
+in files using the proto2 syntax, on the other hand, are **closed**. This means that
+unrecognized numeric values are not acceptable. When unmarshaling the value for a closed
+enum field, if the value is not recognized, it is treated as if it were unrecognized
+field. In other words, the enum field will remain absent, and the unrecognized value
+(along with the tag number preface) will be stored with the message's unrecognized
+fields.
 
 ### Enum Values
 
