@@ -1672,7 +1672,7 @@ Groups are like a shorthand mechanism in proto2 for defining both a nested messa
 and a field of that message type, in a single declaration. The message definition is
 inlined into the group field declaration.
 ```ebnf
-GroupDecl = [ FieldCardinality ] group FieldName equals FieldNumber
+GroupDecl = FieldCardinality group FieldName equals FieldNumber
             [ CompactOptions ] l_brace { MessageElement } r_brace .
 ```
 
