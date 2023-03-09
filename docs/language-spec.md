@@ -1664,8 +1664,7 @@ message MyMessage {
 
 :::info
 
-Groups cannot be used in files that use the proto3 syntax. Field Cardinality is 
-required in the proto2 syntax.
+Groups cannot be used in files that use the proto3 syntax.
 
 :::
 
