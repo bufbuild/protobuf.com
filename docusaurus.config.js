@@ -77,7 +77,7 @@ const config = {
       footer: {
         style: "dark",
         links: [],
-        copyright: `Copyright © ${
+        copyright: `Copyright ® ${
           new Date().getFullYear() != 2022 ? "2022&ndash;" : ""
         }${new Date().getFullYear()} Buf Technologies, Inc.`
       },
