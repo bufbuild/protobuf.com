@@ -46,7 +46,41 @@ ImportedFileName -> StringLiteral
 
 TypeName -> ".":? QualifiedIdentifier
 
-QualifiedIdentifier -> %identifier ( "." %identifier ):*
+QualifiedIdentifier -> Identifier ( "." Identifier ):*
+
+FieldDeclTypeName -> FieldDeclIdentifier ( "." QualifiedIdentifier ):? |
+                     FullyQualifiedIdentifier
+
+MessageFieldDeclTypeName -> MessageFieldDeclIdentifier ( "." QualifiedIdentifier ):? |
+                            FullyQualifiedIdentifier
+
+ExtensionFieldDeclTypeName -> ExtensionFieldDeclIdentifier ( "." QualifiedIdentifier ):? |
+                              FullyQualifiedIdentifier
+
+OneofFieldDeclTypeName -> OneofFieldDeclIdentifier ( "." QualifiedIdentifier ):? |
+                          FullyQualifiedIdentifier
+
+MethodDeclTypeName -> MethodDeclIdentifier ( "." QualifiedIdentifier ):? |
+                      FullyQualifiedIdentifier
+
+FieldDeclIdentifier -> %identifier | "message"    | "enum"     | "oneof"  |
+                       "reserved"  | "extensions" | "extend"   | "option" |
+                       "optional"  | "required"   | "repeated" | "stream"
+
+MessageFieldDeclIdentifier -> %identifier | "stream"
+
+ExtensionFieldDeclIdentifier -> %identifier | "message"  | "enum"       |
+                                "oneof"     | "reserved" | "extensions" |
+                                "extend"    | "option"   | "stream"
+
+OneofFieldDeclIdentifier -> %identifier | "message"    | "enum"   | "oneof" |
+                            "reserved"  | "extensions" | "extend" | "stream"
+
+MethodDeclIdentifier -> %identifier | "message"    | "enum"     | "oneof"  |
+                        "reserved"  | "extensions" | "extend"   | "option" |
+                        "optional"  | "required"   | "repeated" | "group"
+
+FullyQualifiedIdentifier -> "." QualifiedIdentifier
 
 OptionDecl -> "option" OptionName "=" OptionValue ";"
 
@@ -54,11 +88,11 @@ CompactOptions -> "[" CompactOption ( "," CompactOption ):* "]"
 
 CompactOption  -> OptionName "=" OptionValue
 
-OptionName -> ( %identifier | "(" TypeName ")" ) ( "." OptionName ):*
+OptionName -> ( Identifier | "(" TypeName ")" ) ( "." OptionName ):*
 
 OptionValue -> ScalarValue | MessageLiteralWithBraces
 
-ScalarValue  -> StringLiteral | UintLiteral | IntLiteral | FloatLiteral | %identifier
+ScalarValue  -> StringLiteral | UintLiteral | IntLiteral | FloatLiteral | Identifier
 
 UintLiteral  -> "+":? %int_literal
 
@@ -97,9 +131,9 @@ ListOfMessagesLiteral -> "[" ( MessageLiteral ( "," MessageLiteral ):* ):? "]"
 
 MessageDecl -> "message" MessageName "{" MessageElement:* "}"
 
-MessageName    -> %identifier
+MessageName    -> Identifier
 
-MessageElement -> FieldDecl |
+MessageElement -> MessageFieldDecl |
                   MapFieldDecl |
                   GroupDecl |
                   OneofDecl |
@@ -111,12 +145,16 @@ MessageElement -> FieldDecl |
                   ExtensionDecl |
                   EmptyDecl
 
-FieldDecl -> FieldCardinality:? TypeName FieldName "=" FieldNumber
-             CompactOptions:? ";"
+MessageFieldDecl -> FieldDeclWithCardinality |
+                    MessageFieldDeclTypeName FieldName "=" FieldNumber
+                       CompactOptions:? ";"
+
+FieldDeclWithCardinality -> FieldCardinality FieldDeclTypeName FieldName
+                            "=" FieldNumber CompactOptions:? ";"
 
 FieldCardinality -> "required" | "optional" | "repeated"
 
-FieldName        -> %identifier
+FieldName        -> Identifier
 
 FieldNumber      -> %int_literal
 
@@ -132,13 +170,13 @@ GroupDecl -> FieldCardinality:? "group" FieldName "=" FieldNumber
 
 OneofDecl -> "oneof" OneofName "{" OneofElement:* "}"
 
-OneofName    -> %identifier
+OneofName    -> Identifier
 
 OneofElement -> OptionDecl |
                 OneofFieldDecl |
                 OneofGroupDecl
 
-OneofFieldDecl -> TypeName FieldName "=" FieldNumber
+OneofFieldDecl -> OneofFieldDeclTypeName FieldName "=" FieldNumber
                   CompactOptions:? ";"
 
 OneofGroupDecl -> "group" FieldName "=" FieldNumber
@@ -160,7 +198,7 @@ Names -> StringLiteral ( "," StringLiteral ):*
 
 EnumDecl -> "enum" EnumName "{" EnumElement:* "}"
 
-EnumName    -> %identifier
+EnumName    -> Identifier
 
 EnumElement -> OptionDecl |
                EnumValueDecl |
@@ -169,7 +207,7 @@ EnumElement -> OptionDecl |
 
 EnumValueDecl -> EnumValueName "=" EnumValueNumber CompactOptions:? ";"
 
-EnumValueName   -> %identifier
+EnumValueName   -> Identifier
 
 EnumValueNumber -> "-":? %int_literal
 
@@ -187,12 +225,16 @@ ExtensionDecl -> "extend" ExtendedMessage "{" ExtensionElement:* "}"
 
 ExtendedMessage  -> TypeName
 
-ExtensionElement -> FieldDecl |
+ExtensionElement -> ExtensionFieldDecl |
                     GroupDecl
+
+ExtensionFieldDecl -> FieldDeclWithCardinality |
+                      ExtensionFieldDeclTypeName FieldName "=" FieldNumber
+                         CompactOptions:? ";"
 
 ServiceDecl -> "service" ServiceName "{" ServiceElement:* "}"
 
-ServiceName    -> %identifier
+ServiceName    -> Identifier
 
 ServiceElement -> OptionDecl |
                   MethodDecl |
@@ -201,7 +243,7 @@ ServiceElement -> OptionDecl |
 MethodDecl -> "rpc" MethodName InputType "returns" OutputType ";" |
               "rpc" MethodName InputType "returns" OutputType "{" MethodElement:* "}"
 
-MethodName    -> %identifier
+MethodName    -> Identifier
 
 InputType     -> MessageType
 
@@ -210,4 +252,6 @@ OutputType    -> MessageType
 MethodElement -> OptionDecl |
                 EmptyDecl
 
-MessageType -> "(" "stream":? TypeName ")"
+MessageType -> "(" "stream":? MethodDeclTypeName ")"
+
+Identifier -> %identifier | %sometimes_identifier

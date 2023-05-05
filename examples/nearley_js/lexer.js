@@ -15,7 +15,15 @@ exports.lexer = moo.compile({
     byte_order_mark: '\ufeff',
 
     // tokens
-    identifier: /[_A-Za-z][_A-Za-z0-9]*/,
+    identifier: {
+        match: /[_A-Za-z][_A-Za-z0-9]*/,
+        type: moo.keywords({
+            sometimes_identifier: [
+                "group", "message", "enum", "oneof", "reserved", "extensions",
+                "extend", "option", "optional", "required", "repeated", "stream"
+            ]
+        })
+    },
     numeric_literal: {
         match: /\.?[0-9](?:[.0-9a-dA-Df-zF-Z]|[eE][+-]?)*/,
         type: txt => {

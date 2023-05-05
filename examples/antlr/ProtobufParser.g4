@@ -33,7 +33,42 @@ importedFileName: stringLiteral;
 
 typeName: DOT? qualifiedIdentifier;
 
-qualifiedIdentifier: ident ( DOT ident )*;
+qualifiedIdentifier: identifier ( DOT identifier )*;
+
+fieldDeclTypeName: fieldDeclIdentifier ( DOT qualifiedIdentifier )? |
+                    fullyQualifiedIdentifier;
+
+messageFieldDeclTypeName: messageFieldDeclIdentifier ( DOT qualifiedIdentifier )? |
+                            fullyQualifiedIdentifier;
+
+extensionFieldDeclTypeName: extensionFieldDeclIdentifier ( DOT qualifiedIdentifier )? |
+                            fullyQualifiedIdentifier;
+
+oneofFieldDeclTypeName: oneofFieldDeclIdentifier ( DOT qualifiedIdentifier )? |
+                        fullyQualifiedIdentifier;
+
+methodDeclTypeName: methodDeclIdentifier ( DOT qualifiedIdentifier )? |
+                    fullyQualifiedIdentifier;
+
+fieldDeclIdentifier: alwaysIdent  | MESSAGE    | ENUM     | ONEOF  |
+                        RESERVED  | EXTENSIONS | EXTEND   | OPTION |
+                        OPTIONAL  | REQUIRED   | REPEATED | STREAM;
+
+messageFieldDeclIdentifier: alwaysIdent | STREAM;
+
+extensionFieldDeclIdentifier: alwaysIdent | MESSAGE  | ENUM       |
+                                ONEOF     | RESERVED | EXTENSIONS |
+                                EXTEND    | OPTION   | STREAM;
+
+oneofFieldDeclIdentifier: alwaysIdent | MESSAGE    | ENUM     | ONEOF  |
+                            RESERVED  | EXTENSIONS | EXTEND   | OPTION |
+                            OPTIONAL  | REQUIRED   | REPEATED | GROUP;
+
+methodDeclIdentifier: alwaysIdent | MESSAGE    | ENUM     | ONEOF  |
+                        RESERVED  | EXTENSIONS | EXTEND   | OPTION |
+                        OPTIONAL  | REQUIRED   | REPEATED | GROUP;
+
+fullyQualifiedIdentifier: DOT qualifiedIdentifier;
 
 optionDecl: OPTION optionName EQUALS optionValue SEMICOLON;
 
@@ -41,11 +76,11 @@ compactOptions: L_BRACKET compactOption ( COMMA compactOption )* R_BRACKET;
 
 compactOption : optionName EQUALS optionValue;
 
-optionName: ( ident | L_PAREN typeName R_PAREN ) ( DOT optionName )*;
+optionName: ( identifier | L_PAREN typeName R_PAREN ) ( DOT optionName )*;
 
 optionValue: scalarValue | messageLiteralWithBraces;
 
-scalarValue : stringLiteral | uintLiteral | intLiteral | floatLiteral | ident;
+scalarValue : stringLiteral | uintLiteral | intLiteral | floatLiteral | identifier;
 
 uintLiteral : PLUS? INT_LITERAL;
 
@@ -84,9 +119,9 @@ listOfMessagesLiteral: L_BRACKET ( messageLiteral ( COMMA messageLiteral )* )? R
 
 messageDecl: MESSAGE messageName L_BRACE messageElement* R_BRACE;
 
-messageName   : ident;
+messageName   : identifier;
 
-messageElement: fieldDecl |
+messageElement: messageFieldDecl |
                   groupDecl |
                   oneofDecl |
                   optionDecl |
@@ -98,12 +133,16 @@ messageElement: fieldDecl |
                   mapFieldDecl |
                   emptyDecl;
 
-fieldDecl: fieldCardinality? typeName fieldName EQUALS fieldNumber
-             compactOptions? SEMICOLON;
+messageFieldDecl: fieldDeclWithCardinality |
+                  messageFieldDeclTypeName fieldName EQUALS fieldNumber
+                       compactOptions? SEMICOLON;
+
+fieldDeclWithCardinality: fieldCardinality fieldDeclTypeName fieldName
+                          EQUALS fieldNumber compactOptions? SEMICOLON;
 
 fieldCardinality: REQUIRED | OPTIONAL | REPEATED;
 
-fieldName       : ident;
+fieldName       : identifier;
 
 fieldNumber     : INT_LITERAL;
 
@@ -119,13 +158,13 @@ groupDecl: fieldCardinality? GROUP fieldName EQUALS fieldNumber
 
 oneofDecl: ONEOF oneofName L_BRACE oneofElement* R_BRACE;
 
-oneofName   : ident;
+oneofName   : identifier;
 
 oneofElement: optionDecl |
                 oneofFieldDecl |
                 oneofGroupDecl;
 
-oneofFieldDecl: typeName fieldName EQUALS fieldNumber
+oneofFieldDecl: oneofFieldDeclTypeName fieldName EQUALS fieldNumber
                   compactOptions? SEMICOLON;
 
 oneofGroupDecl: GROUP fieldName EQUALS fieldNumber
@@ -147,7 +186,7 @@ names: stringLiteral ( COMMA stringLiteral )*;
 
 enumDecl: ENUM enumName L_BRACE enumElement* R_BRACE;
 
-enumName   : ident;
+enumName   : identifier;
 
 enumElement: optionDecl |
                enumValueDecl |
@@ -156,7 +195,7 @@ enumElement: optionDecl |
 
 enumValueDecl: enumValueName EQUALS enumValueNumber compactOptions? SEMICOLON;
 
-enumValueName  : ident;
+enumValueName  : identifier;
 
 enumValueNumber: MINUS? INT_LITERAL;
 
@@ -174,12 +213,16 @@ extensionDecl: EXTEND extendedMessage L_BRACE extensionElement* R_BRACE;
 
 extendedMessage : typeName;
 
-extensionElement: fieldDecl |
+extensionElement: extensionFieldDecl |
                     groupDecl;
+
+extensionFieldDecl: fieldDeclWithCardinality |
+                    extensionFieldDeclTypeName fieldName EQUALS fieldNumber
+                       compactOptions? SEMICOLON;
 
 serviceDecl: SERVICE serviceName L_BRACE serviceElement* R_BRACE;
 
-serviceName   : ident;
+serviceName   : identifier;
 
 serviceElement: optionDecl |
                   methodDecl |
@@ -188,7 +231,7 @@ serviceElement: optionDecl |
 methodDecl: RPC methodName inputType RETURNS outputType SEMICOLON |
               RPC methodName inputType RETURNS outputType L_BRACE methodElement* R_BRACE;
 
-methodName   : ident;
+methodName   : identifier;
 
 inputType    : messageType;
 
@@ -197,19 +240,17 @@ outputType   : messageType;
 methodElement: optionDecl |
                 emptyDecl;
 
-messageType: L_PAREN STREAM? typeName R_PAREN;
+messageType: L_PAREN STREAM? methodDeclTypeName R_PAREN;
 
-ident: IDENTIFIER
+identifier: alwaysIdent | sometimesIdent;
+
+alwaysIdent: IDENTIFIER
     | SYNTAX
     | IMPORT
     | WEAK
     | PUBLIC
     | PACKAGE
-    | OPTION
     | INF
-    | REPEATED
-    | OPTIONAL
-    | REQUIRED
     | BOOL
     | STRING
     | BYTES
@@ -225,17 +266,22 @@ ident: IDENTIFIER
     | FIXED64
     | SFIXED32
     | SFIXED64
-    | GROUP
-    | ONEOF
     | MAP
-    | EXTENSIONS
     | TO
     | MAX
-    | RESERVED
-    | ENUM
-    | MESSAGE
-    | EXTEND
     | SERVICE
     | RPC
-    | STREAM
     | RETURNS;
+
+sometimesIdent: MESSAGE
+    | ENUM
+    | ONEOF
+    | RESERVED
+    | EXTENSIONS
+    | EXTEND
+    | OPTION
+    | OPTIONAL
+    | REQUIRED
+    | REPEATED
+    | GROUP
+    | STREAM;
