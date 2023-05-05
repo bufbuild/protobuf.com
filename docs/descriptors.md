@@ -63,14 +63,22 @@ described in detail in the _[Language Specification](./language-spec.md)_.
    After the above steps are complete, the descriptor with interpreted options can be
    validated. Syntax errors, invalid type references, and type errors in option values
    are caught in the above steps. But there are other rules in the IDL which are most
-   easily verified at this point, after options are interpreted.
+   easily verified at this point, after options are interpreted. For example, enforcing
+   rules related to [message set wire format](./language-spec.md#message-set-wire-format)
+   requires that the `message_set_wire_format` option be interpreted.
 
 7. **Computing Source Code Info:**
    Optionally, the file descriptor's "source code info" can be computed. This is a field
    of the descriptor that includes locations of the various elements in the original
    source file and also includes comments that were in the source file.
 
-   This is described reasonably well in the comments for the
+   Source code info can also be computed while parsing, during the _syntactic analysis_
+   phase. But this can be a challenge when using many parser-generator tools. If source
+   code info is computed that early in the process, it must then be updated after options
+   are interpreted in order for the source code info of options to be represented
+   correctly.
+
+   Source code info representation is described reasonably well in the comments for the
    [`google.protobuf.SourceCodeInfo`](https://github.com/protocolbuffers/protobuf/blob/v21.3/src/google/protobuf/descriptor.proto#L766)
    message. But more details can be found below in the _[Source Code Info](#source-code-info)_
    section, especially for aspects that are not well specified in those comments.
@@ -80,7 +88,7 @@ described in detail in the _[Language Specification](./language-spec.md)_.
    the above steps to generate code for a target language and runtime. This involves the
    invocation of compiler plugins. You can read more details about this process
    [here](https://docs.buf.build/reference/images#plugins)
-   and [here](https://developers.google.com/protocol-buffers/docs/reference/other).
+   and [here](https://protobuf.dev/reference/other/#plugins).
 
    In lieu of or in addition to code generation, a compiler may also choose to produce a
    file that contains a serialized [`google.protobuf.FileDescriptorSet`](https://github.com/protocolbuffers/protobuf/blob/v21.3/src/google/protobuf/descriptor.proto#L55-L59).
@@ -113,7 +121,7 @@ resolve symbol references or understand the relationships between files.
 ### Standard Imports
 
 There are a handful of source files that are generally included as part of a Protobuf compiler.
-These standard imports define the [well-known types](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf)
+These standard imports define the [well-known types](https://protobuf.dev/reference/protobuf/google.protobuf/)
 as well as the descriptor model (see next section).
 
 The Protobuf distribution includes all the following files, as does the Buf CLI:
@@ -192,7 +200,7 @@ The content below refers to elements of the grammar using italics. For example, 
 refers to the production of the same name found in the [description of the language syntax](./language-spec.md#declaration-types).
 
 The examples below show both proto source code alongside the resulting descriptor protos.
-The example descriptor protos are shown in [JSON form](https://developers.google.com/protocol-buffers/docs/proto3#json),
+The example descriptor protos are shown in [JSON form](https://protobuf.dev/programming-guides/proto3/#json),
 for readability.
 
 ### Type References

@@ -9,7 +9,7 @@ parser generators, in the [`examples` directory](./examples).
 
 In addition to the language spec and grammar, other information can be found here that
 relates to the Protobuf language, some of which aims to fill other gaps in Google's
-[official documentation for Protocol Buffers](https://developers.google.com/protocol-buffers/).
+[official documentation for Protocol Buffers](https://protobuf.dev/).
 
 - [Compilation and Descriptors](./docs/descriptors.md):
   This document describes details of producing descriptor protos from a source
