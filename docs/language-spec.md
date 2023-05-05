@@ -35,7 +35,11 @@ The syntax is specified using Extended Backus-Naur Form (EBNF):
 Production  = production_name "=" Expression "." .
 Expression  = Alternative { "|" Alternative } .
 Alternative = Term { Term } .
-Term        = production_name | literal [ "…" literal ] | Exclusion | Group | Option | Repetition .
+Term        = Reference | literal [ "…" literal ] |
+              Exclusion | Group | Option | Repetition .
+Reference   = production_name [ "-" Subtraction ] .
+Subtraction = Atom | "(" Atom { "|" Atom } ")" .
+Atom        = production_name | literal .
 Exclusion   = "!" literal | "!" "(" literal { "|" literal } ")" .
 Group       = "(" Expression ")" .
 Option      = "[" Expression "]" .
@@ -45,6 +49,7 @@ Repetition  = "{" Expression "}" .
 Productions are expressions constructed from terms and the following operators, in increasing precedence:
 
 * **|**:  Alternation
+* **-**:  Subtraction
 * **!**:  Exclusion
 * **()**: Grouping
 * **[]**: Option (0 or 1 times)
@@ -74,6 +79,19 @@ words, the following two productions are equivalent:
 ```ebnf
 foo = "bar" .
 foo = "b" "a" "r" .
+```
+
+Both operands in a subtraction expression can only represent single lexical tokens.
+Where a production is named, the production must always accept exactly one token. This
+kind of expression is used to narrow a production that accepts many alternatives so
+that it accepts fewer alternatives. For example, the following `ShortWords` production
+accepts all three-letter strings consisting of lower-case letters _other than_
+`"abc"` and `"xyz"`.
+```ebnf
+ShortWords = three_letter_words - ( "abc" | "xyz" )
+
+three_letter_words = letter letter letter
+letter =             "a" … "z"
 ```
 
 The exclusion operator is only for use against literal characters and means that
@@ -715,6 +733,40 @@ These references are usually _type_ references, referring to user-defined messag
 and enum types. In some cases (such as in options), these references can instead
 refer to extensions.
 
+### Constrained Type References
+
+There are several places in the grammar where a type reference is constrained to
+enable a predictive parser implementation while preventing ambiguity. In these
+cases, the first token of the type reference is more limited than above: instead
+of matching any identifier (including any keywords), some keywords are excluded.
+```ebnf
+FieldDeclTypeName          = FieldDeclIdentifier [ dot QualifiedIdentifier ] |
+                             FullyQualifiedIdentifier .
+MessageFieldDeclTypeName   = MessageFieldDeclIdentifier [ dot QualifiedIdentifier ] |
+                             FullyQualifiedIdentifier .
+ExtensionFieldDeclTypeName = ExtensionFieldDeclIdentifier [ dot QualifiedIdentifier ] |
+                             FullyQualifiedIdentifier .
+OneofFieldDeclTypeName     = OneofFieldDeclIdentifier [ dot QualifiedIdentifier ] |
+                             FullyQualifiedIdentifier .
+MethodDeclTypeName         = MethodDeclIdentifier [ dot QualifiedIdentifier ] |
+                             FullyQualifiedIdentifier .
+
+FieldDeclIdentifier          = identifier - group .
+MessageFieldDeclIdentifier   = FieldDeclIdentifier - (
+                                 message | enum   | oneof    | reserved | extensions |
+                                 extend  | option | optional | required | repeated
+                               ) .
+ExtensionFieldDeclIdentifier = FieldDeclIdentifier - (
+                                 optional | required | repeated
+                               ) .
+OneofFieldDeclIdentifier     = FieldDeclIdentifier - (
+                                 option | optional | required | repeated
+                               ) .
+MethodDeclIdentifier         = identifier - stream .
+
+FullyQualifiedIdentifier = dot QualifiedIdentifier .
+```
+
 ### Fully-Qualified References
 
 References are often simple identifiers. This works especially well when the target
@@ -911,7 +963,7 @@ fields. An extension on one of the concrete option types is also called a
 OptionName = ( SimpleName | ExtensionName ) [ dot OptionName ] .
 
 SimpleName    = identifier .
-ExtensionName = l_paren TypeName r_paren
+ExtensionName = l_paren TypeName r_paren .
 ```
 
 ```txt title="Examples"
@@ -1266,7 +1318,7 @@ composite data types.
 MessageDecl = message MessageName l_brace { MessageElement } r_brace .
 
 MessageName    = identifier .
-MessageElement = FieldDecl |
+MessageElement = MessageFieldDecl |
                  MapFieldDecl |
                  GroupDecl |
                  OneofDecl |
@@ -1316,14 +1368,20 @@ Field declarations found directly inside messages are "normal fields". They can 
 found inside `extends` blocks, for defining [extension fields](#extensions).
 
 Each field indicates its cardinality (`required`, `optional`, or `repeated`; also called
-the field's "label"), its type, its name, and its tag number.
+the field's "label"), its type, its name, and its tag number. The cardinality may be
+omitted.
 ```ebnf
-FieldDecl = [ FieldCardinality ] TypeName FieldName equals FieldNumber
-            [ CompactOptions ] semicolon .
+MessageFieldDecl = FieldDeclWithCardinality |
+                   MessageFieldDeclTypeName FieldName equals FieldNumber
+                       [ CompactOptions ] semicolon .
+
+FieldDeclWithCardinality = FieldCardinality FieldDeclTypeName FieldName
+                           equals FieldNumber [ CompactOptions ] semicolon .
 
 FieldCardinality = required | optional | repeated .
 FieldName        = identifier .
 FieldNumber      = int_literal .
+
 ```
 
 ```txt title="Examples"
@@ -1348,35 +1406,6 @@ Fields in a message are identified both by name and by number. The number, also
 called the "tag", is used in the binary format, for a more compact on-the-wire
 representation. This also means a field can be renamed without impacting on-the-wire
 compatibility.
-
-When the cardinality is omitted, the subsequent type name
-may *not* start with an identifier that could be confused for another
-statement in this scope (something other than a field declaration). So such
-field declarations inside a message declaration may not have a type name that
-starts with any of the following identifiers:
-* "message"
-* "enum"
-* "oneof"
-* "extensions"
-* "reserved"
-* "extend"
-* "option"
-* "optional"
-* "required"
-* "repeated"
-
-Similarly, a field declaration in an `extends` block that omits the cardinality
-may not have a type name that starts with any of the following identifiers:
-* "optional"
-* "required"
-* "repeated"
-
-Note that it is acceptable if the above words are _prefixes_ of the first token in
-the type name. For example, inside a message a type name "enumeration" is allowed, even
-though it starts with "enum". But a name of "enum.Statuses" would not be allowed, because
-the first constituent token is "enum". A _fully-qualified_ type name (one that starts with
-a dot) is always accepted, regardless of the first identifier token, since the dot prevents
-ambiguity.
 
 #### Field Numbers
 
@@ -1860,19 +1889,9 @@ Files using the proto3 syntax are not allowed to include _OneofGroupDecl_ elemen
 A oneof must contain at least one field or group. Fields in a oneof always omit
 the cardinality (`required`, `optional`, or `repeated`) and are always optional.
 ```ebnf
-OneofFieldDecl = TypeName FieldName equals FieldNumber
+OneofFieldDecl = OneofFieldDeclTypeName FieldName equals FieldNumber
                  [ CompactOptions ] semicolon .
 ```
-
-These fields follow the same restrictions as other field declarations
-that have no leading cardinality: the first token of the _TypeName_ may not be an
-identifier whose text could be ambiguous with other elements. It also may not
-match any of the cardinality keywords. To that end, fields in a oneof may not have
-a type name that starts with any of the following:
-* "option"
-* "optional"
-* "required"
-* "repeated"
 
 Oneofs may also define group fields. A group's name must start with a capital letter. In
 some contexts, the group field goes by the lower-cased form of this name.
@@ -2010,11 +2029,12 @@ fields.
 
 ### Enum Values
 
-Enums must contain at least one enum value.
+Enums must contain at least one enum value. To enable a predictive parser implementation
+and avoid ambiguity, an enum value's name cannot be `"option"` or `"reserved"`.
 ```ebnf
 EnumValueDecl = EnumValueName equals EnumValueNumber [ CompactOptions ] semicolon .
 
-EnumValueName   = identifier .
+EnumValueName   = identifier  - ( option | reserved ) .
 EnumValueNumber = [ minus ] int_literal .
 ```
 
@@ -2046,10 +2066,6 @@ multiple values sharing a number. So if an enum allows aliases but all of its va
 use distinct numbers, it is an error.
 
 An enum value's number must not be contained by any of the enum's reserved ranges.
-
-Value names (the first `identifier` token) may not match either of these keywords:
-  * "reserved"
-  * "option"
 
 #### JSON Name Conflicts {#enum-value-json-name-conflicts}
 
@@ -2142,8 +2158,12 @@ proto2 syntax.
 ExtensionDecl = extend ExtendedMessage l_brace { ExtensionElement } r_brace .
 
 ExtendedMessage  = TypeName .
-ExtensionElement = FieldDecl |
+ExtensionElement = ExtensionFieldDecl |
                    GroupDecl .
+
+ExtensionFieldDecl = FieldDeclWithCardinality |
+                     ExtensionFieldDeclTypeName FieldName equals FieldNumber
+                         [ CompactOptions ] semicolon .
 ```
 
 ```txt title="Example"
@@ -2176,7 +2196,7 @@ are custom options. This means that the extendee must be one of the following:
 
 :::
 
-Though the _FieldDecl_ and _GroupDecl_ productions are re-used here,
+Though the _FieldDeclWithCardinality_ and _GroupDecl_ productions are re-used here,
 extension fields may _never_ use the `required` cardinality.
 
 The field number used by an extension _must_ be contained by one of the extendee's
@@ -2229,7 +2249,7 @@ OutputType    = MessageType .
 MethodElement = OptionDecl |
                 EmptyDecl .
 
-MessageType = l_paren [ stream ] TypeName r_paren .
+MessageType = l_paren [ stream ] MethodDeclTypeName r_paren .
 ```
 
 ```txt title="Examples"
