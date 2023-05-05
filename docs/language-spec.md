@@ -11,13 +11,13 @@ way of describing data structures and RPC interfaces. Tools can then generate co
 in a variety of implementation languages for interacting with these structures
 and for consuming and exposing RPC services.
 
-Google's documentation can be found [here](https://developers.google.com/protocol-buffers/)
-(with separate grammars for [proto2](https://developers.google.com/protocol-buffers/docs/reference/proto2-spec)
-and [proto3](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec)
-syntax). But these grammars are incomplete. In the face of these
-documentation shortcomings, the actual implementation in the `protoc` compiler prevails
-as the de facto spec. Without complete and accurate documentation, it is very hard for
-the community to contribute quality tools around the language.
+Google's documentation can be found [here](https://protobuf.dev/) (with separate
+grammars for [proto2](https://protobuf.dev/reference/protobuf/proto2-spec/) and
+[proto3](https://protobuf.dev/reference/protobuf/proto3-spec/) syntax). But these
+grammars are incomplete. In the face of these documentation shortcomings, the
+actual implementation in the `protoc` compiler prevails as the de facto spec.
+Without complete and accurate documentation, it is very hard for the community to
+contribute quality tools around the language.
 
 This document aims to remedy the situation and provide that complete
 and correct specification. This content was developed over the course of implementing a [pure Go
@@ -55,11 +55,15 @@ Productions are expressions constructed from terms and the following operators, 
 * **[]**: Option (0 or 1 times)
 * **{}**: Repetition (0 to n times)
 
-Lower-case production names are used to identify lexical tokens. Non-terminals are in
-[PascalCase](https://en.wiktionary.org/wiki/Pascal_case). Literal source characters are
-enclosed in double quotes `""` or back quotes ``` `` ```. In double-quotes, the contents
-can encode otherwise non-printable characters. The backslash character (`\`) is used to
-mark these encoded sequences:
+Production names that are in [lower_snake_case](https://en.wiktionary.org/wiki/snake_case)
+are used to identify lexical tokens. Production names for non-terminals are in
+[PascalCase](https://en.wiktionary.org/wiki/Pascal_case).
+
+### Literals
+
+Literal source characters are enclosed in double quotes `""` or back quotes ``` `` ```. In
+double-quotes, the contents can encode otherwise non-printable characters. The backslash
+character (`\`) is used to mark these encoded sequences:
 
 * `"\n"`: The newline character (code point 10).
 * `"\r"`: The carriage return character (code point 13).
@@ -81,6 +85,12 @@ foo = "bar" .
 foo = "b" "a" "r" .
 ```
 
+Literals may only be used in productions for lexical tokens. Productions for
+non-terminals may only refer to other productions (for lexical tokens or for other
+non-terminals) and may not use literals.
+
+### Subtraction
+
 Both operands in a subtraction expression can only represent single lexical tokens.
 Where a production is named, the production must always accept exactly one token. This
 kind of expression is used to narrow a production that accepts many alternatives so
@@ -93,6 +103,8 @@ ShortWords = three_letter_words - ( "abc" | "xyz" )
 three_letter_words = letter letter letter
 letter =             "a" … "z"
 ```
+
+### Exclusion
 
 The exclusion operator is only for use against literal characters and means that
 all characters _except for_ the given ones are accepted. For example `!"a"` means
@@ -485,7 +497,7 @@ values are not allowed (though the set of allowed values may be expanded
 in the future). If a file contains no syntax declaration then the proto2
 syntax is assumed.
 ```ebnf
-SyntaxDecl =  syntax equals SyntaxLevel semicolon .
+SyntaxDecl = syntax equals SyntaxLevel semicolon .
 
 SyntaxLevel = StringLiteral .
 ```
@@ -1307,7 +1319,7 @@ operation.
 Alternate compilers could support URLs with domains other than "type.googleapis.com" and
 "type.googleprod.com". However, such support is hampered by the fact that the grammar
 does not currently support additional path components in the type URL and does not even
-support the full range of allowed characters in a URL path component.
+support the full range of allowed characters in a domain component or URL path component.
 :::
 
 ## Messages
@@ -1454,12 +1466,12 @@ But it may also use one of the following pre-defined scalar type names:
 As seen above, there are multiple type names that map to the same kind of integer value.
 These different names refer to different ways of encoding the value on the wire.
 
-| Scalar type names                    | Encoding                                                                                                                        |
-|--------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
-| `int32`, `int64`, `uint32`, `uint64` | [Variable length encoding, least significant group first](https://developers.google.com/protocol-buffers/docs/encoding#varints) |
-| `sint32`, `sint64`                   | [Variable length encoding, zig-zag order](https://developers.google.com/protocol-buffers/docs/encoding#signed-ints)             |
-| `fixed32`, `sfixed32`                | Fixed length encoding, 4 bytes (32 bits)                                                                                        |
-| `fixed64`, `sfixed64`                | Fixed length encoding, 8 bytes (64 bits)                                                                                        |
+| Scalar type names                    | Encoding                                                                                                             |
+|--------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| `int32`, `int64`, `uint32`, `uint64` | [Variable length encoding, least significant group first](https://protobuf.dev/programming-guides/encoding/#varints) |
+| `sint32`, `sint64`                   | [Variable length encoding, zig-zag order](https://protobuf.dev/programming-guides/encoding/#signed-ints)             |
+| `fixed32`, `sfixed32`                | Fixed length encoding, 4 bytes (32 bits)                                                                             |
+| `fixed64`, `sfixed64`                | Fixed length encoding, 8 bytes (64 bits)                                                                             |
 
 :::info
 
@@ -1836,7 +1848,7 @@ checked for possible conflicts. This check proceeds in two steps:
 1. First, the field's _default_ JSON name is checked for conflicts against all other
    fields' default JSON names. If fields have custom JSON names defined, they are ignored
    in this step. Fields _default_ JSON names must also be unique since the JSON format for
-   [field masks](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#json-encoding-of-field-masks)
+   [field masks](https://protobuf.dev/reference/protobuf/google.protobuf/#json-encoding-field-masks)
    does not currently consider custom JSON names.
 2. Second, the field's _effective_ JSON name is checked for conflicts against all other
    fields' effective JSON names. A field's effective JSON name is its custom JSON name
