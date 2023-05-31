@@ -1577,7 +1577,7 @@ an _absent_ value. If a sentinel null value is used as an element inside a list
 or value inside a map, it will get transformed to a zero value if serialized and
 then de-serialized. Some runtime implementations may even refuse to serialize
 such a message and consider the presence of a sentinel null value inside a list
-or map value to mean the message is malformed.)
+or map value to mean the message is malformed.
 
 #### Maps
 
