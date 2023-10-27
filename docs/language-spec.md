@@ -388,7 +388,7 @@ unicode_escape_seq = `\` "u" hex_digit hex_digit hex_digit hex_digit |
 "A string that has a NULL character in hex: \x00"
 "Another with a NULL in octal: \00"
 "A unicode right arrow can use unicode escape \u2192 or not →"
-'Long unicode escape can represent emojis \U0001F389 but isn't necessary 🎉'
+'Long unicode escape can represent emojis \U0001F389 but isn\'t necessary 🎉'
 ```
 
 While the long form of unicode escapes (starting with `\U`) ostensibly allows
