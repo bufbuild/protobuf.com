@@ -430,7 +430,7 @@ The symbols below represent all other valid input characters used in the protobu
 semicolon = ";" .     colon     = ":" .     l_paren   = "(" .     l_bracket = "[" .
 comma     = "," .     equals    = "=" .     r_paren   = ")" .     r_bracket = "]" .
 dot       = "." .     minus     = "-" .     l_brace   = "{" .     l_angle   = "<" .
-slash     = "/" .     plus      = "+" .     r_brace   = "}" .     r_angle   = ">" .
+slash     = "/" .                           r_brace   = "}" .     r_angle   = ">" .
 ```
 
 
@@ -1146,9 +1146,9 @@ piece of data. Message literals must be enclosed in braces (`{` and `}`).
 OptionValue = ScalarValue | MessageLiteralWithBraces .
 
 ScalarValue  = StringLiteral | UintLiteral | IntLiteral | FloatLiteral | identifier .
-UintLiteral  = [ plus ] int_literal .
+UintLiteral  = int_literal .
 IntLiteral   = minus int_literal .
-FloatLiteral = [ minus | plus ] ( float_literal | inf ) .
+FloatLiteral = [ minus ] ( float_literal | inf ) .
 
 MessageLiteralWithBraces = l_brace MessageTextFormat r_brace .
 ```
