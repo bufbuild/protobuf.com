@@ -267,18 +267,24 @@ closely mirrors the [_OptionDecl_](./language-spec.md#options) production. It ha
 [value](./language-spec.md#option-values), only one of which can be set (though the definition in `descriptor.proto`
 does not use a `oneof`):
 
-| Production                     | Condition                                                | Field                |
-|--------------------------------|----------------------------------------------------------|----------------------|
-| _StringLiteral_                |                                                          | `string_value`       |
-| _UnsignedNumLiteral_           | `int_literal` in the range [0, 2^64)                     | `positive_int_value` |
-|                                | otherwise                                                | `double_value`       |
-| _SignedNumLiteral_             | `int_literal` in the range [0, 2^64) preceded by `plus`  | `positive_int_value` |
-|                                | `int_literal` in the range [0, 2^63] preceded by `minus` | `negative_int_value` |
-|                                | otherwise                                                | `double_value`       |
-| _identifier_                   |                                                          | `identifier_value`   |
-| _MessageLiteralWithBraces_  \* |                                                          | `aggregate_value`    |
+| Production                   | Condition                                                | Field                |
+|------------------------------|----------------------------------------------------------|----------------------|
+| _StringLiteral_              |                                                          | `string_value`       |
+| _FloatLiteral_               |                                                          | `double_value`       |
+| _SpecialFloatLiteral_ \*     |                                                          | `double_value`       |
+| _IntLiteral_                 | `int_literal` in the range [0, 2^64)                     | `positive_int_value` |
+|                              | `int_literal` in the range [0, 2^63] preceded by `minus` | `negative_int_value` |
+|                              | otherwise                                                | `double_value`       |
+| _identifier_                 |                                                          | `identifier_value`   |
+| _MessageLiteralWithBraces_ † |                                                          | `aggregate_value`    |
 
-__*__ For message literals, the entire source text, excluding the enclosing braces
+__*__ For special float literals, the value is stored as the floating point
+representation of infinity, -infinity, or not-a-number. If the source
+contained a value of `-nan`, the leading minus sign is ignored. The stored
+value for `nan` is an unsigned (sign bit clear) quiet not-a-number value.
+The exact bit pattern is not specified.
+
+__†__ For message literals, the entire source text, excluding the enclosing braces
 (`{` and `}`), is stored as a string. But all whitespace and comments are removed
 and each token is separated by a single space (` `).
 
