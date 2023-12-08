@@ -247,25 +247,26 @@ _any_Crazy_CASE_with_01234_numbers
 c3p0
 ```
 
-There are 39 keywords in the protobuf grammar.
+There are 40 keywords in the protobuf grammar.
 When an `identifier` is found, if it matches a keyword, its token type is changed
 to match the keyword, per the rules below. All of the keyword token types below
 are *also* considered identifiers by the grammar. For example, a production in the
 grammar that references `identifier` will also accept `syntax` or `map`.
 ```ebnf
-syntax   = "syntax" .      float    = "float" .       oneof      = "oneof" .
-import   = "import" .      double   = "double" .      map        = "map" .
-weak     = "weak" .        int32    = "int32" .       extensions = "extensions" .
-public   = "public" .      int64    = "int64" .       to         = "to" .
-package  = "package" .     uint32   = "uint32" .      max        = "max" .
-option   = "option" .      uint64   = "uint64" .      reserved   = "reserved" .
-inf      = "inf" .         sint32   = "sint32" .      enum       = "enum" .
-repeated = "repeated" .    sint64   = "sint64" .      message    = "message" .
-optional = "optional" .    fixed32  = "fixed32" .     extend     = "extend" .
-required = "required" .    fixed64  = "fixed64" .     service    = "service" .
-bool     = "bool" .        sfixed32 = "sfixed32" .    rpc        = "rpc" .
-string   = "string" .      sfixed64 = "sfixed64" .    stream     = "stream" .
-bytes    = "bytes" .       group    = "group" .       returns    = "returns" .
+syntax  = "syntax" .      map        = "map" .          int32    = "int32" .
+import  = "import" .      extensions = "extensions" .   int64    = "int64" .
+weak    = "weak" .        reserved   = "reserved" .     uint32   = "uint32" .
+public  = "public" .      rpc        = "rpc" .          uint64   = "uint64" .
+package = "package" .     stream     = "stream" .       sint32   = "sint32" .
+option  = "option" .      returns    = "returns" .      sint64   = "sint64" .
+inf     = "inf" .         to         = "to" .           fixed32  = "fixed32" .
+nan     = "nan" .         max        = "max" .          fixed64  = "fixed64" .
+message = "message" .     repeated   = "repeated" .     sfixed32 = "sfixed32" .
+enum    = "enum" .        optional   = "optional" .     sfixed64 = "sfixed64" .
+service = "service" .     required   = "required" .     bool     = "bool" .
+extend  = "extend" .      string     = "string" .       float    = "float" .
+group   = "group" .       bytes      = "bytes" .        double   = "double" .
+oneof   = "oneof" .
 ```
 
 #### Numeric Literals
@@ -427,10 +428,11 @@ The following table describes the meaning of the various simple escapes:
 
 The symbols below represent all other valid input characters used in the protobuf language.
 ```ebnf
-semicolon = ";" .     colon     = ":" .     l_paren   = "(" .     l_bracket = "[" .
-comma     = "," .     equals    = "=" .     r_paren   = ")" .     r_bracket = "]" .
-dot       = "." .     minus     = "-" .     l_brace   = "{" .     l_angle   = "<" .
-slash     = "/" .                           r_brace   = "}" .     r_angle   = ">" .
+semicolon = ";" .        equals  = "=" .        r_brace   = "}" .
+comma     = "," .        minus   = "-" .        l_bracket = "[" .
+dot       = "." .        l_paren = "(" .        r_bracket = "]" .
+slash     = "/" .        r_paren = ")" .        l_angle   = "<" .
+colon     = ":" .        l_brace = "{" .        r_angle   = ">" .
 ```
 
 
@@ -1145,21 +1147,22 @@ piece of data. Message literals must be enclosed in braces (`{` and `}`).
 ```ebnf
 OptionValue = ScalarValue | MessageLiteralWithBraces .
 
-ScalarValue  = StringLiteral | UintLiteral | IntLiteral | FloatLiteral | identifier .
-UintLiteral  = int_literal .
-IntLiteral   = minus int_literal .
-FloatLiteral = [ minus ] ( float_literal | inf ) .
+ScalarValue         = StringLiteral | IntLiteral | FloatLiteral |
+                      SpecialFloatLiteral | identifier .
+IntLiteral          = [ minus ] int_literal .
+FloatLiteral        = [ minus ] float_literal .
+SpecialFloatLiteral = minus inf | minus nan .
 
 MessageLiteralWithBraces = l_brace MessageTextFormat r_brace .
 ```
 
 ```txt title="Examples"
-+inf
+-inf
 true
 nan
 -123
 456.789e+101
-+1.0203
+1.0203
 "foo bar"
 'foo-bar-baz'
 { name:"Bob Loblaw" id:123 profession:"attorney" loc<lat:-41.293, long: 174.781675> }
@@ -1191,14 +1194,17 @@ MessageLiteralField = MessageLiteralFieldName colon Value |
 
 MessageLiteralFieldName = FieldName |
                           l_bracket SpecialFieldName r_bracket .
-SpecialFieldName        = ExtensionFieldName | TypeURL
+SpecialFieldName        = ExtensionFieldName | TypeURL .
 ExtensionFieldName      = QualifiedIdentifier .
 TypeURL                 = QualifiedIdentifier slash QualifiedIdentifier .
 
-Value          = ScalarValue | MessageLiteral | ListLiteral .
-MessageValue   = MessageLiteral | ListOfMessagesLiteral .
-MessageLiteral = MessageLiteralWithBraces |
-                 l_angle MessageTextFormat r_angle .
+Value                  = TextFormatScalarValue | MessageLiteral | ListLiteral .
+TextFormatScalarValue  = StringLiteral | IntLiteral | FloatLiteral |
+                         SignedIdentifier | identifier .
+SignedIdentifier       = minus identifier .
+MessageValue           = MessageLiteral | ListOfMessagesLiteral .
+MessageLiteral         = MessageLiteralWithBraces |
+                         l_angle MessageTextFormat r_angle .
 
 ListLiteral = l_bracket [ ListElement { comma ListElement } ] r_bracket .
 ListElement = ScalarValue | MessageLiteral .
@@ -1211,6 +1217,7 @@ a:123 b:456
 addr{num: 3 st: "Abbey Rd" city: "London" postal_code: "NW8 9AY" country: "UK"}
 single:1 repeated:["a", "b", "c", "d", "e", "f"]
 [foo.bar]: "extension value"
+-Infinity
 ```
 
 Field names may refer to normal fields. But if the name is enclosed in brackets (`[` and `]`)
@@ -1234,29 +1241,34 @@ even if the value is an empty list literal.
 The kind of value that appears in this format must be compatible with the type of the
 named field:
 
-| Field Type                                                   | Allowed Value Types                                         |
-|--------------------------------------------------------------|-------------------------------------------------------------|
-| `int32`, `int64`, `sint32`, `sint64`, `sfixed32`, `sfixed64` | _UintLiteral_ \*, _IntLiteral_ \*                           |
-| `uint32`, `uint64`, `fixed32`, `fixed64`                     | _UintLiteral_ †                                             |
-| `float`, `double`                                            | _FloatLiteral_, _UintLiteral_, _IntLiteral_, _identifier_ ‡ |
-| `bool`                                                       | _identifier_ §                                              |
-| `string`, `bytes`                                            | _StringLiteral_                                             |
-| An enum type                                                 | _identifier_, _UintLiteral_ ¶, _IntLiteral_ ¶               |
-| A message type                                               | _MessageLiteral_                                            |
+| Field Type                                                   | Allowed Value Types                                                |
+|--------------------------------------------------------------|--------------------------------------------------------------------|
+| `int32`, `int64`, `sint32`, `sint64`, `sfixed32`, `sfixed64` | _IntLiteral_ \*                                                    |
+| `uint32`, `uint64`, `fixed32`, `fixed64`                     | _IntLiteral_ †                                                     |
+| `float`, `double`                                            | _FloatLiteral_, _IntLiteral_, _SignedIdentifier_ ‡, _identifier_ ‡ |
+| `bool`                                                       | _identifier_ §                                                     |
+| `string`, `bytes`                                            | _StringLiteral_                                                    |
+| An enum type                                                 | _identifier_, _IntLiteral_ ¶                                       |
+| A message type                                               | _MessageLiteral_                                                   |
 
-__*__ Integer field types can only use _UintLiteral_ and _IntLiteral_ values if the
-represented number is in the range [-2<sup>31</sup>,2<sup>31</sup>) for 32-bit types
+__*__ Integer field types can only use _IntLiteral_ values if the represented
+number is in the range [-2<sup>31</sup>,2<sup>31</sup>) for 32-bit types or
 or [-2<sup>63</sup>,2<sup>63</sup>) for 64-bit types.
 
-__†__ Unsigned integer field types can only use _UintLiteral_ values if the
+__†__ Unsigned integer field types can only use _IntLiteral_ values if the
 represented number is in the range [0,2<sup>32</sup>) for 32-bit types
 or [0,2<sup>64</sup>) for 64-bit types.
 
 __‡__ Floating point field types can only use _identifier_ values if the identifier
-is `inf` or `nan`.
+is `inf`, `infinity`, or `nan`. But this is a case-insensitive check (so `INF`
+and `NaN` could also be used). Similarly, the _identifier_ component of a
+_SignedIdentifier_ value must be `inf`, `infinity`, or `nan` (case-insensitive).
+Note that all of these may be used inside the text format, in a message literal.
+But for non-message options (e.g. option values _outside_ the text format), only
+`inf` and `nan` (lower-case) can be used.
 
 __§__ Boolean field types can only use identifiers `true`, `false`, `True`, `False`,
-`T`, and `F` as values. Note that all of these may be used inside the text format, in a
+`t`, and `f` as values. Note that all of these may be used inside the text format, in a
 message literal. But for non-message options (e.g. option values _outside_ the text format),
 only `true` and `false` can be used.
 
