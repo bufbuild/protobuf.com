@@ -92,13 +92,14 @@ OptionName -> ( Identifier | "(" TypeName ")" ) ( "." OptionName ):*
 
 OptionValue -> ScalarValue | MessageLiteralWithBraces
 
-ScalarValue  -> StringLiteral | UintLiteral | IntLiteral | FloatLiteral | Identifier
+ScalarValue  -> StringLiteral | IntLiteral | FloatLiteral |
+                SpecialFloatLiteral | Identifier
 
-UintLiteral  -> "+":? %int_literal
+IntLiteral   -> "-":? %int_literal
 
-IntLiteral   -> "-" %int_literal
+FloatLiteral -> "-":? %float_literal
 
-FloatLiteral -> ( "-" | "+" ):? ( %float_literal | "inf" )
+SpecialFloatLiteral -> "-"  "inf" | "-" "nan"
 
 MessageLiteralWithBraces -> "{" MessageTextFormat "}"
 

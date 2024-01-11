@@ -80,13 +80,14 @@ optionName: ( identifier | L_PAREN typeName R_PAREN ) ( DOT optionName )*;
 
 optionValue: scalarValue | messageLiteralWithBraces;
 
-scalarValue : stringLiteral | uintLiteral | intLiteral | floatLiteral | identifier;
+scalarValue : stringLiteral | intLiteral | floatLiteral |
+                specialFloatLiteral | identifier;
 
-uintLiteral : PLUS? INT_LITERAL;
+intLiteral  : MINUS? INT_LITERAL;
 
-intLiteral  : MINUS INT_LITERAL;
+floatLiteral: MINUS? FLOAT_LITERAL;
 
-floatLiteral: ( MINUS | PLUS )? (FLOAT_LITERAL | INF );
+specialFloatLiteral: MINUS INF | MINUS NAN;
 
 messageLiteralWithBraces: L_BRACE messageTextFormat R_BRACE;
 
@@ -251,6 +252,7 @@ alwaysIdent: IDENTIFIER
     | PUBLIC
     | PACKAGE
     | INF
+    | NAN
     | BOOL
     | STRING
     | BYTES
