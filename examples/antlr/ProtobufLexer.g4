@@ -21,6 +21,7 @@ PUBLIC: 'public';
 PACKAGE: 'package';
 OPTION: 'option';
 INF: 'inf';
+NAN: 'nan';
 REPEATED: 'repeated';
 OPTIONAL: 'optional';
 REQUIRED: 'required';
