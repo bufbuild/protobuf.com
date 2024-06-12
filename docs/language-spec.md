@@ -449,7 +449,7 @@ lower-snake-case identifiers in EBNF refer to lexical elements, which are define
 the previous section.
 
 The grammar presented here is a _unified_ grammar: it is capable of parsing files that
-use the proto2, proto3, or editions syntax. This means you do not need multiple passes,
+use the proto2, proto3, or Editions syntax. This means you do not need multiple passes,
 such as a pre-parse to determine the syntax level of the file and then a full-parse
 using a syntax-specific grammar. The differences between the three do not require a
 separate grammar and can be implemented as a post-process step to validate the resulting
@@ -495,10 +495,10 @@ EmptyDecl = semicolon .
 Files should define a syntax level. If present, this must be the first
 declaration in the file. When the "syntax" keyword is used, string literal
 indicates the syntax level and must have a value of "proto2" or "proto3".
-If the "edition" keyword is used, the syntax level is "editions", and the
-string literal indicates a particular indication. By convention, editions
-are named after the year in which their development began. The first edition
-is "2023".
+If the "edition" keyword is used, the file is said to use Editions syntax,
+and the string literal indicates a particular indication. By convention,
+editions are named after the year in which their development began. The
+first edition is "2023".
 
 Other values for the string literal are not allowed (though the set of
 allowed values may be expanded in the future). If a file contains no syntax
@@ -1114,8 +1114,8 @@ All of the concrete options have a field named `features`. This field's type
 is a message: [`google.protobuf.FeatureSet`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L966).
 
 Syntactically, values for this field are specified just like any other option
-field. However, sources that specify a syntax of "proto2" or "proto3" may _not_
-use this option. It can **only** be used in sources that declare an edition.
+field. However, files that use proto2 or proto3 syntax may _not_ use this option.
+It can **only** be used in sources that use Editions syntax.
 
 :::
 
@@ -1532,7 +1532,7 @@ message Extra {
 
 All of the various concrete option messages have a field named `features`. **Values
 for this field, or fields inside of it, may only be set by `option` declarations
-in files that use the editions syntax** (by declaring an `edition` at the top of the
+in files that use the Editions syntax** (by declaring an `edition` at the top of the
 file instead of a `syntax`).
 
 The type of this field in all cases is [`google.protobuf.FeatureSet`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L966).
@@ -1548,18 +1548,18 @@ type to which the value applies as well as `TARGET_TYPE_FILE`, which allows sett
 file-wide default value (that is inherited by all elements in the file unless overridden).
 
 Features control the semantics of the language. They allow elements in a file that
-uses editions sources to use the semantics of either proto2 or proto3 syntaxes. They
+uses Editions syntax to use the semantics of either proto2 or proto3 syntaxes. They
 also allow fine-grained control, allowing a single file to mix these semantics in ways
-that were not possible when using syntax "proto2" or "proto3". For example, an enum in
-a proto2 file is always closed; an enum in a proto3 file is always open. But enums in
-a single editions file can be either, and both open and closed enums can be defined in
-the same file with editions.
+that were not possible when using proto2 or proto3 syntax. For example, an enum in a
+file that uses proto2 syntax is always closed; an enum in a file that uses proto3 syntax
+is always open. But enums in a file that uses Editions syntax can be either, and both
+open and closed enums can be defined in the same file when using Editions syntax.
 
 Features are how the first edition, "2023", unified the proto2 and proto3 syntaxes.
-A proto3 file can be migrated to editions and preserve all of its semantics. A proto2
-file can also be migrated to editions and preserve all of its semantics. And features
-allow these semantics to change incrementally, in a fine-grained way -- even as
-granular as changing a single field at a time.
+A file that uses proto3 syntax can be migrated to Editions syntax and preserve all of its
+semantics. A file that uses proto2 syntax can also be migrated to Editions syntax and
+preserve all of its semantics. And features allow these semantics to change incrementally,
+in a fine-grained way -- even as granular as changing a single field at a time.
 
 #### Feature Resolution
 
@@ -1817,8 +1817,8 @@ in the `Edition` enum that have special meaning here:
 | Edition          | Purpose                                                                                                                                                                                       |
 |------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `EDITION_LEGACY` | Indicates the behavior prior to when the feature was introduced.                                                                                                                              |
-| `EDITION_PROTO2` | Indicates the behavior for elements in a file that uses "proto2" syntax. This is effectively the same as `EDITION_LEGACY`.                                                                    |
-| `EDITION_PROTO3` | Indicates the behavior for elements in a file that uses "proto3" syntax.                                                                                                                      |
+| `EDITION_PROTO2` | Indicates the behavior for elements in a file that uses proto2 syntax. This is effectively the same as `EDITION_LEGACY`.                                                                      |
+| `EDITION_PROTO3` | Indicates the behavior for elements in a file that uses proto3 syntax.                                                                                                                        |
 | `EDITION_MAX`    | Should not be used for default values. Used by plugins as a "max edition", to indicate they support all editions (only for plugins whose output does not depend on any features or editions). |
 
 Default values are defined sparsely. If a value is not present for a particular edition,
@@ -1834,8 +1834,8 @@ edition_defaults = { edition: EDITION_2024, value: "C" }
 ```
 
 We can use the rule in the previous paragraph to derive the values for the missing editions.
-That gives us the following defaults for all editions (including values for syntax "proto2"
-and "proto3"):
+That gives us the following defaults for all editions (including values for files that use
+proto2 or proto3 syntax):
 
 | Edition          | Value |
 |------------------|-------|
@@ -1925,7 +1925,7 @@ in future editions.
 There are several rules that a compiler is expected to enforce regarding where an
 option may be used and what its allowed values are. Examples of such validation
 include verifying that an option is only used on certain target types and verifying
-that the `features` field is only used in files that use editions syntax.
+that the `features` field is only used in files that use Editions syntax.
 
 Caveats and rules for option usage, such as when an option can or cannot be used
 and restrictions on its allowed values, can be found throughout this document.
@@ -1933,7 +1933,7 @@ and restrictions on its allowed values, can be found throughout this document.
 The following are additional rules for _file_ options.
 
 * The `java_string_check_utf8` option may not be used in files that use the
-  editions syntax. Instead, there is a custom feature named
+  Editions syntax. Instead, there is a custom feature named
   [`(pb.java).utf8_validation`](#pbjavautf8_validation), defined in the well-known
   file `"google/protobuf/java_features.proto"`, that can be used to control this
   behavior.
@@ -1983,7 +1983,7 @@ message UserData {
 
 :::info
 
-Files using proto3 or editions syntax are not allowed to include _GroupDecl_ elements.
+Files using proto3 or Editions syntax are not allowed to include _GroupDecl_ elements.
 
 Files using proto3 syntax are not allowed to include _ExtensionRangeDecl_ elements.
 
@@ -2037,10 +2037,10 @@ In a file using the proto2 syntax, fields *must* include a cardinality
 In a file using the proto3 syntax, fields are not allowed to use the `required`
 cardinality, are not allowed to include an option named `default`, and are not
 allowed to refer to closed enum types. A closed enum type is one that is defined
-in a file that uses proto2 syntax or one defined in a file that uses editions
+in a file that uses proto2 syntax or one defined in a file that uses Editions
 syntax and whose [`enum_type` feature](#enum-type) has a value of `CLOSED`.
 
-In a file using editions syntax, fields are allowed to use neither the
+In a file using Editions syntax, fields are allowed to use neither the
 `required` _nor_ `optional` keywords. If the field's [`field_presence` feature](#field-presence)
 has a value of `IMPLICIT`, it may not include an option named `default` and is
 not allowed to refer to a closed enum type.
@@ -2111,12 +2111,12 @@ These different names refer to different ways of encoding the value on the wire.
 
 In a file using the proto3 syntax, a field's type may _not_ refer to a closed enum.
 A closed enum type is one that is defined in a file that uses proto2 syntax or one
-defined in a file that uses editions syntax and whose [`enum_type` feature](#enum-type)
+defined in a file that uses Editions syntax and whose [`enum_type` feature](#enum-type)
 has a value of `CLOSED`.
 type that is declared in a file that uses the proto2 syntax. Enum semantics
 
 
-Similarly, in a file using editions syntax, if the field's [`field_presence` feature](#field-presence)
+Similarly, in a file using Editions syntax, if the field's [`field_presence` feature](#field-presence)
 has a value of `IMPLICIT`, it may not refer to a closed enum type.
 
 These restrictions are because semantics around [default values](#field-presence-and-default-values)
@@ -2133,7 +2133,7 @@ in generated code using a map (for the former) or a list or an array (for the la
 Other fields can have only a single value.
 
 In files that use proto2 or proto3 syntax, "field presence" is derived from the
-cardinality. In files that use the editions syntax, presence is configured via the
+cardinality. In files that use the Editions syntax, presence is configured via the
 [`field_presence` feature](#field-presence).
 
 Field presence indicates whether the field's presence or absence can be detected.
@@ -2168,21 +2168,21 @@ in which the field is defined:
 
 | File Syntax *            | Context of Field Without Cardinality    | Field Presence                        |
 |--------------------------|-----------------------------------------|---------------------------------------|
-| proto2, proto3, editions | Inside a [oneof](#oneofs)               | Explicit                              |
-| proto3, editions         | Inside an [`extend` block](#extensions) | Explicit                              |
+| proto2, proto3, Editions | Inside a [oneof](#oneofs)               | Explicit                              |
+| proto3, Editions         | Inside an [`extend` block](#extensions) | Explicit                              |
 | proto3                   | Normal field with message type †        | Explicit                              |
 | proto3                   | Normal field with non-message type †    | Implicit                              |
-| editions                 | Normal field †                          | _depends on `field_presence` feature_ |
+| Editions                 | Normal field †                          | _depends on `field_presence` feature_ |
 
-__*__ The "proto2" syntax requires cardinality for all fields except those
-in a oneof, which is why it only appears once in the table.
+__*__ Files that use proto2 syntax require cardinality for all fields except those
+in a oneof, which is why proto2 only appears once in the table.
 
 __†__ A normal field is one that is in neither a oneof nor an `extend` block.
 
 As seen above, fields in a oneof and extensions always have explicit presence.
 In proto3 sources, message fields always have explicit presence, too.
 
-In editions sources, field presence is defined by the [`field_presence` feature](#field-presence).
+In files that use Editions syntax, field presence is defined by the [`field_presence` feature](#field-presence).
 If the field's options do not specify that feature, then it inherits a value, either
 from an ancestor element (such as a file-wide default) or from the default value for
 the specific edition that the file uses. See [_Feature Resolution_](#feature-resolution)
@@ -2195,17 +2195,17 @@ if the field is not present.
 
 :::caution
 
-Use of required field presence (via the `required` cardinality in proto2 sources
-or the `LEGACY_REQUIRED` feature value in editions sources) is considered hazardous
-and is strongly discouraged.
+Use of required field presence (via the `required` cardinality in files that use
+proto2 syntax or the `LEGACY_REQUIRED` feature value in files that use Editions
+syntax) is considered hazardous and is strongly discouraged.
 
 When a field is required, runtime libraries do not even allow de-serializing a
 message if the field is missing. This makes it difficult in practice to change a
 required field to be optional in the future (or vice versa), because it becomes
 likely for consumers of the message, working with a different version of the
 schema, to refuse to de-serialize it. This is why it is not supported in proto3
-syntax. Editions supports this, but only for backwards-compatibility with proto2
-syntax, which is why it contains "legacy" in the name.
+syntax. Editions syntax supports this, but only for backwards-compatibility with
+proto2 syntax, which is why it contains "legacy" in the name.
 
 If you want to enforce that a field must be present, instead define the field
 as not required (using the `optional` cardinality in a proto2 source file or by
@@ -2230,7 +2230,7 @@ Every field has a default value. When the value of a field is examined, if the
 field is not present, its default value is observed. The default value for a field
 is the zero value for its type, unless customized, _except_ for enums that are closed.
 (A closed enum is one that is defined in a file with proto2 syntax or one that is
-configured to be closed via the [`enum_type` feature](#enum-type) in editions syntax.)
+configured to be closed via the [`enum_type` feature](#enum-type) in Editions syntax.)
 For closed enums, the default value is the first value declared inside the enum (which
 might not be the number zero).
 
@@ -2458,9 +2458,9 @@ that uses a group has a slightly different representation on the wire. Groups
 are encoded in the binary format using a _delimited_ encoding, which is different
 than other fields whose type is a message.
 
-In editions syntax, the delimited encoding can be configured using the
+In Editions syntax, the delimited encoding can be configured using the
 [`message_encoding` feature](#message-encoding). So a proto2 group can be
-represented in editions syntax by explicitly creating the field and nested
+represented in Editions syntax by explicitly creating the field and nested
 message like in the example above and using the message encoding feature to
 enable the delimited encoding (aka "group encoding").
 
@@ -2562,8 +2562,8 @@ compatibility, it is not an error for files using the proto2 syntax to have fiel
 whose _default_ JSON names conflict with one another (step one above). A compiler may
 still choose to issue a warning for this condition.
 
-In editions sources, if the [`json_format` feature](#json-format) is set to
-`LEGACY_BEST_EFFORT`, the compiler should treat the message as if it were using the
+In files that use Editions syntax, if the [`json_format` feature](#json-format) is set
+to `LEGACY_BEST_EFFORT`, the compiler should treat the message as if it were using the
 proto2 syntax, and not issue an error if the fields have conflicts in their default
 JSON names.
 
@@ -2574,7 +2574,7 @@ JSON names.
 In addition to the rules described above, some of which relate to field options, the
 following rules should also be validated by the compiler:
 
-1. The `packed` option may not be used in files that use the editions syntax. In
+1. The `packed` option may not be used in files that use the Editions syntax. In
    files that use proto2 or proto3 syntax, this option can only be used on repeated
    fields with numeric types. Numeric types include all ten integer types, both floating
    point types, `bool`, and enum types. (See [_Field Types_](#field-types).)
@@ -2586,12 +2586,12 @@ following rules should also be validated by the compiler:
 3. The `lazy` and `unverified_lazy` options may only be used on fields whose type is a
    message. This includes map fields, which are represented as a repeated field of map
    entry messages. They may _not_ be used with group fields in proto2 syntax and also
-   may not be used with fields that use delimited message encoding in editions syntax.
+   may not be used with fields that use delimited message encoding in Editions syntax.
    (See [_Message Encoding_](#message-encoding).)
 4. The `js_type` option may only be used on fields that have one of the five 64-bit
    integer types. It can be used with repeated fields. (See [_Field Types_](#field-types).)
 
-In files that use editions syntax, there are further rules for feature usage:
+In files that use Editions syntax, there are further rules for feature usage:
 1. Fields defined in a oneof, extension fields, and repeated fields may not use the
    [`field_presence` feature](#field-presence).
 2. Fields whose type is a message may not set the [`field_presence` feature](#field-presence)
@@ -2633,7 +2633,7 @@ oneof authentication_method  {
 
 :::info
 
-Files using proto3 or editions syntax are not allowed to include _OneofGroupDecl_ elements.
+Files using proto3 or Editions syntax are not allowed to include _OneofGroupDecl_ elements.
 
 :::
 
@@ -2906,8 +2906,8 @@ strongly discouraged and is supported in few target runtimes.
 :::
 
 Messages defined with this option have a few additional constraints:
-1. The message must be in a file that uses the proto2 syntax. Files that use proto3
-   syntax are not allowed to define messages that use the message set wire format.
+1. The message must be in a file that uses the proto2 or Editions syntax. Files that use
+   proto3 syntax are not allowed to define messages that use the message set wire format.
 2. The message must _not_ define any normal fields (no map fields or groups either).
 3. The message _must_ define at least one extension range.
 4. Extensions of such messages must be optional (no repeated extensions allowed).
@@ -2969,7 +2969,7 @@ UNKNOWN = 12 [deprecated = true];
 Files using the proto3 syntax _must_ use a numeric value of zero for the first
 enum value defined.
 
-In files using the editions syntax, all open enums must use a numeric value of
+In files using the Editions syntax, all open enums must use a numeric value of
 zero for the first enum value defined. An open enum is one whose [`enum_type` feature](#enum-type)
 has a value of `OPEN`.
 
@@ -3033,8 +3033,8 @@ compatibility, it is not an error for proto2 files to have enum values whose nam
 conflict with one another per the check described above. A compiler may still choose
 to issue a warning for this condition.
 
-In editions sources, if the [`json_format` feature](#json-format) is set to
-`LEGACY_BEST_EFFORT`, the compiler should treat the message as if it were using the
+In files that use Editions syntax, if the [`json_format` feature](#json-format) is set
+to `LEGACY_BEST_EFFORT`, the compiler should treat the message as if it were using the
 proto2 syntax, and not issue an error if the values have such naming conflicts.
 
 :::
@@ -3120,7 +3120,7 @@ An `extend` block must contain at least one field or group.
 
 :::info
 ️
-Files using proto3 or editions syntax are not allowed to include _GroupDecl_ elements.
+Files using proto3 or Editions syntax are not allowed to include _GroupDecl_ elements.
 
 Files using the proto3 syntax are only allowed to declare extensions that
 are custom options. This means that the extendee must be one of the following:
@@ -3267,7 +3267,7 @@ message Test {
 }
 ```
 
-In editions sources, this is used to configure a field as required, optional with
+In Editions syntax, this is used to configure a field as required, optional with
 implicit presence, or optional with explicit presence. The default value is `EXPLICIT`,
 which means non-repeated fields are optional with explicit presence. If the default
 is changed via a file option to `IMPLICIT` then it matches proto3 semantics:
@@ -3316,14 +3316,14 @@ message Test {
 }
 ```
 
-In editions sources, this is used to configure a repeated numeric field to use the
+In Editions syntax, this is used to configure a repeated numeric field to use the
 packed encoding format or not. The default value is `PACKED`, which means such fields
 use the compact "packed" wire format. If the default is changed via a file option to
 `EXPANDED` then it matches default proto2 semantics: repeated fields use a less compact
 wire format.
 
 This replaces the `packed` field option, which may only be used in files that use
-proto2 or proto3 syntax. Files that use editions syntax must use this feature instead.
+proto2 or proto3 syntax. Files that use Editions syntax must use this feature instead.
 
 It is an error to use the `repeated_field_encoding` feature on a non-repeated field
 or an a repeated field whose type cannot use the compact encoding. Only primitive
@@ -3364,7 +3364,7 @@ message Test {
 }
 ```
 
-In editions sources, this can be used to activate "group encoding" for a message field.
+In Editions syntax, this can be used to activate "group encoding" for a message field.
 The default value is `LENGTH_PREFIXED`, which is also how message fields in proto2 and
 proto3 sources are serialized. But when set to `DELIMITED`, messages are serialized
 in the same fashion as groups in proto2 sources.
@@ -3414,7 +3414,7 @@ message Test {
 }
 ```
 
-In editions sources, this can be used to activate runtime verification that string
+In Editions syntax, this can be used to activate runtime verification that string
 values are valid UTF8-encoded sequences. The default value is `VERIFY`. If the
 default is changed via a file option to `NONE` then it matches proto2 semantics:
 string contents are not checked and could contain invalid byte sequences.
@@ -3456,7 +3456,7 @@ enum Test {
 }
 ```
 
-In editions sources, this can be used to configure whether an enum is open or closed.
+In Editions syntax, this can be used to configure whether an enum is open or closed.
 An open enum accepts numeric values other than those configured in the schema. A closed
 enum will effectively ignore such an unrecognized numeric value. With a closed enum,
 if such a value is encountered during de-serialization, the field will remain unset
@@ -3505,7 +3505,7 @@ message Test {
 }
 ```
 
-In editions sources, this can be used to configure whether an enum or message must
+In Editions syntax, this can be used to configure whether an enum or message must
 support the JSON format. The default value is `ALLOW`. If the default is changed via
 a file option to `LEGACY_BEST_EFFORT` then it matches proto2 semantics, where the
 JSON format was best effort since the proto2 syntax was created before the JSON format
@@ -3553,7 +3553,7 @@ enum Enum {
 This custom feature is defined in the well-known import `"google/protobuf/cpp_features.proto"`
 as a field inside the `(pb.cpp)` extension.
 
-In editions sources, this is used to configure a field that refers to an open enum
+In Editions syntax, this is used to configure a field that refers to an open enum
 to behave during de-serialization as if the enum were closed. This only impacts the
 C++ runtime. This is purely for backwards-compatibility, to mimic legacy behavior
 that would occur when a message defined in a proto2 file had a field whose type was
@@ -3597,7 +3597,7 @@ message Test {
 This custom feature is defined in the well-known import `"google/protobuf/cpp_features.proto"`
 as a field inside the `(pb.cpp)` extension.
 
-In editions sources, this can be used to configure the type used to represent
+In Editions syntax, this can be used to configure the type used to represent
 a string or bytes field. This only impacts C++ generated code. This replaces the
 `ctype` field option. In edition 2023, a field can use _either_ this feature or
 the `ctype` field option. In future editions, the `ctype` field option will be
@@ -3607,8 +3607,8 @@ Note that this enum does _not_ have a value for `STRING_PIECE`, which was one of
 the possible values for the `ctype` option. This was only implemented inside of
 Google and never implemented in the open-source release of the C++ Protobuf
 runtime. So sources should not be using this value. But if it were used, it
-should be changed to `STRING` when such a field is migrated to editions and to
-use this feature.
+should be changed to `STRING` when such a field is migrated to Editions syntax
+and to use this feature.
 
 ### Java: Legacy Closed Enum
 
@@ -3647,7 +3647,7 @@ enum Enum {
 This custom feature is defined in the well-known import `"google/protobuf/java_features.proto"`
 as a field inside the `(pb.java)` extension.
 
-In editions sources, this is used to configure a field that refers to an open enum
+In Editions syntax, this is used to configure a field that refers to an open enum
 to behave during de-serialization as if the enum were closed. This only impacts the
 Java runtime. This is purely for backwards-compatibility, to mimic legacy behavior
 that would occur when a message defined in a proto2 file had a field whose type was
@@ -3701,7 +3701,7 @@ message Test {
 This custom feature is defined in the well-known import `"google/protobuf/java_features.proto"`
 as a field inside the `(pb.java)` extension.
 
-In editions sources, this can be used to configure whether a string field has its
+In Editions syntax, this can be used to configure whether a string field has its
 contents verified at runtime to be valid UTF8. This only impacts the Java runtime.
 This can be used to mimic the legacy behavior of a proto2 file that had its
 `java_string_check_utf8` file option set to true. In such a file, all string fields
@@ -3744,7 +3744,7 @@ import named`"google/protobuf/go_features.proto"` as a field inside the `(pb.go)
 extension. The authoritative source for this file's content is the repo at
 https://github.com/protocolbuffers/protobuf-go.
 
-In editions sources, this can be used to configure whether a generated Go
+In Editions syntax, this can be used to configure whether a generated Go
 type representing an enum would include an `UnmarshalJSON` method. This only
 impacts Go generated code. This can be used to mimic the legacy behavior of a
 proto2 file, in which enum types had such a method generated.
