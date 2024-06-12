@@ -1111,7 +1111,7 @@ field.)
 :::note
 
 All of the concrete options have a field named `features`. This field's type
-is a message: `google.protobuf.FeatureSet`.
+is a message: [`google.protobuf.FeatureSet`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L966).
 
 Syntactically, values for this field are specified just like any other option
 field. However, sources that specify a syntax of "proto2" or "proto3" may _not_
@@ -1532,7 +1532,7 @@ message Extra {
 
 All of the various concrete option messages have a field named `features`. **Values
 for this field, or fields inside of it, may only be set by `option` declarations
-in files use the editions syntax** (by declaring an `edition` at the top of the
+in files that use the editions syntax** (by declaring an `edition` at the top of the
 file instead of a `syntax`).
 
 The type of this field in all cases is [`google.protobuf.FeatureSet`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L966).
@@ -1644,9 +1644,10 @@ Computing the default value of a feature for a particular edition is discussed
 in the [next section](#feature-defaults).
 
 An alternative to the above algorithm is to pre-compute the resolved values for all
-features, for all elements. This utilizes a logical "merge" operation, to combine two
-Protobuf messages. It also traverses the hierarchy in the opposite direction, top-down
-instead of bottom-up. The algorithm for this approach looks like so:
+features, for all elements. This utilizes a logical ["merge" operation](#merging-protobuf-messages)
+to combine two Protobuf messages. It also traverses the hierarchy in the opposite
+direction, top-down instead of bottom-up. The algorithm for this approach looks
+like so:
 1. Compute a `FeatureSet` message where all fields (including all custom feature
    fields, which are the fields of known extensions) have the default value for
    the file's edition. Call this message "current".
@@ -1982,7 +1983,7 @@ message UserData {
 
 :::info
 
-Files using proto3 or editions syntax are not allowed to include _GroupDecl_.
+Files using proto3 or editions syntax are not allowed to include _GroupDecl_ elements.
 
 Files using proto3 syntax are not allowed to include _ExtensionRangeDecl_ elements.
 
@@ -2585,7 +2586,7 @@ In files that use editions syntax, there are further rules for feature usage:
    [`field_presence` feature](#field-presence).
 2. Fields whose type is a message may not set the [`field_presence` feature](#field-presence)
    to `IMPLICIT`.
-3. Only repeated fields (which includes maps) may use the [`reoeated_field_encoding` feature](#repeated-field-encoding).
+3. Only repeated fields (which includes maps) may use the [`repeated_field_encoding` feature](#repeated-field-encoding).
    This feature may not be set to `PACKED` unless the field's type is a numeric type.
    Numeric types include all ten integer types, both floating point types, `bool`, and
    enum types. (See [_Field Types_](#field-types).)
