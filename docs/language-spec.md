@@ -2149,25 +2149,35 @@ The following table shows how field presence is derived from the field's cardina
 |-------------|---------------------------|----------------|
 | `optional`  | 0 (absent) or 1 (present) | Explicit       |
 | `required`  | 1                         | Required       |
-| `repeated`  | 0 or more                 | Implicit       |
-| _map_ *     | 0 or more                 | Implicit       |
-| omitted     | _see below_               |                |
+| `repeated`  | 0 or more                 | Implicit †     |
+| map *       | 0 or more                 | Implicit †     |
+| _omitted_   | 0 (absent) or 1 (present) | _see below_    |
 
 __*__ [Map fields](#maps) behave like fields with `repeated` cardinality.
-      The main difference is that fields with `repeated` cardinality permit
-      duplicates and preserve element order. But map fields do not permit
-      entries that have duplicate keys and do not preserve element order.
+The main difference is that fields with `repeated` cardinality permit duplicates
+and preserve element order. But map fields do not permit entries that have
+duplicate keys and do not preserve element order.
+
+__†__ Implicit presence for repeated and map fields means that it is not
+possible to explicitly distinguish between a value that is absent and
+one that is empty. If the field has no entries, it is absent; presence
+is implied by the field having at least one entry.
 
 When the cardinality is omitted, the field presence depends on the context
 in which the field is defined:
 
-| File Syntax      | Context                                 | Field Presence                        |
-|------------------|-----------------------------------------|---------------------------------------|
-| _all_            | Inside a [oneof](#oneofs)               | Explicit                              |
-| proto3, editions | Inside an [`extend` block](#extensions) | Explicit                              |
-| proto3           | Normal field with message type          | Explicit                              |
-| proto3           | Normal field with non-message type      | Implicit                              |
-| editions         | Normal field                            | _depends on `field_presence` feature_ | 
+| File Syntax *            | Context of Field Without Cardinality    | Field Presence                        |
+|--------------------------|-----------------------------------------|---------------------------------------|
+| proto2, proto3, editions | Inside a [oneof](#oneofs)               | Explicit                              |
+| proto3, editions         | Inside an [`extend` block](#extensions) | Explicit                              |
+| proto3                   | Normal field with message type †        | Explicit                              |
+| proto3                   | Normal field with non-message type †    | Implicit                              |
+| editions                 | Normal field †                          | _depends on `field_presence` feature_ |
+
+__*__ The "proto2" syntax requires cardinality for all fields except those
+in a oneof, which is why it only appears once in the table.
+
+__†__ A normal field is one that is in neither a oneof nor an `extend` block.
 
 As seen above, fields in a oneof and extensions always have explicit presence.
 In proto3 sources, message fields always have explicit presence, too.
@@ -2240,8 +2250,8 @@ zero value for a non-repeated field depends on the field's type:
 | _message types_      | `{}` (empty message)                    |
 
 __*__ In proto3 syntax (and for open enums in edition syntax), the first value 
-      in an enum _must_ have a numeric value of zero. So, in proto3, the
-      default value of an enum field is always the one with a value of zero.
+in an enum _must_ have a numeric value of zero. So, in proto3, the default value
+of an enum field is always the one with a value of zero.
 
 In most runtimes, an _absent_ value is represented using a sentinel value like
 `nil`, `null`, or `None` (specific to the implementation language), which
