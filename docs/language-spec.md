@@ -253,20 +253,20 @@ to match the keyword, per the rules below. All of the keyword token types below
 are *also* considered identifiers by the grammar. For example, a production in the
 grammar that references `identifier` will also accept `syntax` or `map`.
 ```ebnf
-syntax  = "syntax" .      map        = "map" .          int32    = "int32" .
-import  = "import" .      extensions = "extensions" .   int64    = "int64" .
-weak    = "weak" .        reserved   = "reserved" .     uint32   = "uint32" .
-public  = "public" .      rpc        = "rpc" .          uint64   = "uint64" .
-package = "package" .     stream     = "stream" .       sint32   = "sint32" .
-option  = "option" .      returns    = "returns" .      sint64   = "sint64" .
-inf     = "inf" .         to         = "to" .           fixed32  = "fixed32" .
-nan     = "nan" .         max        = "max" .          fixed64  = "fixed64" .
-message = "message" .     repeated   = "repeated" .     sfixed32 = "sfixed32" .
-enum    = "enum" .        optional   = "optional" .     sfixed64 = "sfixed64" .
-service = "service" .     required   = "required" .     bool     = "bool" .
-extend  = "extend" .      string     = "string" .       float    = "float" .
-group   = "group" .       bytes      = "bytes" .        double   = "double" .
-oneof   = "oneof" .
+syntax  = "syntax" .      oneof      = "oneof" .        int32    = "int32" .
+edition = "edition" .     map        = "map" .          int64    = "int64" .
+import  = "import" .      extensions = "extensions" .   uint32   = "uint32" .
+weak    = "weak" .        reserved   = "reserved" .     uint64   = "uint64" .
+public  = "public" .      rpc        = "rpc" .          sint32   = "sint32" .
+package = "package" .     stream     = "stream" .       sint64   = "sint64" .
+option  = "option" .      returns    = "returns" .      fixed32  = "fixed32" .
+inf     = "inf" .         to         = "to" .           fixed64  = "fixed64" .
+nan     = "nan" .         max        = "max" .          sfixed32 = "sfixed32" .
+message = "message" .     repeated   = "repeated" .     sfixed64 = "sfixed64" .
+enum    = "enum" .        optional   = "optional" .     bool     = "bool" .
+service = "service" .     required   = "required" .     float    = "float" .
+extend  = "extend" .      string     = "string" .       double   = "double" .
+group   = "group" .       bytes      = "bytes" .
 ```
 
 #### Numeric Literals
@@ -448,13 +448,13 @@ defined are presented thereafter, possibly in a subsequent section. Remember tha
 lower-snake-case identifiers in EBNF refer to lexical elements, which are defined above in
 the previous section.
 
-The grammar presented here is a _unified_ grammar: it is capable of parsing both proto2
-and proto3 syntax files. This means you do not need multiple passes, such as a pre-parse
-to determine the syntax level of the file and then a full-parse using a syntax-specific
-grammar. The differences between the two do not require a separate grammar and can be
-implemented as a post-process step to validate the resulting parsed syntax tree. The
-relevant differences between proto2 and proto3 syntax are called out in the sections
-below.
+The grammar presented here is a _unified_ grammar: it is capable of parsing files that
+use the proto2, proto3, or Editions syntax. This means you do not need multiple passes,
+such as a pre-parse to determine the syntax level of the file and then a full-parse
+using a syntax-specific grammar. The differences between the three do not require a
+separate grammar and can be implemented as a post-process step to validate the resulting
+parsed syntax tree. The relevant differences between the various syntaxes are called out
+in the sections below.
 
 
 ## Source File Organization
@@ -493,20 +493,28 @@ EmptyDecl = semicolon .
 ### Syntax Declaration
 
 Files should define a syntax level. If present, this must be the first
-declaration in the file. The string literal in the declaration is the
-syntax level, and it must have a value of "proto2" or "proto3". Other
-values are not allowed (though the set of allowed values may be expanded
-in the future). If a file contains no syntax declaration then the proto2
-syntax is assumed.
+declaration in the file. When the "syntax" keyword is used, string literal
+indicates the syntax level and must have a value of "proto2" or "proto3".
+If the "edition" keyword is used, the file is said to use Editions syntax,
+and the string literal indicates a particular indication. By convention,
+editions are named after the year in which their development began. The
+first edition is "2023".
+
+Other values for the string literal are not allowed (though the set of
+allowed values may be expanded in the future). If a file contains no syntax
+or edition declaration then the proto2 syntax is assumed.
 ```ebnf
-SyntaxDecl = syntax equals SyntaxLevel semicolon .
+SyntaxDecl = syntax equals SyntaxLevel semicolon |
+             edition equals Edition semicolon .
 
 SyntaxLevel = StringLiteral .
+Edition     = StringLiteral .
 ```
 
 ```txt title="Examples"
 syntax = "proto2":
 syntax = "proto3";
+edition = "2023";
 ```
 
 String literals support C-style concatenation. So the sequence
@@ -514,6 +522,40 @@ String literals support C-style concatenation. So the sequence
 ```ebnf
 StringLiteral = string_literal { string_literal } .
 ```
+
+#### Allowed Editions
+
+The actual string values allowed in the `edition` statement are
+defined by the `google.protobuf.Edition` enum, which is defined in
+[`google/protobuf/descriptor.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L60-L94).
+
+The first edition is represented by the `EDITION_2023` value. All
+earlier values (those with lower numeric values) should be ignored
+for the purpose of considering what string values are allowed.
+Similarly, the sentinel `EDITION_MAX` value and all values whose
+names end in `_TEST_ONLY` should also be ignored.
+
+Of the values that remain (not ignored per the above), the portion
+of the value name _after_ the `EDITION_` prefix is what is allowed.
+For example, with the value `EDITION_2023`, `2023` is what can be
+used, i.e. `edition "2023";`.
+
+Note, however, that just because an edition is declared in the
+enum does not necessarily mean that the edition is actually
+_supported_ or even completely defined. For example, v27.0 of
+the Protobuf distribution includes a value named `EDITION_2024`,
+but such a version was not implemented yet. It is present in the
+file because it must be added to the enum before any
+implementation work can actually being. Once the edition is
+adequately implemented for users to try it out, it can be made
+available for users of `protoc` via an `--experimental_editions`
+flag. (Users were able to experiment with edition 2023 in this
+same way in releases of Protobuf prior to v27.0, starting with
+v24.0.)
+
+So the compiler must limit the set of allowed values to only
+valid entries in the enum and only to editions that the compiler
+actually supports and implements.
 
 ### Package Declaration
 
@@ -597,6 +639,34 @@ The elements that are visible to a given file include the following:
    given file imports. [Public imports](#imports) are transitive, so if `a.proto` imports
    `b.proto` which _publicly_ imports `c.proto` which in turn _publicly_ imports `d.proto`,
    then everything in `c.proto` and `d.proto` is visible to `a.proto`.
+
+#### Well-Known Imports
+
+The "well-known" imports are a set of files that define the well-known types. The
+term "well-known" means they are available to all Protobuf sources. Instead of requiring
+a user to supply these files, the compiler should be able to provide their contents. All
+of the well-known types are in files whose path begins with "google/protobuf". Furthermore,
+the package for each file starts with `google.protobuf`, with the exception of the files
+that define custom features, which use the short package `pb`.
+
+As of v1.32 of `buf` and v27.0 of `protoc`, the well-known imports include the following
+files:
+* `google/protobuf/any.proto`
+* `google/protobuf/api.proto`
+* `google/protobuf/compiler/plugin.proto`
+* `google/protobuf/cpp_features.proto`
+* `google/protobuf/descriptor.proto`
+* `google/protobuf/duration.proto`
+* `google/protobuf/empty.proto`
+* `google/protobuf/field_mask.proto`
+* `google/protobuf/java_features.proto`
+* `google/protobuf/source_context.proto`
+* `google/protobuf/struct.proto`
+* `google/protobuf/type.proto`
+* `google/protobuf/wrappers.proto`
+
+The authoritative source for all of these files is the official Protobuf repo
+at https://github.com/protocolbuffers/protobuf.
 
 
 ## Named Elements
@@ -1012,15 +1082,15 @@ the options are being defined:
 
 | Context         | Options message                                                                                                                           |
 |-----------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| file \*         | [google.protobuf.FileOptions](https://github.com/protocolbuffers/protobuf/blob/v21.3/src/google/protobuf/descriptor.proto#L341)           |
-| message †       | [google.protobuf.MessageOptions](https://github.com/protocolbuffers/protobuf/blob/v21.3/src/google/protobuf/descriptor.proto#L466)        |
-| field ‡         | [google.protobuf.FieldOptions](https://github.com/protocolbuffers/protobuf/blob/v21.3/src/google/protobuf/descriptor.proto#L534)          |
-| oneof           | [google.protobuf.OneofOptions](https://github.com/protocolbuffers/protobuf/blob/v21.3/src/google/protobuf/descriptor.proto#L638)          |
-| extension range | [google.protobuf.ExtensionRangeOptions](https://github.com/protocolbuffers/protobuf/blob/v21.3/src/google/protobuf/descriptor.proto#L128) |
-| enum            | [google.protobuf.EnumOptions](https://github.com/protocolbuffers/protobuf/blob/v21.3/src/google/protobuf/descriptor.proto#L646)           |
-| enum value      | [google.protobuf.EnumValueOptions](https://github.com/protocolbuffers/protobuf/blob/v21.3/src/google/protobuf/descriptor.proto#L667)      |
-| service         | [google.protobuf.ServiceOptions](https://github.com/protocolbuffers/protobuf/blob/v21.3/src/google/protobuf/descriptor.proto#L681)        |
-| method          | [google.protobuf.MethodOptions](https://github.com/protocolbuffers/protobuf/blob/v21.3/src/google/protobuf/descriptor.proto#L701)         |
+| file \*         | [google.protobuf.FileOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L429)           |
+| message †       | [google.protobuf.MessageOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L555)        |
+| field ‡         | [google.protobuf.FieldOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L637)          |
+| oneof           | [google.protobuf.OneofOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L804)          |
+| extension range | [google.protobuf.ExtensionRangeOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L168) |
+| enum            | [google.protobuf.EnumOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L815)           |
+| enum value      | [google.protobuf.EnumValueOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L847)      |
+| service         | [google.protobuf.ServiceOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L872)        |
+| method          | [google.protobuf.MethodOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L895)         |
 
 __*__ An option that is a top-level declaration, not in the context of
 any other element, is in the file context.
@@ -1031,9 +1101,23 @@ group's body are considered to be message options.
 __‡__ In the context of a [group](#groups), compact option declarations
 that precede the group's body are considered to be field options.
 
+All of the above types are defined in the well-known import named
+`"google/protobuf/descriptor.proto"`.
+
 All of the above concrete options have a field named `uninterpreted_option`
 which is for internal use only. (Option declarations may not refer to this
 field.)
+
+:::note
+
+All of the concrete options have a field named `features`. This field's type
+is a message: [`google.protobuf.FeatureSet`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L966).
+
+Syntactically, values for this field are specified just like any other option
+field. However, files that use proto2 or proto3 syntax may _not_ use this option.
+It can **only** be used in sources that use Editions syntax.
+
+:::
 
 To resolve an option name, we start with the relevant message type (from
 the table above) as the context message. For each name component, we do the
@@ -1334,6 +1418,535 @@ does not currently support additional path components in the type URL and does n
 support the full range of allowed characters in a domain component or URL path component.
 :::
 
+### Meta-Options
+
+A "meta-option" is a field option that controls the behavior of other options.
+Let's explore what that means:
+
+* Options are themselves fields, of concrete options message. (See
+  [_Resolving Option Names_](#resolving-option-names).)
+* Since they are fields, that means they too can be annotated with field options.
+* Such an option, one that is intended to be used on other options, is a meta-option.
+
+Below are the meta-options:
+1. [`retention`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L733-L742):
+   This option controls whether runtimes should retain the value of this option and
+   make it available at runtime, for reflection use cases. This meta-option can be
+   ignored when parsing and validating Protobuf sources. It is only used during code
+   generation, to decide what options to make available to a Protobuf runtime.
+
+   ```protobuf title="Example"
+   extend google.protobuf.FileOptions {
+       repeated MyCustomData my_custom_data = 50001 [
+           // highlight-start
+           // The my_custom_data option is only available when
+           // processing source. It is unavailable at runtime.
+           retention = RETENTION_SOURCE
+           // highlight-end
+       ];
+   }
+   ```
+
+2. [`targets`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L744-L761):
+   This option controls the target types -- the types of elements to which this field
+   applies. This is described in more detail [below](#target-types).
+
+3. [`edition_defaults`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L763-L767):
+   This option is required for feature fields and is used to to resolve feature values.
+   This is described in more detail [below](#feature-defaults).
+ 
+4. [`feature_support`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L772-L792):
+   This option is also required for feature fields and defines the range of editions in
+   which a feature field may be used. This is described in more detail [below](#feature-lifetimes).
+
+#### Target Types
+
+The `targets` meta-option limits the kinds of elements where an option can be
+used. When the options are resolved, this meta-option should be consulted for
+all fields set. This includes all elements in an option name. It also includes
+all field names referenced inside of a message literal. If any of the referenced
+fields has a non-empty value for the `targets` meta-option, and none of the
+values match the context in which the reference is found, it is an invalid use
+of that field.
+
+The table below lists all of the target types and the context in which they may be
+used:
+
+| Context         | Target Type                   |
+|-----------------|-------------------------------|
+| file            | `TARGET_TYPE_FILE`            |
+| message         | `TARGET_TYPE_MESSAGE`         |
+| field           | `TARGET_TYPE_FIELD`           |
+| oneof           | `TARGET_TYPE_ONEOF`           |
+| extension range | `TARGET_TYPE_EXTENSION_RANGE` |
+| enum            | `TARGET_TYPE_ENUM`            |
+| enum value      | `TARGET_TYPE_ENUM_ENTRY`      |
+| service         | `TARGET_TYPE_SERVICE`         |
+| method          | `TARGET_TYPE_METHOD`          |
+
+In the following file, for example, the highlighted option use is invalid: the
+field referenced can only be used in file and field contexts but is incorrectly
+used in an enum context.
+
+```protobuf title="Example"
+syntax = "proto3";
+
+package foo.bar;
+
+import "google/protobuf/descriptor.proto";
+
+enum Abc {
+  // highlight-start
+  option (enum_extra).foo = true;
+  // highlight-end
+
+  ABC = 0;
+}
+
+extend google.protobuf.FileOptions {
+  Extra file_extra = 33333;
+}
+extend google.protobuf.MessageOptions {
+  Extra message_extra = 33333;
+}
+extend google.protobuf.FieldOptions {
+  Extra field_extra = 33333;
+}
+extend google.protobuf.EnumOptions {
+  Extra enum_extra = 33333;
+}
+
+message Extra {
+  string name = 1;
+  uint64 id = 2;
+
+  // This field can only be used on files and fields.
+  bool foo = 3 [
+    targets = TARGET_TYPE_FILE,
+    targets = TARGET_TYPE_FIELD
+  ];
+}
+```
+
+### Features
+
+All of the various concrete option messages have a field named `features`. **Values
+for this field, or fields inside of it, may only be set by `option` declarations
+in files that use the Editions syntax** (by declaring an `edition` at the top of the
+file instead of a `syntax`).
+
+The type of this field in all cases is [`google.protobuf.FeatureSet`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L966).
+The term "feature" or "feature field" refers to a field of this message. All such
+fields must have a boolean or enum type. They may not be repeated. This message
+defines extension ranges. The type of all extension fields should be a message. The
+fields of those message are called "custom features" or "custom feature fields".
+Similarly, these fields may not be repeated and must have a type of bool or enum.
+
+Each feature field uses the `targets` meta-option to indicate to which kind of element
+it applies. Typically, there will be at least two such types allowed: the actual element
+type to which the value applies as well as `TARGET_TYPE_FILE`, which allows setting a
+file-wide default value (that is inherited by all elements in the file unless overridden).
+
+Features control the semantics of the language. They allow elements in a file that
+uses Editions syntax to use the semantics of either proto2 or proto3 syntaxes. They
+also allow fine-grained control, allowing a single file to mix these semantics in ways
+that were not possible when using proto2 or proto3 syntax. For example, an enum in a
+file that uses proto2 syntax is always closed; an enum in a file that uses proto3 syntax
+is always open. But enums in a file that uses Editions syntax can be either, and both
+open and closed enums can be defined in the same file when using Editions syntax.
+
+Features are how the first edition, "2023", unified the proto2 and proto3 syntaxes.
+A file that uses proto3 syntax can be migrated to Editions syntax and preserve all of its
+semantics. A file that uses proto2 syntax can also be migrated to Editions syntax and
+preserve all of its semantics. And features allow these semantics to change incrementally,
+in a fine-grained way -- even as granular as changing a single field at a time.
+
+#### Feature Resolution
+
+In a source file, features are defined **sparsely**. So the author of a Protobuf
+source file is not expected to put features on every element. Instead, they are
+expected to use file-wide defaults for cases where they want different semantics
+than the defaults for the file's edition, and to use per-element features only
+when they wish that element to have different semantics than the file's defaults.
+
+The default values for a feature can change from one edition to the next. So in
+order to compute the value of a feature for a particular element, we have to
+examine that element's features, the features of its ancestors (from which it
+can "inherit" override values, such as a file-wide default), and also the default
+value of the feature for the file's edition.
+
+An "element" in this context is anything that can have options, since features are
+represented as options. The table in the [_Target Types_](#target-types) section
+above enumerates the nine types of elements. The root of the hierarchy is the file
+itself (so feature resolution never needs to examine feature values outside of a
+single file). The parent of a top-level element (message, enum, extension, or service)
+is the file. The parent of a field, oneof, or extension range is its enclosing message.
+When types are nested inside a message (enums, extensions, and other messages), the
+enclosing message is their parent.  The parent of an enum value is the enclosing enum.
+The parent of an RPC method is the enclosing service.
+
+We can generalize the above and state the ancestry of an element is defined by the
+lexical blocks (`{ ... }`) in which it is defined. The one exception to this is that,
+though fields in a oneof are lexically defined inside the oneof body, the enclosing
+_message_ is the parent of those fields, not the oneof.
+
+The following example demonstrates the hierarchy, stating the parent of each element:
+```protobuf title="example.proto"
+edition = "2023";                             // Parent
+                                              //----------------------
+package foo.bar;                              //
+                                              //
+import "google/protobuf/descriptor.proto";    //
+                                              //
+message Message {                             // file "example.proto"
+    oneof id {                                // message foo.bar.Message
+      string name = 1;                        // message foo.bar.Message
+      uint64 num = 2;                         // message foo.bar.Message
+    }                                         //
+    message NestedMessage {                   // message foo.bar.Message
+      extend google.protobuf.MessageOptions { //
+        string fizz = 49999;                  // message foo.bar.Message.NestedMessage
+      }                                       //
+      option (NestedMessage.fizz) = "buzz";   //
+      enum Kind {                             // message foo.bar.Message.NestedMessage
+        NULL = 0;                             // enum foo.bar.Message.NestedMessage.Kind
+        PRIMARY = 1;                          // enum foo.bar.Message.NestedMessage.Kind
+        SECONDARY = 2;                        // enum foo.bar.Message.NestedMessage.Kind
+      }                                       //
+      Kind kind = 1;                          // message foo.bar.Message.NestedMessage
+    }                                         //
+    NestedMessage extra = 3;                  // message foo.bar.Message
+    extensions 1 to 100;                      // message foo.bar.Message
+}                                             //
+                                              //
+enum Unit {                                   // file "example.proto"
+  VOID = 0;                                   // enum foo.bar.Unit
+}                                             //
+                                              //
+service FooService {                          // file "example.proto"
+  rpc Bar(Message) returns (Message);         // service foo.bar.FooService
+}                                             //
+```
+The file itself has no parent element: it is the root of the hierarchy.
+
+The algorithm to resolve a feature for a particular element looks like so:
+1. Examine the element's options.
+   * If available, examine the option message's `features` field.
+     * If present, query for the particular feature field in question.
+       * If present, its value is the resolved feature value. **Done.**
+2. If the element is a file (so there is no parent), the resolved
+   feature value is the default value for the file's edition. **Done.**
+3. Get the element's parent.
+4. Go back to step 1, repeating the algorithm, but substituting parent
+   for element.
+
+Computing the default value of a feature for a particular edition is discussed
+in the [next section](#feature-defaults).
+
+An alternative to the above algorithm is to pre-compute the resolved values for all
+features, for all elements. This utilizes a logical ["merge" operation](#merging-protobuf-messages)
+to combine two Protobuf messages. It also traverses the hierarchy in the opposite
+direction, top-down instead of bottom-up. The algorithm for this approach looks
+like so:
+1. Compute a `FeatureSet` message where all fields (including all custom feature
+   fields, which are the fields of known extensions) have the default value for
+   the file's edition. Call this message "current".
+2. Query for the `features` field of the file's options.
+   * If present, merge the value from the file's options into "current".
+3. Store "current" as the resolved feature set for the file.
+4. For each child element (top-level messages, enums, extensions, and services):
+   1. Query for the `features` field of this element's options.
+      * If present, clone the "current" `FeatureSet`, and merge the value from the
+        element's options into the clone. Assign the result as "current".
+   2. Store "current" as the resolved feature set for the element.
+   3. Repeat the above steps recursively, for each child of the element.
+      * If the element is a message, its children are its fields, oneofs, extension
+        ranges, nested messages, nested enums, and nested extensions.
+      * If the element is an enum, its children are its enum values.
+      * If the element is a service, its children are its RPC methods.
+      * If the element is a field (or extension), oneof, extension range, enum
+        value, or RPC method, it has no children.
+
+##### Merging Protobuf Messages
+
+Merging two Protobuf messages, "a" and "b", mutates "a". By convention, this is
+called "merging b into a". The algorithm is works like so:
+* For each field that is present in "b":
+  * If that field is not present in "a":
+    * Update "a", setting the field to the value in "b".
+  * Else if the field is a map field:
+    * For each key in the map value in "b":
+      * Set the value in the map value in "a" using the key and the value from "b".
+        If the key is already present in "a", the value is replaced with the value
+        in "b".
+  * Else if the field is repeated:
+    * For each element in the values in "b", append to the values in "a". If "a" is
+      initially empty, then its values will exactly match the values in "b".
+  * Else if the field's type is a message:
+    * Recursively merge the message value in "b" into the message value in "a".
+  * Else:
+    * Replace the value in "a" with the value in "b".
+
+The process is design to produce the same result as the following (less efficient)
+process:
+* Serialize "a" to bytes.
+* Serialize "b" to bytes.
+* Concatenate the bytes from "b" to the end of the bytes from "a".
+* Clear "a" and de-serialize the combined bytes into it.
+
+##### Feature Resolution Example
+
+Let's consider the following example:
+```protobuf
+edition = "2023";
+
+option features.field_presence = IMPLICIT;
+
+message ExampleMessage {
+  string not_utf8 = 1 [features.utf8_validation = NONE];
+  repeated bool flags = 2 [features.repeated_field_encoding = EXPANDED];
+  ExampleMessage child = 3 [features.message_encoding = DELIMITED];
+}
+
+enum ExampleEnum {
+  option features.enum_type = CLOSED;
+  VALUE = 1;
+}
+```
+The default features for edition 2023 look like so:
+```protobuf
+{
+  field_presence: EXPLICIT
+  enum_type: OPEN
+  repeated_field_encoding: PACKED
+  utf8_validation: VERIFY
+  message_encoding: LENGTH_PREFIXED
+  json_format: ALLOW
+}
+```
+
+The resolved features for the example file above look like so, due to its
+one option that overrides the `field_presence` feature:
+```protobuf
+{
+  // highlight-start
+  field_presence: IMPLICIT
+  // highlight-end
+  enum_type: OPEN
+  repeated_field_encoding: PACKED
+  utf8_validation: VERIFY
+  message_encoding: LENGTH_PREFIXED
+  json_format: ALLOW
+}
+```
+
+The resolved features for the `ExampleMessage` are the same as for the file
+above because it does not override any features via option declarations.
+
+Its fields inherit its features and then override some of them:
+```protobuf title="non_utf8"
+{
+  field_presence: IMPLICIT
+  enum_type: OPEN
+  repeated_field_encoding: PACKED
+  // highlight-start
+  utf8_validation: NONE
+  // highlight-end
+  message_encoding: LENGTH_PREFIXED
+  json_format: ALLOW
+}
+```
+
+```protobuf title="flags"
+{
+  field_presence: IMPLICIT
+  enum_type: OPEN
+  // highlight-start
+  repeated_field_encoding: EXPANDED
+  // highlight-end
+  utf8_validation: VERIFY
+  message_encoding: LENGTH_PREFIXED
+  json_format: ALLOW
+}
+```
+
+```protobuf title="child"
+{
+  field_presence: IMPLICIT
+  enum_type: OPEN
+  repeated_field_encoding: PACKED
+  utf8_validation: VERIFY
+  // highlight-start
+  message_encoding: DELIMITED
+  // highlight-end
+  json_format: ALLOW
+}
+```
+
+The resolved features for `ExampleEnum` vary from the file's features just by
+the one value:
+```protobuf
+{
+  field_presence: IMPLICIT
+  // highlight-start
+  enum_type: CLOSED
+  // highlight-end
+  repeated_field_encoding: PACKED
+  utf8_validation: VERIFY
+  message_encoding: LENGTH_PREFIXED
+  json_format: ALLOW
+}
+```
+
+The final element, the enum value `VALUE`, has the same resolved features as
+`ExampleEnum` since it does not override any features.
+
+#### Feature Defaults
+
+The `edition_defaults` meta-option is how default values for features are configured.
+This option allows for defining the values for a particular edition.
+
+The actual value is a string and it must be in the format that the value would have
+in the [text format](#protobuf-text-format). Since feature fields should have an enum
+or bool type, this means the strings are simple identifiers for `true`, `false`,
+or valid enum value names.
+
+Each value is associated with a particular edition, but there are also a few entries
+in the `Edition` enum that have special meaning here:
+
+| Edition          | Purpose                                                                                                                                                                                       |
+|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `EDITION_LEGACY` | Indicates the behavior prior to when the feature was introduced.                                                                                                                              |
+| `EDITION_PROTO2` | Indicates the behavior for elements in a file that uses proto2 syntax. This is effectively the same as `EDITION_LEGACY`.                                                                      |
+| `EDITION_PROTO3` | Indicates the behavior for elements in a file that uses proto3 syntax.                                                                                                                        |
+| `EDITION_MAX`    | Should not be used for default values. Used by plugins as a "max edition", to indicate they support all editions (only for plugins whose output does not depend on any features or editions). |
+
+Default values are defined sparsely. If a value is not present for a particular edition,
+that edition uses the default of the highest edition that _is_ present. The "highest" edition
+is the one with the highest numeric value that is less than the particular edition that is
+absent.
+
+Let's consider the following example:
+```protobuf
+edition_defaults = { edition: EDITION_LEGACY, value: "A" },
+edition_defaults = { edition: EDITION_PROTO3, value: "B" },
+edition_defaults = { edition: EDITION_2024, value: "C" }
+```
+
+We can use the rule in the previous paragraph to derive the values for the missing editions.
+That gives us the following defaults for all editions (including values for files that use
+proto2 or proto3 syntax):
+
+| Edition          | Value |
+|------------------|-------|
+| `EDITION_PROTO2` | `A`   |
+| `EDITION_PROTO3` | `B`   |
+| `EDITION_2023`   | `B`   |
+| `EDITION_2024`   | `C`   |
+
+So the reason the table above states that `EDITION_PROTO2` is effectively the same as
+`EDITION_LEGACY` is because of the way defaults are represented sparsely and the fact
+that `EDITION_PROTO2` is the first concrete value in the enum. By convention, the first
+default should be `EDITION_LEGACY`, which means there should be no need to specify a
+default for `EDITION_PROTO2`.
+
+If a future `EDITION_2025` were added and no new default value added for it, that
+edition would use the value `C`, which comes from the highest default prior to 2025,
+that of `EDITION_2024`.
+
+#### Feature Lifetimes
+
+The `feature_support` meta-option limits in which editions a feature field can be
+used. For backwards-compatibility, fields can't just be added to or removed from
+`FeatureSet` in later editions.
+
+Because of the nature of how option names are resolved, and the fact that features
+are defined as options, if a new field gets added in a future edition, then the
+compiler would start accepting use of that feature even in files that indicate an
+older edition. But that wouldn't be valid because the code generators and runtimes
+for that older edition wouldn't actually know about that newer feature.
+
+Similarly, once a feature is no longer needed it can't just be removed, because
+then it's no longer in the definition for `FeatureSet`, so the compiler would no
+longer be able to resolve that feature field's name and could no longer accept the
+use of that field in older editions, even if older editions are still supported by
+the compiler.
+
+So instead of adding and removing the field, the author must instead define the
+editions in which the field can be used using the `feature_support` option.
+
+In addition to logically adding and removing feature fields, the `feature_support`
+option can also be used to deprecate a feature field. In an edition in which the
+field is deprecated, the compiler may emit a warning about the deprecation if
+that field actually used.
+
+Let's take a look at an example, which comes from the `(pb.cpp).legacy_closed_enum`
+custom C++ feature that is defined in the well-known file `google/protobuf/cpp_features.proto`:
+```protobuf
+feature_support = {
+  edition_introduced: EDITION_2023
+  edition_deprecated: EDITION_2023
+  deprecation_warning: "The legacy closed enum treatment in C++ is "
+                       "deprecated and is scheduled to be removed in "
+                       "edition 2025.  Mark enum type on the enum "
+                       "definitions themselves rather than on fields."
+}
+```
+In this example, the first edition in which the feature can be used is 2023.
+Interestingly, it is deprecated in that very first edition. A compiler should
+include the specified warning message when a deprecated field is used. Based
+on that warning, we will expect to see `edition_removed: EDITION_2025` added
+to this option once such a value is added to the `Edition` enum.
+
+If a feature field is referenced in an earlier edition than its configured
+`edition_introduced` value, the compiler must emit an error. Similarly, if a
+feature field is referenced in a later edition than its configured
+`edition_removed` value, the compiler must emit an error. All features should
+include an `edition_introduced` value. But as seen in the example above, an
+`edition_removed` may not be present (an `edition_deprecated` might also not
+be present), in which case `EDITION_MAX` is used (which basically means the
+feature can be used in any edition that is later than or equal to the one in
+which it was introduced).
+
+An "earlier" edition is one with a lower numeric value. A "later" edition is
+one with a higher numeric value.
+
+Enum values also have an option named [`feature_support`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L863),
+and [its type](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L772-L791)
+is the same as that of the eponymous meta-option. Its usage is the same as
+above, but it defines the lifetime of feature _values_, for features that
+have enum types. Similar to how the `feature_support` meta-option allows for
+logically adding, removing, and deprecating feature fields in future editions,
+this enum value option allows logically adding, removing, and deprecating values
+in future editions.
+
+### Option Validation
+
+There are several rules that a compiler is expected to enforce regarding where an
+option may be used and what its allowed values are. Examples of such validation
+include verifying that an option is only used on certain target types and verifying
+that the `features` field is only used in files that use Editions syntax.
+
+Caveats and rules for option usage, such as when an option can or cannot be used
+and restrictions on its allowed values, can be found throughout this document.
+
+The following are additional rules for _file_ options.
+
+* The `java_string_check_utf8` option may not be used in files that use the
+  Editions syntax. Instead, there is a custom feature named
+  [`(pb.java).utf8_validation`](#pbjavautf8_validation), defined in the well-known
+  file `"google/protobuf/java_features.proto"`, that can be used to control this
+  behavior.
+* When the `optimize_for` file option is absent or set to a value _other than_
+  `LITE_RUNTIME`, the file **may not** import any file whose `optimize_for` option
+  is set to `LITE_RUNTIME`. Put another way, non-lite files may not import lite files.
+* If the file options indicate a value for the `field_presence` feature, it must not
+  be set to `LEGACY_REQUIRED`. This is not allowed as a default value for the file.
+
+Additional rules for options on other kinds of elements are described in later
+sections.
+
+
 ## Messages
 
 The core of the Protobuf IDL is defining messages, which are heterogeneous
@@ -1370,8 +1983,9 @@ message UserData {
 
 :::info
 
-Files using the proto3 syntax are not allowed to include _GroupDecl_ or
-_ExtensionRangeDecl_ elements.
+Files using proto3 or Editions syntax are not allowed to include _GroupDecl_ elements.
+
+Files using proto3 syntax are not allowed to include _ExtensionRangeDecl_ elements.
 
 Messages are not allowed to include an option named `map_entry`, regardless of syntax level.
 
@@ -1418,11 +2032,18 @@ required bool yes = 10101 [deprecated=true];
 :::info
 
 In a file using the proto2 syntax, fields *must* include a cardinality
-(despite it being optional in the production above).
+(despite it being optional in the grammar above).
 
 In a file using the proto3 syntax, fields are not allowed to use the `required`
 cardinality, are not allowed to include an option named `default`, and are not
-allowed to refer to enum types that are defined in files that use proto2 syntax.
+allowed to refer to closed enum types. A closed enum type is one that is defined
+in a file that uses proto2 syntax or one defined in a file that uses Editions
+syntax and whose [`enum_type` feature](#enum-type) has a value of `CLOSED`.
+
+In a file using Editions syntax, fields are allowed to use neither the
+`required` _nor_ `optional` keywords. If the field's [`field_presence` feature](#field-presence)
+has a value of `IMPLICIT`, it may not include an option named `default` and is
+not allowed to refer to a closed enum type.
 
 :::
 
@@ -1446,10 +2067,11 @@ number in the range.
 
 :::tip
 
-When creating messages, authors should prefer lower numbers: unmarshaling a message is
-typically optimized for smaller field numbers, and smaller values are more efficiently
-encoded and decoded. So it is recommended to always start numbering fields at 1 and to
-use smaller values for more commonly used fields when possible.
+When creating messages, authors should prefer lower numbers: unmarshalling a message is
+typically optimized for smaller field numbers. Also, smaller values are more efficiently
+encoded and decoded: field numbers 1 to 15 can be encoded in a single byte. So it is
+recommended to always start numbering fields at 1 and to use smaller values for more
+commonly used fields when possible.
 
 :::
 
@@ -1487,79 +2109,133 @@ These different names refer to different ways of encoding the value on the wire.
 
 :::info
 
-In a file using the proto3 syntax, a field's type may _not_ refer to an enum
+In a file using the proto3 syntax, a field's type may _not_ refer to a closed enum.
+A closed enum type is one that is defined in a file that uses proto2 syntax or one
+defined in a file that uses Editions syntax and whose [`enum_type` feature](#enum-type)
+has a value of `CLOSED`.
 type that is declared in a file that uses the proto2 syntax. Enum semantics
-around [default values](#field-presence-and-default-values) in the proto2 syntax
-are not compatible with message semantics and [default cardinality](#cardinality)
-in the proto3 syntax.
+
+
+Similarly, in a file using Editions syntax, if the field's [`field_presence` feature](#field-presence)
+has a value of `IMPLICIT`, it may not refer to a closed enum type.
+
+These restrictions are because semantics around [default values](#field-presence-and-default-values)
+for closed enums (which could be a non-zero value) are not compatible with the
+semantics of optional fields with explicit presence.
 
 :::
 
-#### Cardinality
+#### Cardinality and Field Presence
 
-If the cardinality is omitted, `optional`, or `required`  then the field can have a
-normal, singular value. If the cardinality is `repeated` then the field can have one
-or more values and is represented as a list or an array of values.
+Cardinality determines the number of values a field may have. Map fields and
+fields with `repeated` cardinality can have zero or more values, and are represented
+in generated code using a map (for the former) or a list or an array (for the latter).
+Other fields can have only a single value.
 
-When the cardinality is `required`, a message is considered invalid if the field is
-not present.
+In files that use proto2 or proto3 syntax, "field presence" is derived from the
+cardinality. In files that use the Editions syntax, presence is configured via the
+[`field_presence` feature](#field-presence).
+
+Field presence indicates whether the field's presence or absence can be detected.
+* If a field's presence is required, it may never be absent.
+* If the field has explicit presence, its presence can always be detected.
+* If the field has implicit presence, its presence cannot be detected if the value
+  of the field is the default or zero value. Whether the field is present is
+  _implied by_ whether it has a default or zero value.
+
+The following table shows how field presence is derived from the field's cardinality:
+
+| Cardinality | Number of values          | Field Presence |
+|-------------|---------------------------|----------------|
+| `optional`  | 0 (absent) or 1 (present) | Explicit       |
+| `required`  | 1                         | Required       |
+| `repeated`  | 0 or more                 | Implicit †     |
+| map *       | 0 or more                 | Implicit †     |
+| _omitted_   | 0 (absent) or 1 (present) | _see below_    |
+
+__*__ [Map fields](#maps) behave like fields with `repeated` cardinality.
+The main difference is that fields with `repeated` cardinality permit duplicates
+and preserve element order. But map fields do not permit entries that have
+duplicate keys and do not preserve element order.
+
+__†__ Implicit presence for repeated and map fields means that it is not
+possible to explicitly distinguish between a value that is absent and
+one that is empty. If the field has no entries, it is absent; presence
+is implied by the field having at least one entry.
+
+When the cardinality is omitted, the field presence depends on the context
+in which the field is defined:
+
+| File Syntax *            | Context of Field Without Cardinality    | Field Presence                        |
+|--------------------------|-----------------------------------------|---------------------------------------|
+| proto2, proto3, Editions | Inside a [oneof](#oneofs)               | Explicit                              |
+| proto3, Editions         | Inside an [`extend` block](#extensions) | Explicit                              |
+| proto3                   | Normal field with message type †        | Explicit                              |
+| proto3                   | Normal field with non-message type †    | Implicit                              |
+| Editions                 | Normal field †                          | _depends on `field_presence` feature_ |
+
+__*__ Files that use proto2 syntax require cardinality for all fields except those
+in a oneof, which is why proto2 only appears once in the table.
+
+__†__ A normal field is one that is in neither a oneof nor an `extend` block.
+
+As seen above, fields in a oneof and extensions always have explicit presence.
+In proto3 sources, message fields always have explicit presence, too.
+
+In files that use Editions syntax, field presence is defined by the [`field_presence` feature](#field-presence).
+If the field's options do not specify that feature, then it inherits a value, either
+from an ancestor element (such as a file-wide default) or from the default value for
+the specific edition that the file uses. See [_Feature Resolution_](#feature-resolution)
+for more details. Note that normal fields _whose type is a message_ never have implicit
+presence. If such a field inherits a feature value of implicit field presence, the field
+actually has explicit presence.
+
+When the field's presence is required, the containing message is considered invalid
+if the field is not present.
 
 :::caution
 
-When using the proto2 syntax, use of `required` is considered hazardous and is
-strongly discouraged.
+Use of required field presence (via the `required` cardinality in files that use
+proto2 syntax or the `LEGACY_REQUIRED` feature value in files that use Editions
+syntax) is considered hazardous and is strongly discouraged.
 
 When a field is required, runtime libraries do not even allow de-serializing a
 message if the field is missing. This makes it difficult in practice to change a
 required field to be optional in the future (or vice versa), because it becomes
 likely for consumers of the message, working with a different version of the
-schema, to refuse to de-serialize it. This is why it is not supported in the
-proto3 syntax.
+schema, to refuse to de-serialize it. This is why it is not supported in proto3
+syntax. Editions syntax supports this, but only for backwards-compatibility with
+proto2 syntax, which is why it contains "legacy" in the name.
 
-For that reason, if you want to enforce that a field is present, define the field
-as `optional` in the source file and then use application-level validation logic
-to verify that it's present (the same way that other custom validation rules would
-be enforced).
+If you want to enforce that a field must be present, instead define the field
+as not required (using the `optional` cardinality in a proto2 source file or by
+omitting the cardinality in other files) and then use application-level validation
+logic to verify that it's present. This is the same way that other custom
+validation rules would be enforced.
 
 :::
 
-When the cardinality is omitted on a normal field definition that is not contained
-inside a onoef (proto3 syntax only), it is known as _default_ cardinality. But for
-fields inside a oneof, the cardinality is always `optional`. If an extension field
-definition omits the cardinality, it behaves the same as `optional` cardinality, not
-default.
-
-| Cardinality | Number of values                         | Supports [field presence](#field-presence-and-default-values) |
-|-------------|------------------------------------------|---------------------------------------------------------------|
-| _default_   | Message types: 0 (absent) or 1 (present) | Yes                                                           |
-|             | Scalar types: 1                          | No                                                            |
-| `optional`  | 0 (absent) or 1 (present)                | Yes                                                           |
-| `repeated`  | 0 or more                                | No                                                            |
-| `required`  | 1                                        | N/A (must be present)                                         |
-
-With default cardinality (proto3 syntax only), scalar fields are only emitted during
-serialization if they contain a value other than the default (which is always the
-zero value in proto3 syntax).
-
 #### Field Presence and Default Values
 
-A field that is present is one whose value is explicitly set. Similarly, a field
-that is absent is one whose value was never explicitly set. If a field's presence
-can be determined, that quality is preserved in the face of serialization. In other
-words, after de-serializing a message, it would be possible to detect if the field
-was explicitly set before it was serialized.
+When a field has explicit presence, its presence is preserved in the face of
+serialization. In other words, if the field is explicitly set, then the containing
+message is serialized, a consumer of the message that deserializes it will be able
+to tell that the field was explicitly set or not.
 
-A field supports field presence if it is possible to distinguish at runtime
-between the case where a field is absent and where a field is present but has
-its default value.
+When a field has implicit presence, it is not possible to distinguish at runtime
+between the case where the field's value was never set and where the field's value
+was explicitly set to its default value.
 
 Every field has a default value. When the value of a field is examined, if the
 field is not present, its default value is observed. The default value for a field
-is the zero value for its type, unless customized, _except_ for enum types that
-are defined in a file that uses the proto2 syntax. For these enums, the default
-value is the first value declared inside the enum (which might not be the number
-zero). The default can only be customized in the proto2 syntax and only for
-`optional` fields with scalar types.
+is the zero value for its type, unless customized, _except_ for enums that are closed.
+(A closed enum is one that is defined in a file with proto2 syntax or one that is
+configured to be closed via the [`enum_type` feature](#enum-type) in Editions syntax.)
+For closed enums, the default value is the first value declared inside the enum (which
+might not be the number zero).
+
+The default can only be customized for fields with explicit presence and non-message
+types.
 
 The zero value for repeated fields and map fields is an empty list or map. The
 zero value for a non-repeated field depends on the field's type:
@@ -1573,9 +2249,9 @@ zero value for a non-repeated field depends on the field's type:
 | _enum types_         | _the first value defined in the enum_ * |
 | _message types_      | `{}` (empty message)                    |
 
-__*__ In proto3 syntax, the first value in an enum _must_ have a numeric
-      value of zero. So, in proto3, the default value of an enum field is
-      the one with a value of zero.
+__*__ In proto3 syntax (and for open enums in edition syntax), the first value 
+in an enum _must_ have a numeric value of zero. So, in proto3, the default value
+of an enum field is always the one with a value of zero.
 
 In most runtimes, an _absent_ value is represented using a sentinel value like
 `nil`, `null`, or `None` (specific to the implementation language), which
@@ -1717,7 +2393,7 @@ message MyMessage {
 
 :::info
 
-Groups cannot be used in files that use the proto3 syntax.
+Groups can only be used in files that use the proto2 syntax.
 
 :::
 
@@ -1752,7 +2428,7 @@ Thus it is an error for a message to contain _both_ a group named `SecurityOptio
 and an explicit field named `securityoptions` as this would result in a name
 conflict for the field.
 
-The field use the number and options declared prior to the opening brace; the message
+The field uses the number and options declared prior to the opening brace; the message
 has all the contents inside the braces. The following example demonstrates the way the
 synthetic message looks:
 ```protobuf
@@ -1779,11 +2455,17 @@ message Foo {
 ```
 The only functional difference between the above two messages is that the one
 that uses a group has a slightly different representation on the wire. Groups
-are encoded in the binary format a little differently than other fields whose
-type is a message.
+are encoded in the binary format using a _delimited_ encoding, which is different
+than other fields whose type is a message.
+
+In Editions syntax, the delimited encoding can be configured using the
+[`message_encoding` feature](#message-encoding). So a proto2 group can be
+represented in Editions syntax by explicitly creating the field and nested
+message like in the example above and using the message encoding feature to
+enable the delimited encoding (aka "group encoding").
 
 The nested message derived from the group behaves in all other respects as a
-normal nested message and can be used by other messages:
+normal nested message and can even be used as the type for other fields:
 ```protobuf
 message Foo {
     optional group Bar = 1 {
@@ -1800,6 +2482,8 @@ message Baz {
     // highlight-end
 }
 ```
+Note that these other fields that refer to the message this way will use
+normal message encoding, not the delimited encoding that the group field uses.
 
 #### Pseudo-Options
 
@@ -1878,7 +2562,50 @@ compatibility, it is not an error for files using the proto2 syntax to have fiel
 whose _default_ JSON names conflict with one another (step one above). A compiler may
 still choose to issue a warning for this condition.
 
+In files that use Editions syntax, if the [`json_format` feature](#json-format) is set
+to `LEGACY_BEST_EFFORT`, the compiler should treat the message as if it were using the
+proto2 syntax, and not issue an error if the fields have conflicts in their default
+JSON names.
+
 :::
+
+#### Option Validation {#field-option-validation}
+
+In addition to the rules described above, some of which relate to field options, the
+following rules should also be validated by the compiler:
+
+1. The `packed` option may not be used in files that use the Editions syntax. In
+   files that use proto2 or proto3 syntax, this option can only be used on repeated
+   fields with numeric types. Numeric types include all ten integer types, both floating
+   point types, `bool`, and enum types. (See [_Field Types_](#field-types).)
+2. In edition 2023, the `ctype` option may only be used on fields whose type is
+   `string` or `bytes`. Furthermore, the `CORD` value may not be used on extension fields.
+   It can be used on repeated fields, but not map fields. (In proto2 and proto3 syntax,
+   these checks are not performed.) In editions after 2023, the `ctype` option will not be
+   allowed; fields must instead use the [`(pb.cpp).string_type` custom feature](#c-string-type).
+3. The `lazy` and `unverified_lazy` options may only be used on fields whose type is a
+   message. This includes map fields, which are represented as a repeated field of map
+   entry messages. They may _not_ be used with group fields in proto2 syntax and also
+   may not be used with fields that use delimited message encoding in Editions syntax.
+   (See [_Message Encoding_](#message-encoding).)
+4. The `js_type` option may only be used on fields that have one of the five 64-bit
+   integer types. It can be used with repeated fields. (See [_Field Types_](#field-types).)
+
+In files that use Editions syntax, there are further rules for feature usage:
+1. Fields defined in a oneof, extension fields, and repeated fields may not use the
+   [`field_presence` feature](#field-presence).
+2. Fields whose type is a message may not set the [`field_presence` feature](#field-presence)
+   to `IMPLICIT`.
+3. Only repeated fields (which includes maps) may use the [`repeated_field_encoding` feature](#repeated-field-encoding).
+   This feature may not be set to `PACKED` unless the field's type is a numeric type.
+   Numeric types include all ten integer types, both floating point types, `bool`, and
+   enum types. (See [_Field Types_](#field-types).)
+4. The [`utf8_validation` feature](#utf8-validation) may only be used on fields whose
+   type is `string`. It can be used on repeated fields. It can be used on map fields
+   only if their key or value type is `string` (or both).
+5. The [`message_encoding` feature](#message-encoding) may only be used on fields
+   whose type is a message. It may _not_ be used on map fields (even though these are
+   represented as a repeated field of map entry messages).
 
 ### Oneofs
 
@@ -1906,7 +2633,7 @@ oneof authentication_method  {
 
 :::info
 
-Files using the proto3 syntax are not allowed to include _OneofGroupDecl_ elements.
+Files using proto3 or Editions syntax are not allowed to include _OneofGroupDecl_ elements.
 
 :::
 
@@ -1962,14 +2689,171 @@ interpreted as an open range (i.e. inclusive) where the start and end values are
 Extension ranges for the same message are not allowed to overlap one another and also
 not allowed to overlap any reserved range of numbers.
 
+#### Extension Declarations
+
+Extension declarations are a mechanism for reserving an extension number, to prevent two
+extensions from unintentionally re-using the same number. An extension number can only
+be verified to be unique among the files that a compiler is provided. So if there were
+two independent projects whose Protobuf files are compiled separately that both define
+an extension for the same message and use the same number, the compiler couldn't report
+an error because it never sees both extensions in the same set of files.
+
+One possible way avoid conflicts of extension numbers would be to arrange for a global,
+monolithic compilation -- a single operation that compiles _every_ file that could be
+relevant and that could contain extensions. Depending on how project sources are laid
+out, this is often infeasible.
+
+Another possible solution is a custom reservation system, where developers can claim
+extension numbers and some other system (other than the Protobuf compiler) enforces the
+claims, by examining all of the extension numbers used in the output of a compiler and
+comparing that to the database of reservations.
+
+Extension declarations are another mechanism, that can be enforced by the Protobuf
+compiler itself. Extension declarations are defined _inside_ the extended message,
+via options on an extension range. Each declaration indicates the extension field
+number as well as the full name and type of the extension field. When the compiler
+encounters an extension, and the extended message contains these declarations, the
+compiler reports an error if the extension's name and type don't match what's in
+the extension declaration. The downside to this mechanism is that it means that all
+users that can _define_ an extension must also be able to make (or propose) changes
+to the definition of the message being extended. Due to organization boundaries
+and/or source repository layout, this might not be feasible. And this mechanism does
+does make it harder to change the extension later (like change its name or type).
+
+The declaration enforcement is enabled via an option named [`verification`](https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/descriptor.proto#L205-L216).
+If it is set to `DECLARATION` _or_ it is not specified but declarations are present,
+then declaration enforcement is enabled.
+
+Individual declarations are added via an option named [`declaration`](https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/descriptor.proto#L200).
+Each declaration has the following fields:
+* `number`: The extension number whose usage is being declared. It is an error if this
+  field is absent.
+* `full_name`: The fully-qualified name of the extension, which must include a
+  leading dot (`.`). This must be a valid fully-qualified name, which is a dot-separated
+  sequence of identifiers, without any whitespace.
+* `type`: The type of the extension. If the type is a builtin type, this should be the
+  name that is used to identity the type in source, for example `string`, `bytes`, `int64`,
+  etc. If the type is a message or an enum, this must be the fully-qualified name of the
+  type and must include a leading dot (`.`). If this value starts with a dot, it may be a
+  valid fully-qualified name. Otherwise, it must the name of one of the fifteen
+  pre-declared scalar types. (See [_Field Types_](#field-types).)
+* `repeated`: Must be set to true only if the extension is a repeated field.
+* `reserved`: This is used to reserve a number and prevent its use. This is typically
+  done for deleted extensions, to prevent later re-use of the number. If this value is
+  true, `full_name` and `type` must not be set. Conversly, if this value is true,
+  `full_name` and `type` must be present.
+
+Unverified ranges may not have any declarations. So it is an error for the `verification`
+field to be explicitly set to `UNVERIFIED` and to also have one or more declarations.
+
+When declaration enforcement is enabled, all extensions for the extended message and
+in the extension range _must_ match a declaration. The extension must exactly match all
+four properties: `number`, `full_name`, `type`, and `repeated`.
+
+No two declarations in the same extended message can specify the same number.
+No two declarations across all observed extended messages may specify the same
+full name. An extension is _uniquely_ identified by its full name, and a single
+extension cannot extend more than one message. So it is not possible for the
+same extension full name to be valid from more than one extended message.
+
+Finally, an extension range that includes declarations in its options may only
+reference a single span of numbers. This is a quirk in the reference implementation
+but also a quirk for runtime checks that declarations are valid, due to the way
+that extension range options are actually represented in a descriptor. So the
+following is _not_ valid:
+```protobuf
+message Test {
+  // highlight-start
+  extensions 100 to 200, 300 to 500 [
+  // highlight-end
+    declaration = {
+      number: 100
+      full_name: ".foo.bar.baz"
+      type: "string"
+    }
+  ];
+}
+```
+The above results in an error message like so:
+```
+extension declaration has number outside the range: 100 not in [300,500]
+```
+The fix is to break the ranges up into two statements, each with a single span:
+```protobuf
+message Test {
+  // highlight-start
+  extensions 100 to 200 [
+  // highlight-end
+    declaration = {
+      number: 100
+      full_name: ".foo.bar.baz"
+      type: "string"
+    }
+  ];
+  // highlight-start
+  extensions 300 to 500;
+  // highlight-end
+}
+```
+
+#### Extension Declaration Examples
+
+The following example allows arbitrary extensions for numbers 100 to 200 because
+verification has not been explicitly enabled and there are no declarations.
+```protobuf
+message Test {
+  extensions 100 to 200;
+}
+```
+
+The following example will not permit an extension with number 100 (because it
+has been marked as reserved) nor will it permit any extensions with numbers 102
+to 200, because there are no declarations that an extension could match.
+```protobuf
+message Test {
+  extensions 100 to 200 [
+    declaration = {
+      number: 100
+      reserved: true
+    },
+    declaration = {
+      number: 101
+      full_name: ".foo.bar.baz"
+      type: "string"
+    }
+  ];
+}
+```
+
+The following example is similar to the one above except it allows arbitrary
+extensions for numbers 102 to 200 because they are in a separate range that is
+not verified.
+```protobuf
+message Test {
+  extensions 100 to 102 [
+    declaration = {
+      number: 100
+      reserved: true
+    },
+    declaration = {
+      number: 101
+      full_name: ".foo.bar.baz"
+      type: "string"
+    }
+  ];
+  extensions 102 to 200;
+}
+```
+
 ### Reserved Names and Numbers
 
 Messages can reserve field names and numbers to prevent them from being used.
 This is typically to prevent old tag numbers and names from being recycled.
 ```ebnf
-MessageReservedDecl = reserved ( TagRanges | Names ) semicolon .
+MessageReservedDecl = reserved ( TagRanges | NameStrings | Names ) semicolon .
 
-Names = StringLiteral { comma StringLiteral } .
+NameStrings = StringLiteral { comma StringLiteral } .
+Names = identifier { comma identifier } .
 ```
 
 ```txt title="Examples"
@@ -1978,7 +2862,19 @@ reserved 10 to 10000;
 reserved 10 to 20, 50 to 100, 20000 to max;
 reserved "foo";
 reserved "foo", "bar", "baz";
+reserved abc, xyz;
 ```
+
+:::info
+
+Files using the proto2 or proto3 syntax are not allowed to include _Names_ elements.
+They must instead use _NameStrings_ elements. (In other words, they must use string
+literals instead of identifiers.)
+
+Conversely, files using that use Editions syntax are not allowed to include _NameStrings_
+elements. They must instead use _Names_ elements.
+
+:::
 
 Just like extension ranges, the `max` keyword is equivalent to 536,870,911, except for
 in messages that use the message set wire format (in which case the max is 2,147,483,646).
@@ -2010,8 +2906,8 @@ strongly discouraged and is supported in few target runtimes.
 :::
 
 Messages defined with this option have a few additional constraints:
-1. The message must be in a file that uses the proto2 syntax. Files that use proto3
-   syntax are not allowed to define messages that use the message set wire format.
+1. The message must be in a file that uses the proto2 or Editions syntax. Files that use
+   proto3 syntax are not allowed to define messages that use the message set wire format.
 2. The message must _not_ define any normal fields (no map fields or groups either).
 3. The message _must_ define at least one extension range.
 4. Extensions of such messages must be optional (no repeated extensions allowed).
@@ -2073,6 +2969,10 @@ UNKNOWN = 12 [deprecated = true];
 Files using the proto3 syntax _must_ use a numeric value of zero for the first
 enum value defined.
 
+In files using the Editions syntax, all open enums must use a numeric value of
+zero for the first enum value defined. An open enum is one whose [`enum_type` feature](#enum-type)
+has a value of `OPEN`.
+
 :::
 
 Like fields, enum values are identified both by name and by number. The number is
@@ -2133,6 +3033,10 @@ compatibility, it is not an error for proto2 files to have enum values whose nam
 conflict with one another per the check described above. A compiler may still choose
 to issue a warning for this condition.
 
+In files that use Editions syntax, if the [`json_format` feature](#json-format) is set
+to `LEGACY_BEST_EFFORT`, the compiler should treat the message as if it were using the
+proto2 syntax, and not issue an error if the values have such naming conflicts.
+
 :::
 
 ### Reserved Names and Numbers {#enum-reserved-names-and-numbers}
@@ -2140,7 +3044,7 @@ to issue a warning for this condition.
 Like messages, enums can also reserve names and numbers, typically to prevent
 recycling names and numbers from old enum values.
 ```ebnf
-EnumReservedDecl = reserved ( EnumValueRanges | Names ) semicolon .
+EnumReservedDecl = reserved ( EnumValueRanges | NameStrings | Names ) semicolon .
 
 EnumValueRanges     = EnumValueRange { comma EnumValueRange } .
 EnumValueRange      = EnumValueRangeStart [ to EnumValueRangeEnd ] .
@@ -2154,7 +3058,19 @@ reserved 10 to 10000;
 reserved -2 to -5, 20000 to max;
 reserved "FOO";
 reserved "FOO", "BAR", "BAZ";
+reserved FOO, BAR;
 ```
+
+:::info
+
+Files using the proto2 or proto3 syntax are not allowed to include _Names_ elements.
+They must instead use _NameStrings_ elements. (In other words, they must use string
+literals instead of identifiers.)
+
+Conversely, files using that use Editions syntax are not allowed to include _NameStrings_
+elements. They must instead use _Names_ elements.
+
+:::
 
 When the `max` keyword is used as the end of the range, it is interpreted as the maximum
 allowed value, 2,147,483,647.
@@ -2204,7 +3120,7 @@ An `extend` block must contain at least one field or group.
 
 :::info
 ️
-Files using the proto3 syntax are not allowed to include _GroupDecl_ elements.
+Files using proto3 or Editions syntax are not allowed to include _GroupDecl_ elements.
 
 Files using the proto3 syntax are only allowed to declare extensions that
 are custom options. This means that the extendee must be one of the following:
@@ -2236,6 +3152,12 @@ globally unique. It is not allowed for two extensions to be declared that extend
 the same message and have the same field number. (The extent to which this can be
 verified by a parser is limited to the set of files of which the parser is aware.)
 
+Field options on extensions are subject to the same rules as other fields. See
+[_Option Validation_](#field-option-validation). Furthermore, extensions defined in a
+file that has an `optimize_for` file option set to `LITE_RUNTIME` are not allowed if
+the extended message is defined in a file where the `optimize_for` file option is not
+set or is set to a value _other than_ `LITE_RUNTIME`. Put another way, a non-lite message
+cannot be extended with lite extensions.
 
 ## Services
 
@@ -2298,3 +3220,531 @@ _full duplex_ bidi-streaming, where the client can send input messages and the s
 can send output messages asynchronously and concurrently. (Standard HTTP 1.1, on the
 other hand, only supports _half duplex_ bidi-streaming, where the client must send all
 of its input messages before the server may begin sending its output messages.)
+
+
+## Features in Edition 2023
+
+This section describes the available feature fields in edition 2023. As future editions
+are released, this section will be expanded to include new fields from those editions.
+
+This section will generally _not_ include custom features -- ones that are specific to
+a particular language runtime or code generation plugin. The exceptions to this are
+the initial language-specific features that were introduced alongside edition 2023
+because they are needed to migrate files with proto2 or proto3 syntax to that initial
+edition.
+
+### Field Presence
+
+```protobuf title="Definition"
+optional FieldPresence field_presence = 1 [
+  targets = TARGET_TYPE_FIELD,
+  targets = TARGET_TYPE_FILE,
+  feature_support = {
+    edition_introduced: EDITION_2023
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "EXPLICIT" },
+  edition_defaults = { edition: EDITION_PROTO3, value: "IMPLICIT" },
+  edition_defaults = { edition: EDITION_2023, value: "EXPLICIT" }
+];
+
+enum FieldPresence {
+  FIELD_PRESENCE_UNKNOWN = 0;
+  EXPLICIT = 1;
+  IMPLICIT = 2;
+  LEGACY_REQUIRED = 3;
+}
+```
+
+_Applies to_: Fields (can also be specified as a file option, to provide file-wide default)
+
+```protobuf title="Example"
+edition = "2023";
+
+message Test {
+  // highlight-start
+  string name = 1 [features.field_presence = IMPLICIT];
+  // highlight-end
+}
+```
+
+In Editions syntax, this is used to configure a field as required, optional with
+implicit presence, or optional with explicit presence. The default value is `EXPLICIT`,
+which means non-repeated fields are optional with explicit presence. If the default
+is changed via a file option to `IMPLICIT` then it matches proto3 semantics:
+non-repeated fields are optional with implicit presence.
+
+It is an error to use the `field_presence` feature on a repeated or map field, an
+extension field, or a field inside a oneof. Note that repeated and map fields always
+have implicit presence (they are present when there is at least one element).
+Non-repeated extension fields and fields in a oneof are always optional with
+explicit presence.
+
+It is also an error to set the `field_presence` feature to `IMPLICIT` for a field
+whose type is a message. Message fields, if not required, always have explicit
+presence, even if a file option is used to set a file-wide default of implicit
+presence.
+
+### Repeated Field Encoding
+
+```protobuf title="Definition"
+optional RepeatedFieldEncoding repeated_field_encoding = 3 [
+  targets = TARGET_TYPE_FIELD,
+  targets = TARGET_TYPE_FILE,
+  feature_support = {
+    edition_introduced: EDITION_2023
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "EXPANDED" },
+  edition_defaults = { edition: EDITION_PROTO3, value: "PACKED" }
+];
+
+enum RepeatedFieldEncoding {
+  REPEATED_FIELD_ENCODING_UNKNOWN = 0;
+  PACKED = 1;
+  EXPANDED = 2;
+}
+```
+
+_Applies to_: Fields (can also be specified as a file option, to provide file-wide default)
+
+```protobuf title="Example"
+edition = "2023";
+
+message Test {
+  // highlight-start
+  repeated uint64 flags = 1 [features.repeated_field_encoding = EXPANDED];
+  // highlight-end
+}
+```
+
+In Editions syntax, this is used to configure a repeated numeric field to use the
+packed encoding format or not. The default value is `PACKED`, which means such fields
+use the compact "packed" wire format. If the default is changed via a file option to
+`EXPANDED` then it matches default proto2 semantics: repeated fields use a less compact
+wire format.
+
+This replaces the `packed` field option, which may only be used in files that use
+proto2 or proto3 syntax. Files that use Editions syntax must use this feature instead.
+
+It is an error to use the `repeated_field_encoding` feature on a non-repeated field
+or an a repeated field whose type cannot use the compact encoding. Only primitive
+numeric fields (which includes bools and enums) can use the compact encoding. Fields
+whose type is a message, group, string, or bytes may not use this feature. This also
+means that map fields may not use this feature (under the hood, they are represented
+as a repeated message field, where each message element is an entry in the map).
+
+### Message Encoding
+
+```protobuf title="Definition"
+optional MessageEncoding message_encoding = 5 [
+  targets = TARGET_TYPE_FIELD,
+  targets = TARGET_TYPE_FILE,
+  feature_support = {
+    edition_introduced: EDITION_2023
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "LENGTH_PREFIXED" }
+];
+
+enum MessageEncoding {
+  MESSAGE_ENCODING_UNKNOWN = 0;
+  LENGTH_PREFIXED = 1;
+  DELIMITED = 2;
+}
+```
+
+_Applies to_: Fields (can also be specified as a file option, to provide file-wide default)
+
+```protobuf title="Example"
+edition = "2023";
+
+message Test {
+  // highlight-start
+  Other other = 1 [features.message_encoding = DELIMITED];
+  // highlight-end
+  message Other {}
+}
+```
+
+In Editions syntax, this can be used to activate "group encoding" for a message field.
+The default value is `LENGTH_PREFIXED`, which is also how message fields in proto2 and
+proto3 sources are serialized. But when set to `DELIMITED`, messages are serialized
+in the same fashion as groups in proto2 sources.
+
+Note that the two encodings are **not** compatible: one cannot change the message
+encoding for a field from one value to another without potentially breaking consumers
+of the message (at least for now). The advantage of using `DELIMITED` is that it is
+more efficient when marshalling messages to bytes.
+
+It is an error to use the `message_encoding` feature on a map field or a field whose
+type is not a message. Though maps are represented as a repeated field of messages,
+they always use length-prefixed encoding, even if a file option is used to set a
+file-wide default of delimited encoding. Similarly, in map fields where the value is
+a message, that message value of the map entry will use length-prefixed encoding, not
+delimited encoding.
+
+### UTF8 Validation
+
+```protobuf title="Definition"
+optional Utf8Validation utf8_validation = 4 [
+  targets = TARGET_TYPE_FIELD,
+  targets = TARGET_TYPE_FILE,
+  feature_support = {
+    edition_introduced: EDITION_2023
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "NONE" },
+  edition_defaults = { edition: EDITION_PROTO3, value: "VERIFY" }
+];
+
+enum Utf8Validation {
+  UTF8_VALIDATION_UNKNOWN = 0;
+  VERIFY = 2;
+  NONE = 3;
+  reserved 1;
+}
+```
+
+_Applies to_: Fields (can also be specified as a file option, to provide file-wide default)
+
+```protobuf title="Example"
+edition = "2023";
+
+message Test {
+  // highlight-start
+  repeated string not_utf8 = 1 [features.utf8_validation = NONE];
+  // highlight-end
+}
+```
+
+In Editions syntax, this can be used to activate runtime verification that string
+values are valid UTF8-encoded sequences. The default value is `VERIFY`. If the
+default is changed via a file option to `NONE` then it matches proto2 semantics:
+string contents are not checked and could contain invalid byte sequences.
+
+It is an error to use the `utf8_validation` feature on a field whose type is not a
+string. The feature may be used on map fields only if the map's key or value type is
+a string.
+
+### Enum Type
+
+```protobuf title="Definition"
+optional EnumType enum_type = 2 [
+  targets = TARGET_TYPE_ENUM,
+  targets = TARGET_TYPE_FILE,
+  feature_support = {
+    edition_introduced: EDITION_2023
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "CLOSED" },
+  edition_defaults = { edition: EDITION_PROTO3, value: "OPEN" }
+];
+
+enum EnumType {
+  ENUM_TYPE_UNKNOWN = 0;
+  OPEN = 1;
+  CLOSED = 2;
+}
+```
+
+_Applies to_: Enums (can also be specified as a file option, to provide file-wide default)
+
+```protobuf title="Example"
+edition = "2023";
+
+enum Test {
+  // highlight-start
+  option features.enum_type = CLOSED;
+  // highlight-end
+  VALUE = 1;
+}
+```
+
+In Editions syntax, this can be used to configure whether an enum is open or closed.
+An open enum accepts numeric values other than those configured in the schema. A closed
+enum will effectively ignore such an unrecognized numeric value. With a closed enum,
+if such a value is encountered during de-serialization, the field will remain unset
+and the value will be stored as an unrecognized field.
+
+An open enum _must_ have a value with the number zero as its first value.
+
+The default value is `OPEN`. If the default is changed via a file option to `CLOSED`
+then it matches proto2 semantics, where enums are always closed.
+
+A field that is optional with implicit presence may not have a closed enum as
+its type.
+
+### JSON Format
+
+```protobuf title="Definition"
+optional JsonFormat json_format = 6 [
+  targets = TARGET_TYPE_MESSAGE,
+  targets = TARGET_TYPE_ENUM,
+  targets = TARGET_TYPE_FILE,
+  feature_support = {
+    edition_introduced: EDITION_2023
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "LEGACY_BEST_EFFORT" },
+  edition_defaults = { edition: EDITION_PROTO3, value: "ALLOW" }
+];
+
+enum JsonFormat {
+  JSON_FORMAT_UNKNOWN = 0;
+  ALLOW = 1;
+  LEGACY_BEST_EFFORT = 2;
+}
+```
+
+_Applies to_: Messages and Enums (can also be specified as a file option, to provide file-wide default)
+
+```protobuf title="Example"
+edition = "2023";
+
+message Test {
+  // highlight-start
+  option features.json_format = LEGACY_BEST_EFFORT;
+  // highlight-end
+  string _str = 1;
+  uint32 Str = 2;
+}
+```
+
+In Editions syntax, this can be used to configure whether an enum or message must
+support the JSON format. The default value is `ALLOW`. If the default is changed via
+a file option to `LEGACY_BEST_EFFORT` then it matches proto2 semantics, where the
+JSON format was best effort since the proto2 syntax was created before the JSON format
+was defined.
+
+Most runtimes and plugins never look at this feature. It is primarily used by the
+compiler itself to decide whether JSON-name-related conflicts are an error or a
+warning. (Also see [JSON Name Conflicts](#json-name-conflicts).)
+
+### C++: Legacy Closed Enum
+
+```protobuf title="Definition"
+optional bool legacy_closed_enum = 1 [
+  targets = TARGET_TYPE_FIELD,
+  targets = TARGET_TYPE_FILE,
+  feature_support = {
+    edition_introduced: EDITION_2023
+    edition_deprecated: EDITION_2023
+    deprecation_warning: "The legacy closed enum treatment in C++ is "
+                         "deprecated and is scheduled to be removed in "
+                         "edition 2025.  Mark enum type on the enum "
+                         "definitions themselves rather than on fields."
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "true" },
+  edition_defaults = { edition: EDITION_PROTO3, value: "false" }
+];
+```
+
+_Applies to_: Fields (can also be specified as a file option, to provide file-wide default)
+
+```protobuf title="Example"
+edition = "2023";
+import "google/protobuf/cpp_features.proto";
+
+message Test {
+  // highlight-start
+  Enum en = 1 [features.(pb.cpp).legacy_closed_enum = true];
+  // highlight-end
+}
+enum Enum {
+  ZERO = 0;
+}
+```
+
+This custom feature is defined in the well-known import `"google/protobuf/cpp_features.proto"`
+as a field inside the `(pb.cpp)` extension.
+
+In Editions syntax, this is used to configure a field that refers to an open enum
+to behave during de-serialization as if the enum were closed. This only impacts the
+C++ runtime. This is purely for backwards-compatibility, to mimic legacy behavior
+that would occur when a message defined in a proto2 file had a field whose type was
+an enum from a proto3 file. In that case, though the enum is open (since it is defined
+in a proto3 file), the field would behave as if the enum were closed.
+
+### C++: String Type
+
+```protobuf title="Definition"
+optional StringType string_type = 2 [
+  targets = TARGET_TYPE_FIELD,
+  targets = TARGET_TYPE_FILE,
+  feature_support = {
+    edition_introduced: EDITION_2023
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "STRING" },
+  edition_defaults = { edition: EDITION_2024, value: "VIEW" }
+];
+
+enum StringType {
+  STRING_TYPE_UNKNOWN = 0;
+  VIEW = 1;
+  CORD = 2;
+  STRING = 3;
+}
+```
+
+_Applies to_: Fields (can also be specified as a file option, to provide file-wide default)
+
+```protobuf title="Example"
+edition = "2023";
+import "google/protobuf/cpp_features.proto";
+
+message Test {
+  // highlight-start
+  string name = 1 [features.(pb.cpp).string_type = VIEW];
+  // highlight-end
+}
+```
+
+This custom feature is defined in the well-known import `"google/protobuf/cpp_features.proto"`
+as a field inside the `(pb.cpp)` extension.
+
+In Editions syntax, this can be used to configure the type used to represent
+a string or bytes field. This only impacts C++ generated code. This replaces the
+`ctype` field option. In edition 2023, a field can use _either_ this feature or
+the `ctype` field option. In future editions, the `ctype` field option will be
+disallowed and only this feature will be used to control C++ code generation.
+
+Note that this enum does _not_ have a value for `STRING_PIECE`, which was one of
+the possible values for the `ctype` option. This was only implemented inside of
+Google and never implemented in the open-source release of the C++ Protobuf
+runtime. So sources should not be using this value. But if it were used, it
+should be changed to `STRING` when such a field is migrated to Editions syntax
+and to use this feature.
+
+### Java: Legacy Closed Enum
+
+```protobuf title="Definition"
+optional bool legacy_closed_enum = 1 [
+  targets = TARGET_TYPE_FIELD,
+  targets = TARGET_TYPE_FILE,
+  feature_support = {
+    edition_introduced: EDITION_2023
+    edition_deprecated: EDITION_2023
+    deprecation_warning: "The legacy closed enum treatment in Java is "
+                         "deprecated and is scheduled to be removed in "
+                         "edition 2025.  Mark enum type on the enum "
+                         "definitions themselves rather than on fields."
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "true" },
+  edition_defaults = { edition: EDITION_PROTO3, value: "false" }
+];
+```
+
+_Applies to_: Fields (can also be specified as a file option, to provide file-wide default)
+
+```protobuf title="Example"
+edition = "2023";
+import "google/protobuf/java_features.proto";
+
+message Test {
+  // highlight-start
+  Enum en = 1 [features.(pb.java).legacy_closed_enum = true];
+  // highlight-end
+}
+enum Enum {
+  ZERO = 0;
+}
+```
+This custom feature is defined in the well-known import `"google/protobuf/java_features.proto"`
+as a field inside the `(pb.java)` extension.
+
+In Editions syntax, this is used to configure a field that refers to an open enum
+to behave during de-serialization as if the enum were closed. This only impacts the
+Java runtime. This is purely for backwards-compatibility, to mimic legacy behavior
+that would occur when a message defined in a proto2 file had a field whose type was
+an enum from a proto3 file. In that case, though the enum is open (since it is defined
+in a proto3 file), the field would behave as if the enum were closed.
+
+### Java: UTF8 Validation
+
+```protobuf title="Definition"
+optional Utf8Validation utf8_validation = 2 [
+  targets = TARGET_TYPE_FIELD,
+  targets = TARGET_TYPE_FILE,
+  feature_support = {
+    edition_introduced: EDITION_2023
+    edition_deprecated: EDITION_2024
+    deprecation_warning: "The Java-specific utf8 validation feature is "
+                         "deprecated and is scheduled to be removed in "
+                         "edition 2025.  Utf8 validation behavior should "
+                         "use the global cross-language utf8_validation "
+                         "feature."
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "DEFAULT" }
+];
+
+enum Utf8Validation {
+  UTF8_VALIDATION_UNKNOWN = 0;
+  // Respect the UTF8 validation behavior specified by the global
+  // utf8_validation feature.
+  DEFAULT = 1;
+  // Verifies UTF8 validity, overriding the global utf8_validation
+  // feature. This represents the legacy java_string_check_utf8
+  // file option.
+  VERIFY = 2;
+}
+```
+
+_Applies to_: Fields (can also be specified as a file option, to provide file-wide default)
+
+```protobuf title="Example"
+edition = "2023";
+import "google/protobuf/cpp_features.proto";
+option features.utf8_validation = NONE;
+
+message Test {
+  // highlight-start
+  string name = 1 [features.(pb.java).utf8_validation = VERIFY];
+  // highlight-end
+}
+```
+
+This custom feature is defined in the well-known import `"google/protobuf/java_features.proto"`
+as a field inside the `(pb.java)` extension.
+
+In Editions syntax, this can be used to configure whether a string field has its
+contents verified at runtime to be valid UTF8. This only impacts the Java runtime.
+This can be used to mimic the legacy behavior of a proto2 file that had its
+`java_string_check_utf8` file option set to true. In such a file, all string fields
+have a [`utf8_validation` feature](#utf8_validation) set to `NONE` (by virtue of
+it being a proto2 file) but the Java runtime will check for valid UTF8 encoding
+anyway.
+
+### Go: Legacy UnmarshalJSON Enum
+
+```protobuf title="Definition"
+optional bool legacy_unmarshal_json_enum = 1 [
+  targets = TARGET_TYPE_ENUM,
+  feature_support = {
+    edition_introduced: EDITION_2023
+    edition_deprecated: EDITION_2023
+    deprecation_warning: "The legacy UnmarshalJSON API is deprecated and "
+                         "will be removed in a future edition."
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "true" },
+  edition_defaults = { edition: EDITION_PROTO3, value: "false" }
+];
+```
+
+_Applies to_: Enums
+
+```protobuf title="Example"
+edition = "2023";
+import "google/protobuf/go_features.proto";
+
+enum Test {
+  // highlight-start
+  option features.(pb.go).legacy_unmarshal_json_enum = true;
+  // highlight-end
+  VALUE = 0;
+}
+```
+
+This custom feature is **NOT** defined in a well-known import. It is defined in an
+import named`"google/protobuf/go_features.proto"` as a field inside the `(pb.go)`
+extension. The authoritative source for this file's content is the repo at
+https://github.com/protocolbuffers/protobuf-go.
+
+In Editions syntax, this can be used to configure whether a generated Go
+type representing an enum would include an `UnmarshalJSON` method. This only
+impacts Go generated code. This can be used to mimic the legacy behavior of a
+proto2 file, in which enum types had such a method generated.
