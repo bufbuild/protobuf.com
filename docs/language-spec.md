@@ -538,7 +538,7 @@ names end in `_TEST_ONLY` should also be ignored.
 Of the values that remain (not ignored per the above), the portion
 of the value name _after_ the `EDITION_` prefix is what is allowed.
 For example, with the value `EDITION_2023`, `2023` is what can be
-used, i.e. `edition "2023";`.
+used, i.e. `edition = "2023";`.
 
 Note, however, that just because an edition is declared in the
 enum does not necessarily mean that the edition is actually
