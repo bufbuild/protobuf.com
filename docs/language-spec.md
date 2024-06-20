@@ -1687,8 +1687,8 @@ called "merging b into a". The algorithm is works like so:
   * Else:
     * Replace the value in "a" with the value in "b".
 
-The process is design to produce the same result as the following (less efficient)
-process:
+The process is designed to produce the same result as the following (less
+efficient) process:
 * Serialize "a" to bytes.
 * Serialize "b" to bytes.
 * Concatenate the bytes from "b" to the end of the bytes from "a".
