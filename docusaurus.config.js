@@ -46,17 +46,21 @@ const config = {
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css")
-        },
+        }
       })
     ]
   ],
 
   plugins: [
-    (gaTrackingID !== "") ?
-      ["@docusaurus/plugin-google-gtag",{
-        trackingID: gaTrackingID,
-        anonymizeIP: true,
-      }]:null
+    gaTrackingID !== ""
+      ? [
+          "@docusaurus/plugin-google-gtag",
+          {
+            trackingID: gaTrackingID,
+            anonymizeIP: true
+          }
+        ]
+      : null
   ],
 
   themeConfig:
