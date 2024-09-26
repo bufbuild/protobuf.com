@@ -1,7 +1,7 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require("prism-react-renderer/themes/github");
+const lightCodeTheme = require("prism-react-renderer");
 const gaTrackingID = process.env.GOOGLE_ANALYTICS_GTAG ?? "";
 
 /** @type {import('@docusaurus/types').Config} */
