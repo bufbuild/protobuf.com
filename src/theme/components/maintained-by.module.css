@@ -5,6 +5,11 @@
 }
 
 .bufLogo {
+  display: flex;
+  margin-bottom: 3px;
+}
+
+.bufLogo > svg {
   height: 23px;
   width: 51.12px;
 }
