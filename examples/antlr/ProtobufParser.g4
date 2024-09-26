@@ -15,9 +15,12 @@ fileElement: importDecl |
                serviceDecl |
                emptyDecl;
 
-syntaxDecl: SYNTAX EQUALS syntaxLevel SEMICOLON;
+syntaxDecl: SYNTAX EQUALS syntaxLevel SEMICOLON |
+            EDITION EQUALS edition SEMICOLON;
 
 syntaxLevel: stringLiteral;
+
+edition: stringLiteral;
 
 stringLiteral: STRING_LITERAL+;
 
@@ -181,9 +184,11 @@ tagRangeStart: fieldNumber;
 
 tagRangeEnd  : fieldNumber | MAX;
 
-messageReservedDecl: RESERVED ( tagRanges | names ) SEMICOLON;
+messageReservedDecl: RESERVED ( tagRanges | nameStrings | names ) SEMICOLON;
 
-names: stringLiteral ( COMMA stringLiteral )*;
+nameStrings: stringLiteral ( COMMA stringLiteral )*;
+
+names: identifier ( COMMA identifier )*;
 
 enumDecl: ENUM enumName L_BRACE enumElement* R_BRACE;
 
@@ -200,7 +205,7 @@ enumValueName  : identifier;
 
 enumValueNumber: MINUS? INT_LITERAL;
 
-enumReservedDecl: RESERVED ( enumValueRanges | names ) SEMICOLON;
+enumReservedDecl: RESERVED ( enumValueRanges | nameStrings | names ) SEMICOLON;
 
 enumValueRanges    : enumValueRange ( COMMA enumValueRange )*;
 
@@ -247,6 +252,7 @@ identifier: alwaysIdent | sometimesIdent;
 
 alwaysIdent: IDENTIFIER
     | SYNTAX
+    | EDITION
     | IMPORT
     | WEAK
     | PUBLIC

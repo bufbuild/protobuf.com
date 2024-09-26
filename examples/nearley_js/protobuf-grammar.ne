@@ -28,9 +28,12 @@ FileElement -> ImportDecl |
                ServiceDecl |
                EmptyDecl
 
-SyntaxDecl -> "syntax" "=" SyntaxLevel ";"
+SyntaxDecl -> "syntax" "=" SyntaxLevel ";" |
+              "edition" "=" Edition ";"
 
 SyntaxLevel -> StringLiteral
+
+Edition -> StringLiteral
 
 StringLiteral -> %string_literal:+
 
@@ -193,9 +196,11 @@ TagRangeStart -> FieldNumber
 
 TagRangeEnd   -> FieldNumber | "max"
 
-MessageReservedDecl -> "reserved" ( TagRanges | Names ) ";"
+MessageReservedDecl -> "reserved" ( TagRanges | NameStrings | Names ) ";"
 
-Names -> StringLiteral ( "," StringLiteral ):*
+NameStrings -> StringLiteral ( "," StringLiteral ):*
+
+Names -> Identifier ( "," Identifier ):*
 
 EnumDecl -> "enum" EnumName "{" EnumElement:* "}"
 
@@ -212,7 +217,7 @@ EnumValueName   -> Identifier
 
 EnumValueNumber -> "-":? %int_literal
 
-EnumReservedDecl -> "reserved" ( EnumValueRanges | Names ) ";"
+EnumReservedDecl -> "reserved" ( EnumValueRanges | NameStrings | Names ) ";"
 
 EnumValueRanges     -> EnumValueRange ( "," EnumValueRange ):*
 
