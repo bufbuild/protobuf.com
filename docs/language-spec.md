@@ -53,7 +53,7 @@ Productions are expressions constructed from terms and the following operators, 
 * **!**:  Exclusion
 * **()**: Grouping
 * **[]**: Option (0 or 1 times)
-* **{}**: Repetition (0 to n times)
+* **\{\}**: Repetition (0 to n times)
 
 Production names that are in [lower_snake_case](https://en.wiktionary.org/wiki/snake_case)
 are used to identify lexical tokens. Production names for non-terminals are in
