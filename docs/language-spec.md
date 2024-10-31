@@ -493,10 +493,10 @@ EmptyDecl = semicolon .
 ### Syntax Declaration
 
 Files should define a syntax level. If present, this must be the first
-declaration in the file. When the "syntax" keyword is used, string literal
-indicates the syntax level and must have a value of "proto2" or "proto3".
-If the "edition" keyword is used, the file is said to use Editions syntax,
-and the string literal indicates a particular indication. By convention,
+declaration in the file. When the "syntax" keyword is used, the string
+literal indicates the syntax level and must have a value of "proto2" or
+"proto3". If the "edition" keyword is used, the file uses Editions syntax,
+and the string literal indicates a particular edition. By convention,
 editions are named after the year in which their development began. The
 first edition is "2023".
 
@@ -545,8 +545,8 @@ enum does not necessarily mean that the edition is actually
 _supported_ or even completely defined. For example, v27.0 of
 the Protobuf distribution includes a value named `EDITION_2024`,
 but such a version was not implemented yet. It is present in the
-file because it must be added to the enum before any
-implementation work can actually being. Once the edition is
+file because it must be added to the enum *before* any
+implementation work can actually begin. Once the edition is
 adequately implemented for users to try it out, it can be made
 available for users of `protoc` via an `--experimental_editions`
 flag. (Users were able to experiment with edition 2023 in this
@@ -629,7 +629,7 @@ dependencies.
 #### Visibility
 
 When one element in a file refers to another element (defined in the same file
-or possible in another file), the referenced element must be _visible_ to that
+or possibly in another file), the referenced element must be _visible_ to that
 file. Imports are how elements in one file are made visible to another.
 
 The elements that are visible to a given file include the following:
