@@ -24,6 +24,6 @@ more features, and we also may add new examples to the list using other parser g
 
 Another example that may be interesting to examine, in addition to the above, is the actual
 parser that powers Buf. It uses YACC for Go (aka [Goyacc](https://pkg.go.dev/golang.org/x/tools/cmd/goyacc)),
-so it includes inlined Go code for producing an [AST](https://pkg.go.dev/github.com/bufbuild/protocompile@v0.2.0/ast).
-That configuration can be found [here](https://github.com/bufbuild/protocompile/blob/v0.2.0/parser/proto.y).
-Lexical analysis in Buf uses a [hand-written tokenizer in Go](https://github.com/bufbuild/protocompile/blob/v0.2.0/parser/lexer.go#L169).
+so it includes inlined Go code for producing an [AST](https://pkg.go.dev/github.com/bufbuild/protocompile@v0.14.1/ast).
+That configuration can be found [here](https://github.com/bufbuild/protocompile/blob/v0.14.1/parser/proto.y).
+Lexical analysis in Buf uses a [hand-written tokenizer in Go](https://github.com/bufbuild/protocompile/blob/v0.14.1/parser/lexer.go#L170).
