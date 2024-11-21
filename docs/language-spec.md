@@ -344,10 +344,10 @@ decimal_exponent  = ( "e" | "E" ) [ "+" | "-" ] decimal_digits .
 
 Floating point values are represented using 64-bit (double precision) IEEE754 format. If
 a given value cannot be exactly represented in this format (due to precision constraints),
-it is replaced with the nearest value that _can_ be represented by this format. When the
-value is too small to be represented, that nearest value will be zero. When the value is
-too large to be represented, it is replaced with `inf` or `-inf` (depending on the sign
-of the original value).
+it is replaced with the nearest value that _can_ be represented by this format using
+IEEE 754 round-to-even rules. When the value is too small to be represented, that nearest
+value will be zero. When the value is too large to be represented, it is replaced with
+`inf` or `-inf` (depending on the sign of the original value).
 
 :::note
 
