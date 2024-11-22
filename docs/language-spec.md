@@ -345,9 +345,12 @@ decimal_exponent  = ( "e" | "E" ) [ "+" | "-" ] decimal_digits .
 Floating point values are represented using 64-bit (double precision) IEEE754 format. If
 a given value cannot be exactly represented in this format (due to precision constraints),
 it is replaced with the nearest value that _can_ be represented by this format using
-IEEE 754 round-to-even rules. When the value is too small to be represented, that nearest
-value will be zero. When the value is too large to be represented, it is replaced with
-`inf` or `-inf` (depending on the sign of the original value).
+[IEEE 754 round-to-nearest, ties-to-even](https://en.wikipedia.org/wiki/IEEE_754#Roundings_to_nearest)
+rules. When the value is too small to be represented, that nearest value will be zero. When
+the value is too large to be represented, that nearest value will be infinity. A floating
+point literal will always result in a value and never result in a _NaN_ (only the use of
+the `nan` identifier can produce such a value; see [_Option Values_](#option-values) for
+more).
 
 :::note
 
@@ -1256,6 +1259,8 @@ Identifiers are used as option values in the following cases:
 * If the option's type is an enum type, use identifiers for the unqualified enum value names.
 * If the option's type is boolean, use `true` and `false` identifiers as values.
 * If the option's type is a floating point number, one may use `inf` and `nan` identifiers as values.
+  The actual bitwise-representation of `nan` values is not specified, but it should be a
+  [quiet (aka non-signaling) _NaN_](https://en.wikipedia.org/wiki/IEEE_754#NaNs).
 
 To set multiple values when an option field is repeated, use multiple option
 declarations with the name of that field. It is an error to use multiple option
