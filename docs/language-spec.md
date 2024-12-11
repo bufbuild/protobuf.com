@@ -120,7 +120,7 @@ Source code is Unicode text encoded in UTF-8. In general, only comments and stri
 can contain code points outside the range of 7-bit ASCII.
 
 For compatibility with other tools, a file with Protobuf source may contain a UTF-8-encoded
-byte order mark (U+FEFF, encoded as `"\xEF\xBB\xBF"`), but only if it is the first Unicode
+byte-order mark (U+FEFF, encoded as `"\xEF\xBB\xBF"`), but only if it is the first Unicode
 code point in the source text.
 
 A single file containing Protobuf IDL source code will be referred to below as a
@@ -463,7 +463,7 @@ in the sections below.
 ## Source File Organization
 
 A valid source file contains zero or more declarations and may begin with an optional
-UTF byte order mark.
+UTF byte-order mark.
 ```ebnf
 File = [ byte_order_mark ] [ SyntaxDecl ] { FileElement } .
 
@@ -476,6 +476,10 @@ FileElement = ImportDecl |
               ServiceDecl |
               EmptyDecl .
 ```
+As described [above](#whitespace-and-comments), whitespace and comments are ignored.
+So whitespace and/or comments preceding any declaration are allowed and will be
+discarded. However whitespace and comments are _not allowed_ before the byte-order
+mark. If present, the byte-order mark **must** be the first three bytes in the file.
 
 ### Declaration Types
 
