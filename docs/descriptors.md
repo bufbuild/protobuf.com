@@ -996,6 +996,10 @@ The other elements that could conflict with the synthetic oneof's name are:
 * Other messages defined inside the message
 * Extensions defined inside the message
 * Enums defined inside the message
+* Enum values defined inside enum in the message. This is because enum values use C++-style
+  scoping rules, such that the value is defined in the same enclosing scope as the one that
+  contains the enum. See the [language specification](./language-spec.md#fully-qualified-names)
+  for more details.
 
 ```protobuf title="example.proto"
 syntax = "proto3";
