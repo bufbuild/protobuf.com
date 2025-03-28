@@ -607,6 +607,14 @@ import public "other/file.proto";
 import weak "deprecated.proto";
 ```
 
+The string literal must be a relative path (e.g. it may not start with
+a slash `/`). Paths always use forward slash as the path separator,
+even when compiled on operating systems that use back-slashes (`\`),
+such as Windows.
+
+The paths that are imported must be unique: referring to the same
+path from multiple import statements is not allowed.
+
 A "public" import means that everything in that file is treated
 as if it were defined in the importing file, for the benefit of
 transitive importers. For example, if file "a.proto" imports
@@ -625,13 +633,16 @@ supported by few target runtimes.
 
 :::
 
-The string literal must be a relative path (e.g. it may not start with
-a slash `/`). Paths always use forward slash as the path separator,
-even when compiled on operating systems that use back-slashes (`\`),
-such as Windows.
-
 The set of files that a file imports are also known as the file's
-dependencies.
+direct dependencies.
+
+The graph that is formed of files as vertices and imports as edges is
+a directed acyclic graph (aka, DAG). Therefore imports are not allowed to
+introduce cycles; a file's set of transitive dependencies must not include
+itself. For example, if "a.proto" imports "b.proto", then "b.proto" must
+not import "a.proto". Furthermore, "b.proto" cannot even _indirectly_
+reference "a.proto" via transitive dependencies. So if "b.proto" imports
+"c.proto", it also must import neither "a.proto" nor "b.proto", and so on.
 
 #### Visibility
 
@@ -737,7 +748,7 @@ fully-qualified name of the parent node and append to that a dot (`"."`) and the
 simple name. There are two exceptions to this simple rule:
  1. Enum values are treated as if _siblings_ of the enums that contain them, not child nodes.
     The reason behind this is mostly a legacy decision to support generated C++ code since
-    enums in C++ behave the same way with regard their enclosing namespace.
+    enums in C++ behave the same way with regards to their enclosing namespace.
  2. Similarly, fields defined inside a oneof are treated as if _siblings_ of the oneof. This
     is so that any normal field of a message can be uniquely identified by its simple name,
     regardless of whether it is part of a oneof (a property required by the text and JSON
