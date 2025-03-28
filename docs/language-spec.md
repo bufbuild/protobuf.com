@@ -603,6 +603,14 @@ import public "other/file.proto";
 import weak "deprecated.proto";
 ```
 
+The string literal must be a relative path (e.g. it may not start with
+a slash `/`). Paths always use forward slash as the path separator,
+even when compiled on operating systems that use back-slashes (`\`),
+such as Windows.
+
+The paths that are imported must be unique: referring to the same
+path from multiple import statements is not allowed.
+
 A "public" import means that everything in that file is treated
 as if it were defined in the importing file, for the benefit of
 transitive importers. For example, if file "a.proto" imports
@@ -621,13 +629,8 @@ supported by few target runtimes.
 
 :::
 
-The string literal must be a relative path (e.g. it may not start with
-a slash `/`). Paths always use forward slash as the path separator,
-even when compiled on operating systems that use back-slashes (`\`),
-such as Windows.
-
 The set of files that a file imports are also known as the file's
-dependencies.
+direct dependencies.
 
 The graph that is formed of files as vertices and imports as edges is
 a directed acyclic graph (aka, DAG). Therefore imports are not allowed to
@@ -635,7 +638,7 @@ introduce cycles; a file's set of transitive dependencies must not include
 itself. For example, if "a.proto" imports "b.proto", then "b.proto" must
 not import "a.proto". Furthermore, "b.proto" cannot even _indirectly_
 reference "a.proto" via transitive dependencies. So if "b.proto" imports
-"c.proto", it also must not import "a.proto" (nor "b.proto"), and so on.
+"c.proto", it also must import neither "a.proto" nor "b.proto", and so on.
 
 #### Visibility
 
