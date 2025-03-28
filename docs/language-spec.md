@@ -653,10 +653,10 @@ The "well-known" imports are a set of files that define the well-known types. Th
 term "well-known" means they are available to all Protobuf sources. Instead of requiring
 a user to supply these files, the compiler should be able to provide their contents. All
 of the well-known types are in files whose path begins with "google/protobuf". Furthermore,
-the package for each file starts with `google.protobuf`, with the exception of the files
+the package for each file starts with `google.protobuf`, with the exception of the three files
 that define custom features, which use the short package `pb`.
 
-As of v1.32 of `buf` and v27.0 of `protoc`, the well-known imports include the following
+As of v1.48.0 of `buf` and v29.1 of `protoc`, the well-known imports include the following
 files:
 * `google/protobuf/any.proto`
 * `google/protobuf/api.proto`
@@ -666,6 +666,7 @@ files:
 * `google/protobuf/duration.proto`
 * `google/protobuf/empty.proto`
 * `google/protobuf/field_mask.proto`
+* `google/protobuf/go_features.proto`
 * `google/protobuf/java_features.proto`
 * `google/protobuf/source_context.proto`
 * `google/protobuf/struct.proto`
@@ -1679,7 +1680,7 @@ like so:
 ##### Merging Protobuf Messages
 
 Merging two Protobuf messages, "a" and "b", mutates "a". By convention, this is
-called "merging b into a". The algorithm is works like so:
+called "merging b into a". The algorithm works like so:
 * For each field that is present in "b":
   * If that field is not present in "a":
     * Update "a", setting the field to the value in "b".
@@ -1887,7 +1888,7 @@ editions in which the field can be used using the `feature_support` option.
 In addition to logically adding and removing feature fields, the `feature_support`
 option can also be used to deprecate a feature field. In an edition in which the
 field is deprecated, the compiler may emit a warning about the deprecation if
-that field actually used.
+that field were actually used.
 
 Let's take a look at an example, which comes from the `(pb.cpp).legacy_closed_enum`
 custom C++ feature that is defined in the well-known file `google/protobuf/cpp_features.proto`:
@@ -1909,13 +1910,13 @@ to this option once such a value is added to the `Edition` enum.
 
 If a feature field is referenced in an earlier edition than its configured
 `edition_introduced` value, the compiler must emit an error. Similarly, if a
-feature field is referenced in a later edition than its configured
-`edition_removed` value, the compiler must emit an error. All features should
-include an `edition_introduced` value. But as seen in the example above, an
-`edition_removed` may not be present (an `edition_deprecated` might also not
-be present), in which case `EDITION_MAX` is used (which basically means the
-feature can be used in any edition that is later than or equal to the one in
-which it was introduced).
+feature field is referenced in an edition that is equal to or later than its
+configured `edition_removed` value, the compiler must emit an error. All
+features should include an `edition_introduced` value. But as seen in the
+example above, an `edition_removed` may not be present (an `edition_deprecated`
+might also not  be present), in which case `EDITION_MAX` is used (which
+basically means the feature can be used in any edition that is later than
+or equal to the one in which it was introduced).
 
 An "earlier" edition is one with a lower numeric value. A "later" edition is
 one with a higher numeric value.
@@ -2122,15 +2123,13 @@ In a file using the proto3 syntax, a field's type may _not_ refer to a closed en
 A closed enum type is one that is defined in a file that uses proto2 syntax or one
 defined in a file that uses Editions syntax and whose [`enum_type` feature](#enum-type)
 has a value of `CLOSED`.
-type that is declared in a file that uses the proto2 syntax. Enum semantics
-
 
 Similarly, in a file using Editions syntax, if the field's [`field_presence` feature](#field-presence)
 has a value of `IMPLICIT`, it may not refer to a closed enum type.
 
 These restrictions are because semantics around [default values](#field-presence-and-default-values)
 for closed enums (which could be a non-zero value) are not compatible with the
-semantics of optional fields with explicit presence.
+semantics of optional fields with implicit presence.
 
 :::
 
@@ -2227,9 +2226,9 @@ validation rules would be enforced.
 #### Field Presence and Default Values
 
 When a field has explicit presence, its presence is preserved in the face of
-serialization. In other words, if the field is explicitly set, then the containing
-message is serialized, a consumer of the message that deserializes it will be able
-to tell that the field was explicitly set or not.
+serialization. In other words, if the field is explicitly set, then when the
+containing message is serialized, a consumer of the message that deserializes
+it will be able to tell that the field was explicitly set.
 
 When a field has implicit presence, it is not possible to distinguish at runtime
 between the case where the field's value was never set and where the field's value
