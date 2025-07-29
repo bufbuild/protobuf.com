@@ -1475,7 +1475,7 @@ Below are the meta-options:
 3. [`edition_defaults`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L763-L767):
    This option is required for feature fields and is used to to resolve feature values.
    This is described in more detail [below](#feature-defaults).
- 
+
 4. [`feature_support`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L772-L792):
    This option is also required for feature fields and defines the range of editions in
    which a feature field may be used. This is described in more detail [below](#feature-lifetimes).
@@ -2088,7 +2088,7 @@ number in the range.
 
 :::tip
 
-When creating messages, authors should prefer lower numbers: unmarshalling a message is
+When creating messages, authors should prefer lower numbers: unmarshaling a message is
 typically optimized for smaller field numbers. Also, smaller values are more efficiently
 encoded and decoded: field numbers 1 to 15 can be encoded in a single byte. So it is
 recommended to always start numbering fields at 1 and to use smaller values for more
@@ -2268,7 +2268,7 @@ zero value for a non-repeated field depends on the field's type:
 | _enum types_         | _the first value defined in the enum_ * |
 | _message types_      | `{}` (empty message)                    |
 
-__*__ In proto3 syntax (and for open enums in edition syntax), the first value 
+__*__ In proto3 syntax (and for open enums in edition syntax), the first value
 in an enum _must_ have a numeric value of zero. So, in proto3, the default value
 of an enum field is always the one with a value of zero.
 
@@ -2759,7 +2759,7 @@ Each declaration has the following fields:
 * `repeated`: Must be set to true only if the extension is a repeated field.
 * `reserved`: This is used to reserve a number and prevent its use. This is typically
   done for deleted extensions, to prevent later re-use of the number. If this value is
-  true, `full_name` and `type` must not be set. Conversly, if this value is true,
+  true, `full_name` and `type` must not be set. Conversely, if this value is true,
   `full_name` and `type` must be present.
 
 Unverified ranges may not have any declarations. So it is an error for the `verification`
@@ -3138,7 +3138,7 @@ The extended message is also known as the "extendee".
 An `extend` block must contain at least one field or group.
 
 :::info
-️
+
 Files using proto3 or Editions syntax are not allowed to include _GroupDecl_ elements.
 
 Files using the proto3 syntax are only allowed to declare extensions that
@@ -3345,7 +3345,7 @@ This replaces the `packed` field option, which may only be used in files that us
 proto2 or proto3 syntax. Files that use Editions syntax must use this feature instead.
 
 It is an error to use the `repeated_field_encoding` feature on a non-repeated field
-or an a repeated field whose type cannot use the compact encoding. Only primitive
+or a repeated field whose type cannot use the compact encoding. Only primitive
 numeric fields (which includes bools and enums) can use the compact encoding. Fields
 whose type is a message, group, string, or bytes may not use this feature. This also
 means that map fields may not use this feature (under the hood, they are represented
@@ -3759,7 +3759,7 @@ enum Test {
 ```
 
 This custom feature is **NOT** defined in a well-known import. It is defined in an
-import named`"google/protobuf/go_features.proto"` as a field inside the `(pb.go)`
+import named `"google/protobuf/go_features.proto"` as a field inside the `(pb.go)`
 extension. The authoritative source for this file's content is the repo at
 https://github.com/protocolbuffers/protobuf-go.
 

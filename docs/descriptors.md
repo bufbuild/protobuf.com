@@ -366,10 +366,10 @@ known options are emitted first, in field number order. But unknown options (whi
 includes all custom options/extensions), each single option declaration is encoded
 to bytes as if it were by itself. The resulting binary form relies heavily on the
 fact that the binary encoding will merge data. So the bytes for each custom option
-are unmarshalled, such that the bytes from a later option get merged into the
-results from unmarshalling earlier ones. The result is that the two examples below
+are unmarshaled, such that the bytes from a later option get merged into the
+results from unmarshaling earlier ones. The result is that the two examples below
 are encoded to bytes very differently, but the resulting options messages after
-unmarshalling either are semantically equivalent.
+unmarshaling either are semantically equivalent.
 
 ```protobuf title="destructured.proto"
 // This example de-structures the option across multiple declarations:
@@ -1064,7 +1064,7 @@ The [_MapFieldDecl_](./language-spec.md#maps) production results in both a
 _and_ a [`DescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L134).
 
 The spec describes how map fields behave as if they were defined as a repeated
-field whose type is a map entry message. The message has two fields: a key and a value. 
+field whose type is a map entry message. The message has two fields: a key and a value.
 The spec includes an example that demonstrates exactly how the field is represented in
 the descriptor: as a repeated field and a nested message. Here's that example again:
 ```protobuf
@@ -1764,7 +1764,7 @@ Any other comments in the array are also detached.
 // This is a leading comment for the "option" keyword token. But it's
 // also a leading comment for the entire option declaration.
 option java_package = "foo.bar.baz";
-// This is a trailing comment for the ";" puncutation token. But it's
+// This is a trailing comment for the ";" punctuation token. But it's
 // also a trailing comment for the entire option declaration.
 ```
 
