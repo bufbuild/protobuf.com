@@ -2561,9 +2561,9 @@ To avoid possible conflicting field names in the JSON format for a message, fiel
 checked for possible conflicts. This check proceeds in two steps:
 
 1. First, the field's _default_ JSON name is checked for conflicts against all other
-   fields' default JSON names. If fields have custom JSON names defined, they are ignored
-   in this step. Fields _default_ JSON names must also be unique since the JSON format for
-   [field masks](https://protobuf.dev/reference/protobuf/google.protobuf/#json-encoding-field-masks)
+   fields' default JSON names. If fields have custom JSON names defined, those custom
+   names are ignored in this step. Fields' _default_ JSON names must be unique since
+   the JSON format for [field masks](https://protobuf.dev/reference/protobuf/google.protobuf/#json-encoding-field-masks)
    does not currently consider custom JSON names.
 2. Second, the field's _effective_ JSON name is checked for conflicts against all other
    fields' effective JSON names. A field's effective JSON name is its custom JSON name
