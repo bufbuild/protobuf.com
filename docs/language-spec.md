@@ -3106,7 +3106,7 @@ identifier. In other words, they must match the production for the
 ## Extensions
 
 Fields declared directly inside a message are known as "normal fields". But it
-is also possible to define "extension fields", also know simply as
+is also possible to define "extension fields", also known simply as
 "extensions". Extensions can only be declared for an _extendable message_,
 which is one that declares at least one [extension range](#extension-ranges).
 
