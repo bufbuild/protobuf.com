@@ -11,9 +11,11 @@
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
     "check:types": "tsc",
-    "format": "prettier --write .",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc"
@@ -30,15 +32,11 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.3.14",
     "@docusaurus/module-type-aliases": "3.5.2",
-    "@docusaurus/types": "3.5.2",
     "@docusaurus/tsconfig": "3.5.2",
+    "@docusaurus/types": "3.5.2",
     "@types/react": "^18.2.29",
-    "@typescript-eslint/eslint-plugin": "^5.35.1",
-    "eslint": "^8.22.0",
-    "eslint-plugin-jsx-a11y": "^6.5.1",
-    "eslint-plugin-react": "^7.31.0",
-    "prettier": "2.7.1",
     "typescript": "^5.2.2"
   },
   "browserslist": {

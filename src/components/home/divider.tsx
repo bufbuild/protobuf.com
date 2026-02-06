@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import type { CSSProperties } from "react";
 
 export const Divider = ({ style }: { style?: CSSProperties }) => {
   return (
@@ -8,7 +8,7 @@ export const Divider = ({ style }: { style?: CSSProperties }) => {
         height: "1px",
         backgroundColor: "var(--buf-grey-04)",
         opacity: "0.1",
-        ...style
+        ...style,
       }}
     />
   );

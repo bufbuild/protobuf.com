@@ -12,10 +12,10 @@
  * https://github.com/facebook/docusaurus/tree/v2.0.0-beta.3/packages/docusaurus-theme-classic/src/theme
  */
 import Link from "@docusaurus/Link";
-import { FooterLinkItem, useThemeConfig } from "@docusaurus/theme-common";
+import { type FooterLinkItem, useThemeConfig } from "@docusaurus/theme-common";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import clsx from "clsx";
-import React, { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 
 import IconMail from "./icon-envelope--gray.svg";
 import IconLinkedIn from "./icon-linkedin--gray.svg";
@@ -49,15 +49,15 @@ function FooterLink(
 }
 
 function SocialFooterLink(props: FooterLinkItem): JSX.Element {
-  let icon: JSX.Element | undefined = undefined;
-  if (props.href && props.href.startsWith("mailto:")) {
+  let icon: JSX.Element | undefined;
+  if (props.href?.startsWith("mailto:")) {
     icon = <IconMail />;
-  } else if (props.href && props.href.includes("twitter.com")) {
+  } else if (props.href?.includes("twitter.com")) {
     icon = <IconTwitter />;
-  } else if (props.href && props.href.includes("linkedin.com")) {
+  } else if (props.href?.includes("linkedin.com")) {
     icon = <IconLinkedIn />;
   }
-  let ariaLabel: string | undefined = undefined;
+  let ariaLabel: string | undefined;
   if (icon !== undefined) {
     ariaLabel = props.label;
   }
@@ -83,30 +83,30 @@ function Footer(): JSX.Element | null {
   const socialLinks: FooterLinkItem[] = [
     {
       label: "Twitter",
-      href: "https://twitter.com/bufbuild"
+      href: "https://twitter.com/bufbuild",
     },
     {
       label: "LinkedIn",
-      href: "https://www.linkedin.com/company/bufbuild"
+      href: "https://www.linkedin.com/company/bufbuild",
     },
     {
       label: "Mail",
-      href: "mailto:info@buf.build"
-    }
+      href: "mailto:info@buf.build",
+    },
   ];
   const legalLinks: FooterLinkItem[] = [
     {
       label: "Terms of use",
-      to: "https://buf.build/resources/terms/"
+      to: "https://buf.build/resources/terms/",
     },
     {
       label: "Privacy policy",
-      to: "https://buf.build/resources/privacy/"
+      to: "https://buf.build/resources/privacy/",
     },
     {
       label: "Cookie policy",
-      to: "https://buf.build/resources/cookie-policy/"
-    }
+      to: "https://buf.build/resources/cookie-policy/",
+    },
   ];
 
   if (!footer) {
@@ -138,11 +138,9 @@ function Footer(): JSX.Element | null {
 
         <div
           className={styles.copyright}
-          // Developer provided the HTML, so assume it's safe.
           // eslint-disable-next-line react/no-danger
-          // ^^^ comment by FB
           dangerouslySetInnerHTML={{
-            __html: copyright ?? ""
+            __html: copyright ?? "",
           }}
         />
       </div>

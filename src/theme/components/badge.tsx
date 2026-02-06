@@ -1,5 +1,4 @@
 import clsx from "clsx";
-import React from "react";
 
 import styles from "./badge.module.css";
 
@@ -16,7 +15,7 @@ export function Badge(props: BadgeProps): JSX.Element {
         [styles.danger]: props.severity === "danger",
         [styles.warning]: props.severity === "warning",
         [styles.neutral]: props.severity === "neutral",
-        [styles.info]: props.severity === "info"
+        [styles.info]: props.severity === "info",
       })}
     >
       {props.label}

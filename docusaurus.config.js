@@ -24,8 +24,8 @@ const config = {
       src: "https://sparkling-delightful.protobuf.com/script.js",
       "data-site": "NXKPYXNZ",
       "data-spa": "auto",
-      defer: true
-    }
+      defer: true,
+    },
   ],
 
   // Even if you don't use internalization, you can use this field to set useful
@@ -33,7 +33,7 @@ const config = {
   // to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: "en",
-    locales: ["en"]
+    locales: ["en"],
   },
 
   presets: [
@@ -42,13 +42,13 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          sidebarPath: require.resolve("./sidebars.js")
+          sidebarPath: require.resolve("./sidebars.js"),
         },
         theme: {
-          customCss: require.resolve("./src/css/custom.css")
-        }
-      })
-    ]
+          customCss: require.resolve("./src/css/custom.css"),
+        },
+      }),
+    ],
   ],
 
   plugins: [
@@ -57,10 +57,10 @@ const config = {
           "@docusaurus/plugin-google-gtag",
           {
             trackingID: gaTrackingID,
-            anonymizeIP: true
-          }
+            anonymizeIP: true,
+          },
         ]
-      : null
+      : null,
   ],
 
   themeConfig:
@@ -76,27 +76,27 @@ const config = {
       //   customDomain: process.env.FATHOM_ANALYTICS_CUSTOM_DOMAIN || "none"
       // },
       navbar: {
-        title: "Protobuf Guide"
+        title: "Protobuf Guide",
       },
       footer: {
         style: "dark",
         links: [],
         copyright: `Copyright © ${
-          new Date().getFullYear() != 2022 ? "2022&ndash;" : ""
-        }${new Date().getFullYear()} Buf Technologies, Inc.`
+          new Date().getFullYear() !== 2022 ? "2022&ndash;" : ""
+        }${new Date().getFullYear()} Buf Technologies, Inc.`,
       },
       prism: {
         theme: lightCodeTheme,
-        additionalLanguages: ["protobuf", "ebnf"]
+        additionalLanguages: ["protobuf", "ebnf"],
       },
       tableOfContents: {
         minHeadingLevel: 2,
-        maxHeadingLevel: 5
+        maxHeadingLevel: 5,
       },
       colorMode: {
-        disableSwitch: true
-      }
-    })
+        disableSwitch: true,
+      },
+    }),
 };
 
 module.exports = config;

@@ -52,13 +52,3 @@ npmlint:
 .PHONY: npmchecktypes
 npmchecktypes:
 	npm run check:types
-
-.PHONY: updateversion
-updateversion:
-ifndef VERSION
-	$(error "VERSION must be set")
-endif
-	$(SED_I) "s/[0-9].[0-9][0-9]*\.[0-9][0-9]*/$(VERSION)/g" docs/installation.md
-	$(SED_I) "s/version: '[0-9].[0-9][0-9]*\.[0-9][0-9]*'/version: '$(VERSION)'/g" docs/ci-cd/github-actions.md
-	$(SED_I) "s/BUF_VERSION=[0-9].[0-9][0-9]*\.[0-9][0-9]*/BUF_VERSION=$(VERSION)/g" docs/ci-cd/setup.md
-	$(SED_I) "s/downloadRelease: '[0-9].[0-9][0-9]*\.[0-9][0-9]*'/downloadRelease: '$(VERSION)'/g" docusaurus.config.js

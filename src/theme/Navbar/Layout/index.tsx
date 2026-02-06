@@ -1,16 +1,16 @@
-import React, { ComponentProps } from "react";
-import clsx from "clsx";
-import NavbarMobileSidebar from "@theme/Navbar/MobileSidebar";
-import {
-  useThemeConfig,
-  useHideableNavbar,
-  useNavbarMobileSidebar
-} from "@docusaurus/theme-common/internal";
-import styles from "./styles.module.css";
 import { useLocation } from "@docusaurus/router";
-import type { Props } from "@theme/Navbar/Layout";
+import {
+  useHideableNavbar,
+  useNavbarMobileSidebar,
+  useThemeConfig,
+} from "@docusaurus/theme-common/internal";
 import { Divider } from "@site/src/components/home/divider";
 import { useIsScrolled } from "@site/src/utils/use-is-scrolled";
+import type { Props } from "@theme/Navbar/Layout";
+import NavbarMobileSidebar from "@theme/Navbar/MobileSidebar";
+import clsx from "clsx";
+import type { ComponentProps } from "react";
+import styles from "./styles.module.css";
 
 function NavbarBackdrop(props: ComponentProps<"div">) {
   return (
@@ -24,14 +24,14 @@ function NavbarBackdrop(props: ComponentProps<"div">) {
 
 export default function NavbarLayout({ children }: Props): JSX.Element {
   const {
-    navbar: { hideOnScroll, style }
+    navbar: { hideOnScroll, style },
   } = useThemeConfig();
   const mobileSidebar = useNavbarMobileSidebar();
   const { navbarRef, isNavbarVisible } = useHideableNavbar(hideOnScroll);
   const { pathname } = useLocation();
   const showBottomBorder =
     useIsScrolled({
-      threshold: 50
+      threshold: 50,
     }) || pathname !== "/";
   return (
     <>
@@ -45,7 +45,7 @@ export default function NavbarLayout({ children }: Props): JSX.Element {
           {
             "navbar--dark": style === "dark",
             "navbar--primary": style === "primary",
-            "navbar-sidebar--show": mobileSidebar.shown
+            "navbar-sidebar--show": mobileSidebar.shown,
           }
         )}
       >
@@ -60,7 +60,7 @@ export default function NavbarLayout({ children }: Props): JSX.Element {
           marginLeft: "var(--ifm-navbar-padding-horizontal)",
           marginRight: "var(--ifm-navbar-padding-horizontal)",
           // using display since SSR makes rendering conditional elements nasty.
-          display: showBottomBorder ? undefined : "none"
+          display: showBottomBorder ? undefined : "none",
         }}
       />
     </>

@@ -1,7 +1,6 @@
-import React from "react";
-import NavbarColorModeToggle from "@theme/Navbar/ColorModeToggle";
-import IconClose from "@theme/Icon/Close";
 import { useNavbarMobileSidebar } from "@docusaurus/theme-common/internal";
+import IconClose from "@theme/Icon/Close";
+import NavbarColorModeToggle from "@theme/Navbar/ColorModeToggle";
 import styles from "./styles.module.css";
 
 function CloseButton() {
@@ -22,7 +21,7 @@ export default function NavbarMobileSidebarHeader() {
     <div
       className="navbar-sidebar__brand"
       style={{
-        boxShadow: "none"
+        boxShadow: "none",
       }}
     >
       <div className={styles.menuTitle}>Menu</div>
