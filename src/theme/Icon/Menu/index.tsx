@@ -1,6 +1,4 @@
-/* eslint-disable react/prop-types */
-
-import React from "react";
+import type React from "react";
 
 export default function IconMenu({
   width = 20,

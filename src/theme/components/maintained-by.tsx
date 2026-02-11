@@ -1,7 +1,6 @@
 import clsx from "clsx";
-import React from "react";
-import styles from "./maintained-by.module.css";
 import BufLogo from "./buf.svg";
+import styles from "./maintained-by.module.css";
 
 export const MaintainedBy = ({ className }: { className?: string }) => {
   return (

@@ -1,5 +1,5 @@
-import { useLayoutEffect, useState } from "react";
 import { useIsMounted } from "@react-hookz/web";
+import { useLayoutEffect, useState } from "react";
 
 export function useIsScrolled({ threshold }: { threshold: number }) {
   const getIsMounted = useIsMounted();
@@ -29,6 +29,6 @@ export function useIsScrolled({ threshold }: { threshold: number }) {
       }
       window.removeEventListener("scroll", onScroll);
     };
-  }, [threshold]);
+  }, [threshold, getIsMounted]);
   return isScrolled;
 }
