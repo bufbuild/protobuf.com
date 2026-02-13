@@ -1955,7 +1955,7 @@ The following are additional rules for _file_ options.
 
 * The `java_string_check_utf8` option may not be used in files that use the
   Editions syntax. Instead, there is a custom feature named
-  [`(pb.java).utf8_validation`](#pbjavautf8_validation), defined in the well-known
+  [`(pb.java).utf8_validation`](#java-utf8-validation), defined in the well-known
   file `"google/protobuf/java_features.proto"`, that can be used to control this
   behavior.
 * When the `optimize_for` file option is absent or set to a value _other than_
@@ -3724,7 +3724,7 @@ In Editions syntax, this can be used to configure whether a string field has its
 contents verified at runtime to be valid UTF8. This only impacts the Java runtime.
 This can be used to mimic the legacy behavior of a proto2 file that had its
 `java_string_check_utf8` file option set to true. In such a file, all string fields
-have a [`utf8_validation` feature](#utf8_validation) set to `NONE` (by virtue of
+have a [`utf8_validation` feature](#utf8-validation) set to `NONE` (by virtue of
 it being a proto2 file) but the Java runtime will check for valid UTF8 encoding
 anyway.
 
