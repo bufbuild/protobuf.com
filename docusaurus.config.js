@@ -61,6 +61,24 @@ const config = {
           },
         ]
       : null,
+    [
+      "docusaurus-plugin-llms",
+      {
+        // Set a logical reading order for documentation
+        includeOrder: [
+          "docs/introduction.md",
+          "docs/language-spec.md",
+          "docs/descriptors.md",
+          "docs/examples.md",
+        ],
+        // Remove duplicate heading text for cleaner output
+        removeDuplicateHeadings: true,
+        // Custom title and description for LLM files
+        title: "Protobuf Language Guide - LLM Documentation",
+        description:
+          "Complete documentation for the Protocol Buffers (Protobuf) language specification, compilation process, descriptors, and practical examples.",
+      },
+    ],
   ],
 
   themeConfig:
