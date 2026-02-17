@@ -35,7 +35,7 @@ described in detail in the _[Language Specification](./language-spec.md)_.
    formatters, will prefer to operate on a non-lossy AST. A non-lossy AST can also
    provide better error messages when interpreting options.
 
-   The file descriptor is described by the message [`google.protobuf.FileDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L97),
+   The file descriptor is described by the message [`google.protobuf.FileDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L104),
    defined in `google/protobuf/descriptor.proto` included in the official [Protobuf distribution](https://github.com/protocolbuffers/protobuf?tab=readme-ov-file#protobuf-compiler-installation).
 
 4. **Linking:**
@@ -79,7 +79,7 @@ described in detail in the _[Language Specification](./language-spec.md)_.
    correctly.
 
    Source code info representation is described reasonably well in the comments for the
-   [`google.protobuf.SourceCodeInfo`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L1134)
+   [`google.protobuf.SourceCodeInfo`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L1238)
    message. But more details can be found below in the _[Source Code Info](#source-code-info)_
    section, especially for aspects that are not well specified in those comments.
 
@@ -91,7 +91,7 @@ described in detail in the _[Language Specification](./language-spec.md)_.
    and [here](https://protobuf.dev/reference/other/#plugins).
 
    In lieu of or in addition to code generation, a compiler may also choose to produce a
-   file that contains a serialized [`google.protobuf.FileDescriptorSet`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L54-L58).
+   file that contains a serialized [`google.protobuf.FileDescriptorSet`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L56-L60).
 
 
 ## Resolving Import Locations
@@ -126,25 +126,25 @@ as well as the descriptor model (see next section).
 
 The Protobuf distribution includes all the following files, as does the Buf CLI:
 
-* [`google/protobuf/any.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/any.proto): Defines the `google.protobuf.Any` type.
-* [`google/protobuf/api.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/api.proto): Defines types for describing RPC services, such as
+* [`google/protobuf/any.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/any.proto): Defines the `google.protobuf.Any` type.
+* [`google/protobuf/api.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/api.proto): Defines types for describing RPC services, such as
   `google.protobuf.Api`. This is an alternate representation to the descriptor model.
-* [`google/protobuf/compiler/plugin.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/compiler/plugin.proto): Defines types used to implement compiler plugins.
-* [`google/protobuf/cpp_features.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/compiler/plugin.proto): Defines custom features (for Editions) for C++ generated code.
-* [`google/protobuf/descriptor.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto): Defines the descriptor model, used for runtime
+* [`google/protobuf/compiler/plugin.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/compiler/plugin.proto): Defines types used to implement compiler plugins.
+* [`google/protobuf/cpp_features.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/cpp_features.proto): Defines custom features (for Editions) for C++ generated code.
+* [`google/protobuf/descriptor.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto): Defines the descriptor model, used for runtime
   reflection and by compiler plugins.
-* [`google/protobuf/duration.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/duration.proto): Defines the `google.protobuf.Duration` type.
-* [`google/protobuf/empty.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/empty.proto): Defines the `google.protobuf.Empty` type.
-* [`google/protobuf/field_mask.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/field_mask.proto): Defines the `google.protobuf.FieldMask` type.
-* [`google/protobuf/java_features.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/compiler/plugin.proto): Defines custom features (for Editions) for Java generated code.
-* [`google/protobuf/source_context.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/source_context.proto): Defines the `google.protobuf.SourceContext` type,
+* [`google/protobuf/duration.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/duration.proto): Defines the `google.protobuf.Duration` type.
+* [`google/protobuf/empty.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/empty.proto): Defines the `google.protobuf.Empty` type.
+* [`google/protobuf/field_mask.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/field_mask.proto): Defines the `google.protobuf.FieldMask` type.
+* [`google/protobuf/java_features.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/java/core/src/main/resources/google/protobuf/java_features.proto): Defines custom features (for Editions) for Java generated code.
+* [`google/protobuf/source_context.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/source_context.proto): Defines the `google.protobuf.SourceContext` type,
   which is used by both `google.protobuf.Api` and `google.protobuf.Type`.
-* [`google/protobuf/struct.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/struct.proto): Defines the types used to model arbitrary JSON data as
+* [`google/protobuf/struct.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/struct.proto): Defines the types used to model arbitrary JSON data as
   a Protocol Buffer, such as `google.protobuf.Value` and `google.protobuf.Struct`.
-* [`google/protobuf/timestamp.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/timestamp.proto): Defines the `google.protobuf.Timestamp` type.
-* [`google/protobuf/type.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/type.proto): Defines types for describing messages and enums, such as
+* [`google/protobuf/timestamp.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/timestamp.proto): Defines the `google.protobuf.Timestamp` type.
+* [`google/protobuf/type.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/type.proto): Defines types for describing messages and enums, such as
   `google.protobuf.Type`. This is an alternate representation to the descriptor model.
-* [`google/protobuf/wrappers.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/wrappers.proto): Defines message types which are wrappers around the
+* [`google/protobuf/wrappers.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/wrappers.proto): Defines message types which are wrappers around the
   various scalar types, such as `google.protobuf.Int64Value` and `google.protobuf.StringValue`.
 
 These files can be imported without having to tell the compiler where to find them. For
@@ -190,7 +190,7 @@ The sections below also describe aspects of descriptor production. All types ref
 are in the `google.protobuf` package (so a reference to `DescriptorProto` is shorthand for the
 `google.protobuf.DescriptorProto` message type).
 
-They are all defined in the [`google/protobuf/descriptor.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto)
+They are all defined in the [`google/protobuf/descriptor.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto)
 file that is included in the Protobuf distribution. This file contains comments as to how
 the elements of the grammar map to various fields and structures in the descriptor. And for
 many attributes of the descriptor, the way they correspond to elements in the grammar is
@@ -227,14 +227,14 @@ Each kind of descriptor is represented by a proto message in `descriptor.proto`:
 
 | Named element kind | Descriptor proto                                                                                                               |
 |--------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| File \*            | [`FileDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L97)       |
-| Message            | [`DescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L134)          |
-| Field, Extension   | [`FieldDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L223)     |
-| Oneof              | [`OneofDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L330)     |
-| Enum               | [`EnumDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L336)      |
-| Enum Value         | [`EnumValueDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L365) |
-| Service            | [`ServiceDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L373)   |
-| Method             | [`MethodDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L381)    |
+| File \*            | [`FileDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L104)      |
+| Message            | [`DescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L151)          |
+| Field, Extension   | [`FieldDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L243)     |
+| Oneof              | [`OneofDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L350)     |
+| Enum               | [`EnumDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L356)      |
+| Enum Value         | [`EnumValueDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L388) |
+| Service            | [`ServiceDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L396)   |
+| Method             | [`MethodDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L404)    |
 
 __*__ Despite the column heading, file is not a kind of named element. The file descriptor
 resembles an AST for the file, modeling all the declarations therein. Each named
@@ -250,22 +250,22 @@ concrete type of this field.
 
 | Enclosing element                | Options type                                                                                                                |
 |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| `FileDescriptorProto`            | [`FileOptions`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L429)           |
-| `DescriptorProto`                | [`MessageOptions`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L555)        |
-| `FieldDescriptorProto`           | [`FieldOptions`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L637)          |
-| `OneofDescriptorProto`           | [`OneofOptions`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L804)          |
-| `DescriptorProto.ExtensionRange` | [`ExtensionRangeOptions`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L168) |
-| `EnumDescriptorProto`            | [`EnumOptions`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L815)           |
-| `EnumValueDescriptorProto`       | [`EnumValueOptions`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L847)      |
-| `ServiceDescriptorProto`         | [`ServiceOptions`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L872)        |
-| `MethodDescriptorProto`          | [`MethodOptions`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L895)         |
+| `FileDescriptorProto`            | [`FileOptions`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L452)           |
+| `DescriptorProto`                | [`MessageOptions`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L581)        |
+| `FieldDescriptorProto`           | [`FieldOptions`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L666)          |
+| `OneofDescriptorProto`           | [`OneofOptions`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L835)          |
+| `DescriptorProto.ExtensionRange` | [`ExtensionRangeOptions`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L188) |
+| `EnumDescriptorProto`            | [`EnumOptions`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L849)           |
+| `EnumValueDescriptorProto`       | [`EnumValueOptions`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L884)      |
+| `ServiceDescriptorProto`         | [`ServiceOptions`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L912)        |
+| `MethodDescriptorProto`          | [`MethodOptions`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L938)         |
 
 Each of these concrete option types has a field named `uninterpreted_options` (with
 field number 999). The compiler may use this field to store the options when they are
 initially parsed. Later, when options are interpreted, this field will be cleared and
 the interpreted options will be stored in other fields of the option type.
 
-The structure of this field, whose type is [`UninterpretedOption`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L935),
+The structure of this field, whose type is [`UninterpretedOption`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L981),
 closely mirrors the [_OptionDecl_](./language-spec.md#options) production. It has numerous fields for storing the
 [value](./language-spec.md#option-values), only one of which can be set (though the definition in `descriptor.proto`
 does not use a `oneof`):
@@ -456,54 +456,60 @@ a single option declaration instead of de-structuring:
 ### File Descriptors
 
 The [_File_](./language-spec.md#source-file-organization) production in the grammar
-corresponds to a [`FileDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L97).
+corresponds to a [`FileDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L104).
 
-The [`name`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L98)
+The [`name`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L105)
 field is the only piece of data in a descriptor that does not come from the file contents.
 Instead, it is defined by the parser, and it should be set to the path from which the file
 contents are loaded. This field must not be an absolute path; it must be relative. (Also see
 _[Resolving Import Locations](#resolving-import-locations)_.)
 
 If a [_SyntaxDecl_](./language-spec.md#syntax-declaration) production is present, uses the
-"syntax" keyword, and indicates a value of "proto2", the resulting [`syntax`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L127)
+"syntax" keyword, and indicates a value of "proto2", the resulting [`syntax`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L141)
 field of the file descriptor will be left absent: "proto2" is considered the default
 value when the field is not present. A compiler may choose to issue a warning for files
 that have no syntax declaration.
 
-The [`edition`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L130)
+The [`edition`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L147)
 fields is only present if the _SyntaxDecl_ uses the "edition" keyword. In that case, it
 is set to the _Edition_ value, and the `syntax` field is set to the string "editions".
 
-The [`package`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L99)
+The [`package`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L106)
 field is only present if the file includes a [_PackageDecl_](./language-spec.md#package-declaration)
 production.
 
 Import statements in the file, across all [_ImportDecl_](./language-spec.md#imports) productions, populate three
 different fields:
-* [`dependency`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L102):
+* [`dependency`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L109):
   This field contains _all_ of the imported file names, in the order in
   which they appear in the source file.
-* [`public_dependency`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L104):
+* [`public_dependency`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L111):
   This field is a list of integer indexes. Each index refers to an element
   in the `dependency` field that used the `public` keyword.
-* [`weak_dependency`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L107):
+* [`weak_dependency`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L114):
   This field is a list of integer indexes. Each index refers to an element
   in the `dependency` field that used the `weak` keyword.
+* `option_dependency`: This field contains the file names of imports that
+  used the `option` keyword (i.e. `import option` declarations). Unlike
+  `public_dependency` and `weak_dependency`, which are integer indexes into
+  the `dependency` field, this is a `repeated string` containing the actual
+  file names. Option imports are excluded from the `dependency` list. This
+  field is only relevant for files using edition 2024 or later.
 
 The various named elements defined in [_FileElement_](./language-spec.md#source-file-organization)
 productions correspond to a repeated field:
 
 | Production      | Corresponding field of `FileDescriptorProto`                                                                       |
 |-----------------|--------------------------------------------------------------------------------------------------------------------|
-| _MessageDecl_   | [`message_type`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L110) |
-| _EnumDecl_      | [`enum_type`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L111)    |
-| _ExtensionDecl_ | [`extension`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L113)    |
-| _ServiceDecl_   | [`service`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L112)      |
+| _MessageDecl_   | [`message_type`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L121) |
+| _EnumDecl_      | [`enum_type`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L122)    |
+| _ExtensionDecl_ | [`extension`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L124)    |
+| _ServiceDecl_   | [`service`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L123)      |
 
 These lists have the elements in the order in which they appeared in the file.
 So the first element of `message_type` is the first message declared in the file.
 
-The [`source_code_info`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L121)
+The [`source_code_info`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L132)
 field can be populated via a post-process (after options are interpreted). See
 _[Source Code Info](#source-code-info)_ for more details.
 
@@ -546,20 +552,20 @@ message Foo {
 
 ### Message Descriptors
 
-The [_MessageDecl_](./language-spec.md#messages) production corresponds to a [`DescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L134).
+The [_MessageDecl_](./language-spec.md#messages) production corresponds to a [`DescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L151).
 
 Like in a file descriptor, the various named elements defined in [_MessageElement_](./language-spec.md#messages)
 productions correspond to a repeated field:
 
 | Production        | Corresponding field of `DescriptorProto`                                                                                                                                                                                       |
 |-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| _FieldDecl_       | [`field`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L137)                                                                                                                    |
-| _MapFieldDecl_ \* | [`field`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L137), [`nested_type`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L140) |
-| _GroupDecl_  \*   | [`field`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L137), [`nested_type`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L140) |
-| _OneofDecl_       | [`oneof_decl`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L151)                                                                                                               |
-| _MessageDecl_     | [`nested_type`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L140)                                                                                                              |
-| _EnumDecl_        | [`enum_type`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L141)                                                                                                                |
-| _ExtensionDecl_   | [`extension`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L138)                                                                                                                |
+| _FieldDecl_       | [`field`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L154)                                                                                                                    |
+| _MapFieldDecl_ \* | [`field`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L154), [`nested_type`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L157) |
+| _GroupDecl_  \*   | [`field`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L154), [`nested_type`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L157) |
+| _OneofDecl_       | [`oneof_decl`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L168)                                                                                                               |
+| _MessageDecl_     | [`nested_type`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L157)                                                                                                              |
+| _EnumDecl_        | [`enum_type`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L158)                                                                                                                |
+| _ExtensionDecl_   | [`extension`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L155)                                                                                                                |
 
 __*__ Both _MapFieldDecl_ and _GroupDecl_ result in both a `FieldDescriptorProto` stored in
 `field` and a `DescriptorProto` stored in `nested_type`. See [_Map Fields_](#map-fields)
@@ -568,6 +574,11 @@ and [_Groups_](#groups) for more details.
 In addition to these elements, fields and groups defined inside of any oneofs are also
 stored in the `DescriptorProto`'s set of fields and nested messages. See [_Oneof Descriptors_](#oneof-descriptors)
 for more details.
+
+In files using edition 2024 or later, if the `export` or `local` keyword is used
+on a message declaration, the `visibility` field (field number 11) of the
+`DescriptorProto` is set to the corresponding `SymbolVisibility` value. See
+[_SymbolVisibility_](#symbol-visibility) for the enum definition.
 
 ```protobuf title="example.proto"
 message Foo {
@@ -610,13 +621,13 @@ message Foo {
 #### Extension Ranges
 
 Within an [_ExtensionRangeDecl_](./language-spec.md#extension-ranges) production, all
-_TagRange_ elements are accumulated into a list of [`DescriptorProto.ExtensionRange`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L143)
-values and stored in the message's [`extension_range`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L149)
+_TagRange_ elements are accumulated into a list of [`DescriptorProto.ExtensionRange`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L160)
+values and stored in the message's [`extension_range`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L166)
 field.
 
 In a `DescriptorProto.ExtensionRange`, the range end is "open", or exclusive. But the
 end tag in the source file is _inclusive_. So the logic must _add one_ to the number in
-the source file and then store that in the [`end`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L145)
+the source file and then store that in the [`end`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L162)
 field.
 
 In a _TagRange_ production, if no end was specified (e.g. just a single number, not actually
@@ -681,15 +692,15 @@ message Foo {
 #### Reserved Ranges and Names
 
 Within a [_MessageReservedDecl_](./language-spec.md#reserved-names-and-numbers) production,
-all _TagRange_ elements are accumulated into a list of [`DescriptorProto.ReservedRange`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L158)
-values and stored in the message's [`reserved_range`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L162)
+all _TagRange_ elements are accumulated into a list of [`DescriptorProto.ReservedRange`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L175)
+values and stored in the message's [`reserved_range`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L179)
 field. All _Names_ and _NameStrings_ are accumulated into a list of strings and stored in
-the message's [`reserved_name`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L165)
+the message's [`reserved_name`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L182)
 field.
 
 As with extension ranges, in a `DescriptorProto.ReservedRange`, the range end is exclusive,
 but the end tag in the source file is inclusive. So the logic must _add one_ to the number in
-the source file and then store that in the [`end`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L160)
+the source file and then store that in the [`end`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L177)
 field.
 
 Also like extension ranges, if the _TagRange_ production did not include an end number, it
@@ -742,31 +753,31 @@ message Foo {
 ### Field Descriptors
 
 The [_FieldDecl_](./language-spec.md#fields) and [_OneofFieldDecl_](./language-spec.md#oneofs)
-productions correspond to a [`FieldDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L223).
+productions correspond to a [`FieldDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L243).
 Additionally, [map fields](#map-fields) and [groups](#groups) also correspond to this type.
 
 Both normal and extension fields use this type. For extensions (fields and groups
-in an [_ExtensionDecl_](./language-spec.md#extensions) production), their [`extendee`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L285)
+in an [_ExtensionDecl_](./language-spec.md#extensions) production), their [`extendee`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L305)
 field is set to the name of the message indicated by the _TypeName_ part of the
 enclosing _ExtensionDecl_. For normal field declarations, the `extendee` field is
 absent.
 
-The [`label`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L270)
+The [`label`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L290)
 field will always be present, even if the cardinality is omitted in the source file
 When absent in source, the value is `LABEL_OPTIONAL`. (So this default will be set for
 all _OneofFieldDecl_ productions, which never have an explicit cardinality in source.)
 
 If the cardinality is not omitted in source and is `optional`, and the file containing
-the field uses the proto3 syntax, the [`proto3_optional`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L326)
+the field uses the proto3 syntax, the [`proto3_optional`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L346)
 field will also be set. See [_Synthetic Oneofs_](#synthetic-oneofs) for more details on
 representing proto3 optional fields in the descriptor.
 
-If this field is enclosed in a `oneof` then the [`oneof_index`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L295)
+If this field is enclosed in a `oneof` then the [`oneof_index`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L315)
 field will be present. See [_Oneof Descriptors_](#oneof-descriptors) for more details on
 representing oneofs.
 
-There are two fields, [`default_value`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L291)
-and [`json_name`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L301),
+There are two fields, [`default_value`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L311)
+and [`json_name`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L321),
 that are actually populated by options present in the field declaration. The spec refers
 to these as ["pseudo-options"](./language-spec.md#pseudo-options) because they aren't
 aren't actually fields on the `FieldOptions` proto. The pseudo-option `default` will
@@ -776,6 +787,11 @@ populates the descriptor's field of the same name.
 If a `json_name` pseudo-option is _not_ present on a normal field, the `json_name` field
 of the descriptor will be set to the field's [default JSON name](./language-spec.md#default-json-names).
 Extensions will not have a `json_name` value set.
+
+The `weak` field option (field 10 of `FieldOptions`) is deprecated and may not be
+used in files that use edition 2024 or later. See also
+[_Import Declarations_](./language-spec.md#imports) regarding the corresponding
+`import weak` ban.
 
 ```protobuf title="example.proto"
 syntax = "proto2";
@@ -857,7 +873,7 @@ extend Foo {
 
 #### Encoding Default Values
 
-As mentioned above, the [`default_value`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L291)
+As mentioned above, the [`default_value`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L311)
 field on the `FieldDescriptorProto` is populated via a pseudo-option named `default`
 (proto2 syntax only).
 
@@ -877,13 +893,13 @@ can have a default specified. Values are encoded as follows:
 
 #### Field Types
 
-The [`type`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L274)
-and [`type_name`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L281)
+The [`type`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L294)
+and [`type_name`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L301)
 fields of `FieldDescriptorProto` are both set based on the _TypeName_ that is set in the
 [_FieldDecl_](./language-spec.md#fields) production.
 
 The `type` field indicates the kind. Each predefined scalar type has a corresponding entry
-in the [`FieldDescriptorProto.Type`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L224)
+in the [`FieldDescriptorProto.Type`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L244)
 enum. If the type name refers to an enum, the `type` is set to `TYPE_ENUM`. If the type
 name refers to a message, the `type` is set to `TYPE_MESSAGE`.
 
@@ -960,7 +976,7 @@ The content below applies _only_ to files that use proto3 syntax.
 
 :::
 
-When a proto3 field explicitly indicates `optional`, the [`proto3_optional`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L326)
+When a proto3 field explicitly indicates `optional`, the [`proto3_optional`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L346)
 field will be set to true. Furthermore, a `OneofDescriptor` will be _synthesized_ that
 contains only the one optional field. That means that both of these messages are _functionally_
 the same:
@@ -1060,8 +1076,8 @@ message Foo {
 #### Map Fields
 
 The [_MapFieldDecl_](./language-spec.md#maps) production results in both a
-[`FieldDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L223)
-_and_ a [`DescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L134).
+[`FieldDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L243)
+_and_ a [`DescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L151).
 
 The spec describes how map fields behave as if they were defined as a repeated
 field whose type is a map entry message. The message has two fields: a key and a value.
@@ -1162,8 +1178,8 @@ message Foo {
 #### Groups
 
 The [_GroupDecl_](./language-spec.md#groups) and [_OneofGroupDecl_](./language-spec.md#oneofs)
-productions result in both a [`FieldDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L223)
-_and_ a [`DescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L134).
+productions result in both a [`FieldDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L243)
+_and_ a [`DescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L151).
 
 The spec describes how groups behave as if they were defined as both a field and a
 nested message. The spec includes an example that demonstrates exactly how the group
@@ -1259,24 +1275,24 @@ message Foo {
 
 ### Oneof Descriptors
 
-The [_OneofDecl_](./language-spec.md#oneofs) production corresponds to a [`OneofDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L330).
+The [_OneofDecl_](./language-spec.md#oneofs) production corresponds to a [`OneofDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L350).
 
 The child elements, in _OneofFieldDecl_ and _OneofGroupDecl_ productions, are actually stored
 in the descriptor of the enclosing [message](#message-descriptors):
 
 | Production           | Corresponding field of `DescriptorProto`                                                                                                                                                                                       |
 |----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| _OneofFieldDecl_     | [`field`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L137)                                                                                                                    |
-| _OneofGroupDecl_  \* | [`field`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L137), [`nested_type`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L140) |
+| _OneofFieldDecl_     | [`field`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L154)                                                                                                                    |
+| _OneofGroupDecl_  \* | [`field`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L154), [`nested_type`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L157) |
 
 __*__ _OneofGroupDecl_ results in both a `FieldDescriptorProto` stored in
 `field` and a `DescriptorProto`, stored in `nested_type`. See [_Groups_](#groups) for
 more details.
 
 The `OneofDescriptor` is mostly just a placeholder with a name. Its index in the
-enclosing message's [`oneof_decl`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L151)
+enclosing message's [`oneof_decl`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L168)
 field. The relationship between the oneof and the fields declared inside it is the
-[`oneof_index`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L295)
+[`oneof_index`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L315)
 field of the enclosing `DescriptorProto`. This index, if present, indicates the
 index into the `oneof_decl` list for the field's enclosing `OneofDescriptorProto`.
 If the index is not present, the field was defined inside a oneof.
@@ -1402,12 +1418,17 @@ message Foo {
 
 ### Enum Descriptors
 
-The [_EnumDecl_](./language-spec.md#enums) production corresponds to an [`EnumDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L336).
+The [_EnumDecl_](./language-spec.md#enums) production corresponds to an [`EnumDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L356).
 
-The child elements, in [_EnumValueDecl_](./language-spec.md#enum-values) productions, are stored in the [`value`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L339)
+The child elements, in [_EnumValueDecl_](./language-spec.md#enum-values) productions, are stored in the [`value`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L359)
 field of the descriptor.
 
-The _EnumValueDecl_ production corresponds to an [`EnumValueDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L365).
+The _EnumValueDecl_ production corresponds to an [`EnumValueDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L388).
+
+In files using edition 2024 or later, if the `export` or `local` keyword is used
+on an enum declaration, the `visibility` field (field number 6) of the
+`EnumDescriptorProto` is set to the corresponding `SymbolVisibility` value. See
+[_SymbolVisibility_](#symbol-visibility) for the enum definition.
 
 ```protobuf title="example.proto"
 enum Foo {
@@ -1456,10 +1477,10 @@ enum Foo {
 #### Reserved Ranges and Names {#enum-reserved-ranges-and-names}
 
 Within an [_EnumReservedDecl_](./language-spec.md#enum-reserved-names-and-numbers) production,
-all _EnumValueRange_ elements are accumulated into a list of [`EnumDescriptorProto.EnumReservedRange`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L349)
-values and stored in the enum's [`reserved_range`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L357)
+all _EnumValueRange_ elements are accumulated into a list of [`EnumDescriptorProto.EnumReservedRange`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L369)
+values and stored in the enum's [`reserved_range`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L377)
 field. All _Names_ and _NameStrings_ are accumulated into a list of strings and stored in
-the enum's [`reserved_name`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L361)
+the enum's [`reserved_name`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L381)
 field.
 
 Unlike message reserved ranges, in an `EnumDescriptorProto.EnumReservedRange`, the range
@@ -1538,31 +1559,47 @@ enum Stat {
 }
 ```
 
+### Symbol Visibility
+
+The [_SymbolVisibility_](./language-spec.md#symbol-visibility) production corresponds to
+a value of the [`SymbolVisibility`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L1419)
+enum in `descriptor.proto`. This enum is used by the `visibility` field on both
+[`DescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L185) (field number 11)
+and [`EnumDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L386) (field number 6).
+
+These fields are only relevant for files using edition 2024 or later.
+
+| Value                | Number | Meaning                                    |
+|----------------------|--------|--------------------------------------------|
+| `VISIBILITY_UNSET`   | 0      | No explicit `export` or `local` keyword    |
+| `VISIBILITY_LOCAL`   | 1      | The `local` keyword was used               |
+| `VISIBILITY_EXPORT`  | 2      | The `export` keyword was used              |
+
 ### Service Descriptors
 
-The [_ServiceDecl_](./language-spec.md#services) production corresponds to a [`ServiceDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L373).
+The [_ServiceDecl_](./language-spec.md#services) production corresponds to a [`ServiceDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L396).
 
-The child elements, in [_MethodDecl_](./language-spec.md#methods) productions, are stored in the [`method`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L375)
+The child elements, in [_MethodDecl_](./language-spec.md#methods) productions, are stored in the [`method`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L398)
 field of the descriptor.
 
-The _MethodDecl_ production corresponds to a [`MethodDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L381).
+The _MethodDecl_ production corresponds to a [`MethodDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L404).
 
 If the method declaration includes a body (inside of `{` and `}` braces), then the
-[`options`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L389)
+[`options`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L412)
 field will be present, _even if the body is empty and no options are actually defined_.
 If the declaration does not include a body and just terminates with a semicolon (`;`)
 then the `options` field will be absent.
 
-The [`input_type`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L386)
+The [`input_type`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L409)
 is the fully-qualified name in the [_InputType_](./language-spec.md#methods) production,
 with leading dot (`.`). If the `stream` keyword was present on the input type, then the
-[`client_streaming`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L392)
+[`client_streaming`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L415)
 field will be set to true.
 
-Similarly, the [`output_type`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L387)
+Similarly, the [`output_type`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L410)
 is the fully-qualified name in the [_OutputType_](./language-spec.md#methods) production,
 with leading dot (`.`). If the `stream` keyword was present on the output type, then the
-[`server_streaming`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L394)
+[`server_streaming`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L417)
 field will be set to true.
 
 ```protobuf title="example.proto"
@@ -1657,11 +1694,11 @@ locations of elements in the file as well as comments. In the reference implemen
 `protoc`, one must pass a flag `--include_source_info` or else the resulting descriptors
 will not include this information.
 
-The documentation comments for the [`SourceCodeInfo`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L1134)
+The documentation comments for the [`SourceCodeInfo`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L1238)
 message are reasonably thorough and clear. Before reading the content below, you should
 familiarize yourself with those comments first, particularly [those for the `location`
-field](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L1135-L1177)
-of `SourceCodeInfo` and [for the `path` field](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L1180-L1202)
+field](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L1239-L1281)
+of `SourceCodeInfo` and [for the `path` field](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L1284-L1306)
 of `SourceCodeInfo.Location`.
 
 The sections below attempt to describe nuance in computing source code info that is
@@ -1693,7 +1730,7 @@ characters) are treated as if they were normal printable characters.
 
 #### Trailing Comments for Block Elements
 
-The doc comments [for the `leading_comments` field](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L1212-L1258)
+The doc comments [for the `leading_comments` field](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L1316-L1362)
 of `SourceCodeInfo.Location` describe how comments are attributed to elements
 as either detached, leading, or trailing comments. But one key thing is missing,
 both from the description and the examples: how trailing comments for _block_
@@ -1727,7 +1764,7 @@ message Bar {
 
 #### Algorithm for Categorizing Comments
 
-The [doc comments](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L1212-L1258)
+The [doc comments](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L1316-L1362)
 in the proto source do have good examples to demonstrate how to categorize
 comments -- whether they are trailing comments, leading comments, or detached
 comments. But the text doesn't specify a process or precise rules for accomplishing
@@ -1893,15 +1930,15 @@ current token, for use in this process when the subsequent token is found.
 
 When source code info is later produced for the file, the comment punctuation (like
 enclosing `/*` and `*/` or leading `//`) must be removed, as described in the
-[doc comments](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L1212-L1258).
+[doc comments](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L1316-L1362).
 
 ### Imports {#source-code-info-for-imports}
 
 Source code info for imports is mostly straight-forward: the locations will include
 paths that point to elements in the `FileDescriptorProto`'s `dependency` field. But
-less obvious is how public and weak imports are handled.
+less obvious is how public, weak, and option imports are handled.
 
-For these kinds of imports, a location is created with a path that points to an
+For public and weak imports, a location is created with a path that points to an
 element in the `public_dependency` or `weak_dependency` field. The span for this
 location points at the actual `public` or `weak` keyword in the import declaration.
 
@@ -1929,7 +1966,7 @@ import weak "google/protobuf/descriptor.proto";
             {
                 "path": [
                     10,  // FileDescriptorProto, field `public_dependency`
-                    0   //   Index (first public import)
+                    0    //   Index (first public import)
                 ],
                 "span": [0, 7, 13]
             },
@@ -1943,9 +1980,49 @@ import weak "google/protobuf/descriptor.proto";
             {
                 "path": [
                     11,  // FileDescriptorProto, field `weak_dependency`
-                    0   //   Index (first weak import)
+                    0    //   Index (first weak import)
                 ],
                 "span": [1, 7, 11]
+            }
+        ]
+    }
+}
+```
+
+For option imports (edition 2024 and later), the imported file name is stored in
+the `option_dependency` field (field number 15), which is a `repeated string`
+containing actual file names (not indexes into `dependency`). Option imports are
+excluded from the `dependency` list entirely. Unlike public and weak imports,
+which produce both a `dependency` location and a keyword-specific location, an
+option import produces only a single location whose path points to an element in the
+`option_dependency` field and whose span covers the entire import declaration.
+
+```protobuf title="example.proto" showLineNumbers
+edition = "2024";
+import "foo.proto";
+import option "custom_option.proto";
+```
+```json title="File descriptor"
+{
+    "name": "example.proto",
+    "dependency": ["foo.proto"],
+    "option_dependency": ["custom_option.proto"],
+    "source_code_info": {
+        "location": [
+            // ...other locations elided...
+            {
+                "path": [
+                    3,  // FileDescriptorProto, field `dependency`
+                    0   //   Index (first import)
+                ],
+                "span": [1, 0, 19]
+            },
+            {
+                "path": [
+                    15,  // FileDescriptorProto, field `option_dependency`
+                    0    //   Index (first option import)
+                ],
+                "span": [2, 0, 36]
             }
         ]
     }
@@ -2065,7 +2142,7 @@ Another case where there will be multiple locations in the source code info that
 have the same path is when a message includes multiple [_ExtensionRangeDecl_](./language-spec.md#extension-ranges)
 declarations (proto2 and editions syntax only).
 
-The corresponding field, [`extension_range`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L149)
+The corresponding field, [`extension_range`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L166)
 is repeated. But, unlike with fields and nested messages, a single element in this
 repeated field does not correspond to a single declaration in the source file. A
 single declaration can indicate multiple ranges. So a path to the field, but no
@@ -2080,7 +2157,7 @@ options apply to each range.
 
 Within a single range, if the source indicated a single tag instead of start and end
 tags (for example `101` instead of `101 to 200`), there will still be a location whose
-path corresponds to the [`end`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L145)
+path corresponds to the [`end`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L162)
 field, and its span will point to this single value.
 
 ```protobuf title="example.proto" showLineNumbers
@@ -2587,10 +2664,10 @@ keyword and ending with the semicolon `;`).
 A field declaration has two _pseudo_-options: values that are declared as if they
 were options, but are not fields inside of a `FieldOptions` message.
 1. `default`: When a `default` option is present (proto2 and editions syntax only), the
-   path for the corresponding location will indicate the [`default_value`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L291)
+   path for the corresponding location will indicate the [`default_value`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L311)
    field of `FieldDescriptorProto`.
 2. `json_name`: When a `json_name` option is present, the path for the corresponding
-   location will indicate the [`json_name`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L301)
+   location will indicate the [`json_name`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L321)
    field of `FieldDescriptorProto`.
 
 The source code info will also contain one or more locations whose path indicates
