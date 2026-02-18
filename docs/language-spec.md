@@ -270,13 +270,6 @@ group   = "group" .       bytes      = "bytes" .        export   = "export" .
 local   = "local" .
 ```
 
-:::info
-
-The `export` and `local` keywords are only recognized as keywords in files using
-edition 2024 or later. In older files, they are treated as regular identifiers.
-
-:::
-
 #### Numeric Literals
 
 Handling of numeric literals is a bit special in order to avoid a situation where
@@ -602,26 +595,6 @@ A full package name, with any whitespace removed, must be less than
 512 characters long. It also must contain no more than 100 dots (i.e.
 101 components or fewer).
 
-### Symbol Visibility
-
-Message and enum definitions can be annotated to override their
-default symbol visibility. This is controlled by the
-[`default_symbol_visibility`](#default-symbol-visibility) feature.
-
-```ebnf
-SymbolVisibility = export | local .
-```
-
-:::info
-
-The `export` and `local` keywords are only allowed in files using
-edition 2024 or later. `export` makes the symbol visible to files that
-import this file. `local` restricts the symbol to use within the file
-where it is defined. Values of `default_symbol_visibility` feature
-further restrict which symbols are visible.
-
-:::
-
 ### Imports
 
 In order for one file to re-use message and enum types defined in
@@ -666,12 +639,13 @@ option are banned in files using edition 2024 or later.
 
 :::
 
-An "option" import makes only custom options from the imported file
-available for use; messages, enums, and other types defined in the
-imported file are not visible for use as field types or in other
-declarations. All `import option` declarations must appear after all
-other import declarations in the file. Option imports are only
-available in files using edition 2024 or later.
+An "option" import means that symbols from the imported file may only be
+used in option statements. For example, to name a particular custom option
+or to reference a message type in the compact form for an `Any` value
+inside an option value. Such symbols are not available for use as field
+types or in other declarations. All `import option` declarations must
+appear after all other import declarations in the file. Option imports
+are only available in files using edition 2024 or later.
 
 The set of files that a file imports are also known as the file's
 direct dependencies.
@@ -710,7 +684,7 @@ of the well-known types are in files whose path begins with "google/protobuf". F
 the package for each file starts with `google.protobuf`, with the exception of the three files
 that define custom features, which use the short package `pb`.
 
-As of v1.65.0 of `buf` and v31.1 of `protoc`, the well-known imports include the following
+As of v1.65.0 of `buf` and v32.0 of `protoc`, the well-known imports include the following
 files:
 * `google/protobuf/any.proto`
 * `google/protobuf/api.proto`
@@ -878,6 +852,23 @@ foo.bar.baz.Service.Request
 These references are usually _type_ references, referring to user-defined message
 and enum types. In some cases (such as in options), these references can instead
 refer to extensions.
+
+### Symbol Visibility
+
+Edition 2024 allows files to limit the visibility of symbols. The visibility
+of a symbol determines which source files are allowed to reference it in a type
+reference. This is controlled by the
+[`default_symbol_visibility`](#default-symbol-visibility) feature at the file
+level, and can be overridden on individual messages and enums using the `export`
+or `local` keyword.
+
+```ebnf
+SymbolVisibility = export | local .
+```
+
+The `export` keyword makes the symbol visible to files that import this file.
+The `local` keyword restricts the symbol to use within the file where it is
+defined.
 
 ### Constrained Type References
 
@@ -2059,6 +2050,9 @@ local message InternalHelper {
 
 :::info
 
+The optional [_SymbolVisibility_](#symbol-visibility) prefix (`export` or `local`) is
+only allowed in files using edition 2024 or later.
+
 Files using proto3 or Editions syntax are not allowed to include _GroupDecl_ elements.
 
 Files using proto3 syntax are not allowed to include _ExtensionRangeDecl_ elements.
@@ -3025,6 +3019,13 @@ local enum InternalCode {
 }
 ```
 
+:::info
+
+The optional [_SymbolVisibility_](#symbol-visibility) prefix (`export` or `local`) is
+only allowed in files using edition 2024 or later.
+
+:::
+
 Enums defined inside files using the proto3 syntax are considered **open**. That means
 that other numeric values, outside the set of named enum values, are acceptable. Enums
 in files using the proto2 syntax, on the other hand, are **closed**. This means that
@@ -3317,9 +3318,8 @@ from those editions.
 
 This section will generally _not_ include custom features -- ones that are specific to
 a particular language runtime or code generation plugin. The exceptions to this are
-the language-specific features that were introduced alongside editions 2023 and 2024
-because they are needed to migrate files with proto2 or proto3 syntax to editions
-or to support new edition 2024 functionality.
+the language-specific features that are needed to migrate files to an edition. These
+are custom features that effectively replace options used by older editions or syntaxes.
 
 ### Field Presence
 
@@ -3708,9 +3708,12 @@ message myMessage {
 }
 ```
 
-In Editions syntax, this enforces adherence to the Protobuf style guide for naming
-conventions. This feature has `RETENTION_SOURCE`, meaning it is not included in the
-compiled descriptor.
+In Editions syntax, `protoc` uses this feature to enforce adherence to the Protobuf
+style guide for naming conventions. Other toolchains, such as `buf`, may ignore this
+feature since linting is a separate step in those tools and they provide more
+flexibility over linting behavior, including both configurability and extensibility.
+This feature has `RETENTION_SOURCE`, meaning it is not included in the compiled
+descriptor.
 
 The possible values are:
 * `STYLE2024` (2024 default): Enforces naming rules from the Protobuf style guide.
@@ -3836,44 +3839,6 @@ runtime. So sources should not be using this value. But if it were used, it
 should be changed to `STRING` when such a field is migrated to Editions syntax
 and to use this feature.
 
-### C++: Enum Name Uses String View
-
-```protobuf title="Definition"
-optional bool enum_name_uses_string_view = 3 [
-  retention = RETENTION_RUNTIME,
-  targets = TARGET_TYPE_ENUM,
-  targets = TARGET_TYPE_FILE,
-  feature_support = {
-    edition_introduced: EDITION_2024
-  },
-  edition_defaults = { edition: EDITION_LEGACY, value: "false" },
-  edition_defaults = { edition: EDITION_2024, value: "true" }
-];
-```
-
-_Applies to_: Enums (can also be specified as a file option, to provide file-wide default)
-
-```protobuf title="Example"
-edition = "2024";
-import "google/protobuf/cpp_features.proto";
-
-// highlight-start
-option features.(pb.cpp).enum_name_uses_string_view = false;
-// highlight-end
-
-enum State {
-  STATE_UNSPECIFIED = 0;
-  RUNNING = 1;
-}
-```
-
-This custom feature is defined in the well-known import `"google/protobuf/cpp_features.proto"`
-as a field inside the `(pb.cpp)` extension.
-
-In Editions syntax, this controls whether generated C++ enum helper functions
-(such as `_Name()`) return `absl::string_view` (when `true`) or `std::string`
-(when `false`). The default changes to `true` in edition 2024.
-
 ### Java: Legacy Closed Enum
 
 ```protobuf title="Definition"
@@ -3975,44 +3940,6 @@ anyway.
 
 This feature is deprecated as of edition 2024. Users should use the global
 [`utf8_validation` feature](#utf8-validation) instead.
-
-### Java: Large Enum
-
-```protobuf title="Definition"
-optional bool large_enum = 3 [
-  retention = RETENTION_RUNTIME,
-  targets = TARGET_TYPE_ENUM,
-  targets = TARGET_TYPE_FILE,
-  feature_support = {
-    edition_introduced: EDITION_2024
-  },
-  edition_defaults = { edition: EDITION_LEGACY, value: "false" }
-];
-```
-
-_Applies to_: Enums (can also be specified as a file option, to provide file-wide default)
-
-```protobuf title="Example"
-edition = "2024";
-import "google/protobuf/java_features.proto";
-
-// highlight-start
-enum LargeState {
-  option features.(pb.java).large_enum = true;
-  // highlight-end
-  LARGE_STATE_UNSPECIFIED = 0;
-  // ... many values ...
-}
-```
-
-This custom feature is defined in the well-known import `"google/protobuf/java_features.proto"`
-as a field inside the `(pb.java)` extension.
-
-In Editions syntax, this allows creation of Java enums that exceed the standard Java
-language limits for enum constants. The default value is `false`. When enabled,
-the generated Java code uses an alternative representation that avoids the JVM
-constant limit for enum types. Note that switch statements are not supported on
-enum types that have this feature enabled.
 
 ### Java: Nest in File Class {#java-nest-in-file-class}
 
@@ -4121,111 +4048,3 @@ type representing an enum would include an `UnmarshalJSON` method. This only
 impacts Go generated code. This can be used to mimic the legacy behavior of a
 proto2 file, in which enum types had such a method generated.
 
-### Go: API Level
-
-```protobuf title="Definition"
-optional APILevel api_level = 2 [
-  retention = RETENTION_RUNTIME,
-  targets = TARGET_TYPE_MESSAGE,
-  targets = TARGET_TYPE_FILE,
-  feature_support = {
-    edition_introduced: EDITION_2023
-  },
-  edition_defaults = { edition: EDITION_LEGACY, value: "API_LEVEL_UNSPECIFIED" },
-  edition_defaults = { edition: EDITION_2024, value: "API_OPAQUE" }
-];
-
-enum APILevel {
-  API_LEVEL_UNSPECIFIED = 0;
-  API_OPEN = 1;
-  API_HYBRID = 2;
-  API_OPAQUE = 3;
-}
-```
-
-_Applies to_: Messages (can also be specified as a file option, to provide file-wide default)
-
-```protobuf title="Example"
-edition = "2024";
-import "google/protobuf/go_features.proto";
-
-// highlight-start
-message Test {
-  option features.(pb.go).api_level = API_HYBRID;
-  // highlight-end
-  string name = 1;
-}
-```
-
-This custom feature is **NOT** defined in a well-known import. It is defined in an
-import named `"google/protobuf/go_features.proto"` as a field inside the `(pb.go)`
-extension. The authoritative source for this file's content is the repo at
-https://github.com/protocolbuffers/protobuf-go.
-
-In Editions syntax, this selects the Go protobuf API level for generated message
-types. The default changes from `API_LEVEL_UNSPECIFIED` (which behaves like
-`API_OPEN`) to `API_OPAQUE` in edition 2024.
-
-The possible values are:
-* `API_OPEN`: Generated structs have exported fields that can be accessed directly.
-  This is the traditional Go protobuf API.
-* `API_HYBRID`: Generated structs have both exported fields and accessor methods.
-  This provides a migration path between open and opaque APIs.
-* `API_OPAQUE`: Generated struct fields are unexported and hidden. All access goes
-  through getter and setter methods. This is the default in edition 2024.
-
-### Go: Strip Enum Prefix
-
-```protobuf title="Definition"
-optional StripEnumPrefix strip_enum_prefix = 3 [
-  retention = RETENTION_RUNTIME,
-  targets = TARGET_TYPE_ENUM,
-  targets = TARGET_TYPE_ENUM_ENTRY,
-  targets = TARGET_TYPE_FILE,
-  feature_support = {
-    edition_introduced: EDITION_2024
-  },
-  edition_defaults = { edition: EDITION_LEGACY, value: "STRIP_ENUM_PREFIX_KEEP" }
-];
-
-enum StripEnumPrefix {
-  STRIP_ENUM_PREFIX_UNSPECIFIED = 0;
-  STRIP_ENUM_PREFIX_KEEP = 1;
-  STRIP_ENUM_PREFIX_GENERATE_BOTH = 2;
-  STRIP_ENUM_PREFIX_STRIP = 3;
-}
-```
-
-_Applies to_: Enums and Enum Values (can also be specified as a file option, to provide file-wide default)
-
-```protobuf title="Example"
-edition = "2024";
-import "google/protobuf/go_features.proto";
-
-// highlight-start
-enum State {
-  option features.(pb.go).strip_enum_prefix = STRIP_ENUM_PREFIX_STRIP;
-  // highlight-end
-  STATE_UNSPECIFIED = 0;
-  STATE_RUNNING = 1;
-  STATE_STOPPED = 2;
-}
-// Generated Go constants: State_UNSPECIFIED, State_RUNNING, State_STOPPED
-// (with prefix stripped: Unspecified, Running, Stopped)
-```
-
-This custom feature is **NOT** defined in a well-known import. It is defined in an
-import named `"google/protobuf/go_features.proto"` as a field inside the `(pb.go)`
-extension. The authoritative source for this file's content is the repo at
-https://github.com/protocolbuffers/protobuf-go.
-
-In Editions syntax, this controls whether the Go code generator strips repetitive
-enum name prefixes from generated enum value constants.
-
-The possible values are:
-* `STRIP_ENUM_PREFIX_KEEP` (default): Preserves the full enum value names as-is
-  in the generated Go constants.
-* `STRIP_ENUM_PREFIX_GENERATE_BOTH`: Generates both the full prefixed names and
-  shorter unprefixed names, allowing a gradual migration.
-* `STRIP_ENUM_PREFIX_STRIP`: Removes the enum type name prefix from generated
-  Go constant names.
