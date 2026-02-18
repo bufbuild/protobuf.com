@@ -219,7 +219,7 @@ character (U+FEFF).
 
 The result of lexical analysis is a stream of tokens of the following kinds:
  * `identifier`
- * 41 token types corresponding to keywords
+ * 43 token types corresponding to keywords
  * `int_literal`
  * `float_literal`
  * `string_literal`
