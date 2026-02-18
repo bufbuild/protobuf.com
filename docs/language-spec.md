@@ -219,7 +219,7 @@ character (U+FEFF).
 
 The result of lexical analysis is a stream of tokens of the following kinds:
  * `identifier`
- * 39 token types corresponding to keywords
+ * 43 token types corresponding to keywords
  * `int_literal`
  * `float_literal`
  * `string_literal`
@@ -247,7 +247,7 @@ _any_Crazy_CASE_with_01234_numbers
 c3p0
 ```
 
-There are 40 keywords in the protobuf grammar.
+There are 43 keywords in the protobuf grammar.
 When an `identifier` is found, if it matches a keyword, its token type is changed
 to match the keyword, per the rules below. All of the keyword token types below
 are *also* considered identifiers by the grammar. For example, a production in the
@@ -266,7 +266,8 @@ message = "message" .     repeated   = "repeated" .     sfixed64 = "sfixed64" .
 enum    = "enum" .        optional   = "optional" .     bool     = "bool" .
 service = "service" .     required   = "required" .     float    = "float" .
 extend  = "extend" .      string     = "string" .       double   = "double" .
-group   = "group" .       bytes      = "bytes" .
+group   = "group" .       bytes      = "bytes" .        export   = "export" .
+local   = "local" .
 ```
 
 #### Numeric Literals
@@ -522,6 +523,7 @@ Edition     = StringLiteral .
 syntax = "proto2":
 syntax = "proto3";
 edition = "2023";
+edition = "2024";
 ```
 
 String literals support C-style concatenation. So the sequence
@@ -534,7 +536,7 @@ StringLiteral = string_literal { string_literal } .
 
 The actual string values allowed in the `edition` statement are
 defined by the `google.protobuf.Edition` enum, which is defined in
-[`google/protobuf/descriptor.proto`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L60-L94).
+[`google/protobuf/descriptor.proto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L68-L101).
 
 The first edition is represented by the `EDITION_2023` value. All
 earlier values (those with lower numeric values) should be ignored
@@ -549,16 +551,18 @@ used, i.e. `edition = "2023";`.
 
 Note, however, that just because an edition is declared in the
 enum does not necessarily mean that the edition is actually
-_supported_ or even completely defined. For example, v27.0 of
-the Protobuf distribution includes a value named `EDITION_2024`,
-but such a version was not implemented yet. It is present in the
-file because it must be added to the enum *before* any
-implementation work can actually begin. Once the edition is
-adequately implemented for users to try it out, it can be made
-available for users of `protoc` via an `--experimental_editions`
-flag. (Users were able to experiment with edition 2023 in this
-same way in releases of Protobuf prior to v27.0, starting with
-v24.0.)
+_supported_ or even completely defined. For example, a future
+value like `EDITION_2025` may be present in the enum before
+it is fully implemented, because the value must be added to
+the enum *before* any implementation work can actually begin.
+Once the edition is adequately implemented for users to try it
+out, it can be made available for users of `protoc` via an
+`--experimental_editions` flag. (Users were able to experiment
+with editions 2023 and 2024 in this way in earlier releases of
+Protobuf before they became generally available.)
+
+Edition 2023 became generally available in Protobuf v27.0.
+Edition 2024 became generally available in Protobuf v32.0.
 
 So the compiler must limit the set of allowed values to only
 valid entries in the enum and only to editions that the compiler
@@ -596,7 +600,7 @@ A full package name, with any whitespace removed, must be less than
 In order for one file to re-use message and enum types defined in
 another file, the one file must import the other.
 ```ebnf
-ImportDecl = import [ weak | public ] ImportedFileName semicolon .
+ImportDecl = import [ weak | public | option ] ImportedFileName semicolon .
 
 ImportedFileName = StringLiteral .
 ```
@@ -605,6 +609,7 @@ ImportedFileName = StringLiteral .
 import "google/protobuf/descriptor.proto";
 import public "other/file.proto";
 import weak "deprecated.proto";
+import option "custom_option.proto";
 ```
 
 The string literal must be a relative path (e.g. it may not start with
@@ -629,9 +634,18 @@ can also be marked with a field option named `weak`.
 :::caution
 
 Use of weak imports and weak field options is strongly discouraged and is
-supported by few target runtimes.
+supported by few target runtimes. Both `import weak` and the `weak` field
+option are banned in files using edition 2024 or later.
 
 :::
+
+An "option" import means that symbols from the imported file may only be
+used in option statements. For example, to name a particular custom option
+or to reference a message type in the compact form for an `Any` value
+inside an option value. Such symbols are not available for use as field
+types or in other declarations. All `import option` declarations must
+appear after all other import declarations in the file. Option imports
+are only available in files using edition 2024 or later.
 
 The set of files that a file imports are also known as the file's
 direct dependencies.
@@ -657,6 +671,9 @@ The elements that are visible to a given file include the following:
    given file imports. [Public imports](#imports) are transitive, so if `a.proto` imports
    `b.proto` which _publicly_ imports `c.proto` which in turn _publicly_ imports `d.proto`,
    then everything in `c.proto` and `d.proto` is visible to `a.proto`.
+4. For files imported via `import option`, only custom options defined in the imported
+   file are visible. Other types (messages, enums, etc.) from an option import are not
+   available for use as field types or in other declarations.
 
 #### Well-Known Imports
 
@@ -667,7 +684,7 @@ of the well-known types are in files whose path begins with "google/protobuf". F
 the package for each file starts with `google.protobuf`, with the exception of the three files
 that define custom features, which use the short package `pb`.
 
-As of v1.48.0 of `buf` and v29.1 of `protoc`, the well-known imports include the following
+As of v1.65.0 of `buf` and v32.0 of `protoc`, the well-known imports include the following
 files:
 * `google/protobuf/any.proto`
 * `google/protobuf/api.proto`
@@ -835,6 +852,23 @@ foo.bar.baz.Service.Request
 These references are usually _type_ references, referring to user-defined message
 and enum types. In some cases (such as in options), these references can instead
 refer to extensions.
+
+### Symbol Visibility
+
+Edition 2024 allows files to limit the visibility of symbols. The visibility
+of a symbol determines which source files are allowed to reference it in a type
+reference. This is controlled by the
+[`default_symbol_visibility`](#default-symbol-visibility) feature at the file
+level, and can be overridden on individual messages and enums using the `export`
+or `local` keyword.
+
+```ebnf
+SymbolVisibility = export | local .
+```
+
+The `export` keyword makes the symbol visible to files that import this file.
+The `local` keyword restricts the symbol to use within the file where it is
+defined.
 
 ### Constrained Type References
 
@@ -1101,15 +1135,15 @@ the options are being defined:
 
 | Context         | Options message                                                                                                                           |
 |-----------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| file \*         | [google.protobuf.FileOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L429)           |
-| message †       | [google.protobuf.MessageOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L555)        |
-| field ‡         | [google.protobuf.FieldOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L637)          |
-| oneof           | [google.protobuf.OneofOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L804)          |
-| extension range | [google.protobuf.ExtensionRangeOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L168) |
-| enum            | [google.protobuf.EnumOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L815)           |
-| enum value      | [google.protobuf.EnumValueOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L847)      |
-| service         | [google.protobuf.ServiceOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L872)        |
-| method          | [google.protobuf.MethodOptions](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L895)         |
+| file \*         | [google.protobuf.FileOptions](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L452)           |
+| message †       | [google.protobuf.MessageOptions](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L581)        |
+| field ‡         | [google.protobuf.FieldOptions](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L666)          |
+| oneof           | [google.protobuf.OneofOptions](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L835)          |
+| extension range | [google.protobuf.ExtensionRangeOptions](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L188) |
+| enum            | [google.protobuf.EnumOptions](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L849)           |
+| enum value      | [google.protobuf.EnumValueOptions](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L884)      |
+| service         | [google.protobuf.ServiceOptions](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L912)        |
+| method          | [google.protobuf.MethodOptions](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L938)         |
 
 __*__ An option that is a top-level declaration, not in the context of
 any other element, is in the file context.
@@ -1130,7 +1164,7 @@ field.)
 :::note
 
 All of the concrete options have a field named `features`. This field's type
-is a message: [`google.protobuf.FeatureSet`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L966).
+is a message: [`google.protobuf.FeatureSet`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L1012).
 
 Syntactically, values for this field are specified just like any other option
 field. However, files that use proto2 or proto3 syntax may _not_ use this option.
@@ -1450,7 +1484,7 @@ Let's explore what that means:
 * Such an option, one that is intended to be used on other options, is a meta-option.
 
 Below are the meta-options:
-1. [`retention`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L733-L742):
+1. [`retention`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L771):
    This option controls whether runtimes should retain the value of this option and
    make it available at runtime, for reflection use cases. This meta-option can be
    ignored when parsing and validating Protobuf sources. It is only used during code
@@ -1468,15 +1502,15 @@ Below are the meta-options:
    }
    ```
 
-2. [`targets`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L744-L761):
+2. [`targets`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L789):
    This option controls the target types -- the types of elements to which this field
    applies. This is described in more detail [below](#target-types).
 
-3. [`edition_defaults`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L763-L767):
+3. [`edition_defaults`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L795):
    This option is required for feature fields and is used to to resolve feature values.
    This is described in more detail [below](#feature-defaults).
 
-4. [`feature_support`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L772-L792):
+4. [`feature_support`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L804-L822):
    This option is also required for feature fields and defines the range of editions in
    which a feature field may be used. This is described in more detail [below](#feature-lifetimes).
 
@@ -1556,7 +1590,7 @@ for this field, or fields inside of it, may only be set by `option` declarations
 in files that use the Editions syntax** (by declaring an `edition` at the top of the
 file instead of a `syntax`).
 
-The type of this field in all cases is [`google.protobuf.FeatureSet`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L966).
+The type of this field in all cases is [`google.protobuf.FeatureSet`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L1012).
 The term "feature" or "feature field" refers to a field of this message. All such
 fields must have a boolean or enum type. They may not be repeated. This message
 defines extension ranges. The type of all extension fields should be a message. The
@@ -1932,8 +1966,8 @@ or equal to the one in which it was introduced).
 An "earlier" edition is one with a lower numeric value. A "later" edition is
 one with a higher numeric value.
 
-Enum values also have an option named [`feature_support`](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L863),
-and [its type](https://github.com/protocolbuffers/protobuf/blob/v27.0/src/google/protobuf/descriptor.proto#L772-L791)
+Enum values also have an option named [`feature_support`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L903),
+and [its type](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L804-L821)
 is the same as that of the eponymous meta-option. Its usage is the same as
 above, but it defines the lifetime of feature _values_, for features that
 have enum types. Similar to how the `feature_support` meta-option allows for
@@ -1963,6 +1997,9 @@ The following are additional rules for _file_ options.
   is set to `LITE_RUNTIME`. Put another way, non-lite files may not import lite files.
 * If the file options indicate a value for the `field_presence` feature, it must not
   be set to `LEGACY_REQUIRED`. This is not allowed as a default value for the file.
+* The `java_multiple_files` file option may not be used in files that use edition
+  2024 or later. Use the [`(pb.java).nest_in_file_class`](#java-nest-in-file-class)
+  feature instead.
 
 Additional rules for options on other kinds of elements are described in later
 sections.
@@ -1973,7 +2010,7 @@ sections.
 The core of the Protobuf IDL is defining messages, which are heterogeneous
 composite data types.
 ```ebnf
-MessageDecl = message MessageName l_brace { MessageElement } r_brace .
+MessageDecl = [ SymbolVisibility ] message MessageName l_brace { MessageElement } r_brace .
 
 MessageName    = identifier .
 MessageElement = MessageFieldDecl |
@@ -1989,7 +2026,7 @@ MessageElement = MessageFieldDecl |
                  EmptyDecl .
 ```
 
-```txt title="Example"
+```txt title="Examples"
 message UserData {
   option deprecated = true;
   message Name {
@@ -2000,9 +2037,21 @@ message UserData {
   Name name = 1;
   repeated string tags = 2;
 }
+
+// Edition 2024: explicit visibility
+export message PublicApi {
+  string id = 1;
+}
+
+local message InternalHelper {
+  int32 code = 1;
+}
 ```
 
 :::info
+
+The optional [_SymbolVisibility_](#symbol-visibility) prefix (`export` or `local`) is
+only allowed in files using edition 2024 or later.
 
 Files using proto3 or Editions syntax are not allowed to include _GroupDecl_ elements.
 
@@ -2600,7 +2649,7 @@ following rules should also be validated by the compiler:
 2. In edition 2023, the `ctype` option may only be used on fields whose type is
    `string` or `bytes`. Furthermore, the `CORD` value may not be used on extension fields.
    It can be used on repeated fields, but not map fields. (In proto2 and proto3 syntax,
-   these checks are not performed.) In editions after 2023, the `ctype` option will not be
+   these checks are not performed.) In edition 2024 and later, the `ctype` option is not
    allowed; fields must instead use the [`(pb.cpp).string_type` custom feature](#c-string-type).
 3. The `lazy` and `unverified_lazy` options may only be used on fields whose type is a
    message. This includes map fields, which are represented as a repeated field of map
@@ -2609,6 +2658,7 @@ following rules should also be validated by the compiler:
    (See [_Message Encoding_](#message-encoding).)
 4. The `js_type` option may only be used on fields that have one of the five 64-bit
    integer types. It can be used with repeated fields. (See [_Field Types_](#field-types).)
+5. The `weak` field option may not be used in files that use edition 2024 or later.
 
 In files that use Editions syntax, there are further rules for feature usage:
 1. Fields defined in a oneof, extension fields, and repeated fields may not use the
@@ -2938,7 +2988,7 @@ Messages defined with this option have a few additional constraints:
 Enums represent an enumerated type, where values must be one of the defined
 enum values.
 ```ebnf
-EnumDecl = enum EnumName l_brace { EnumElement } r_brace .
+EnumDecl = [ SymbolVisibility ] enum EnumName l_brace { EnumElement } r_brace .
 
 EnumName    = identifier .
 EnumElement = OptionDecl |
@@ -2947,7 +2997,7 @@ EnumElement = OptionDecl |
               EmptyDecl .
 ```
 
-```txt title="Example"
+```txt title="Examples"
 enum JobState {
   PENDING = 0;
   QUEUED = 1;
@@ -2955,7 +3005,26 @@ enum JobState {
   FINISHED = 3;
   FAILED = 4;
 }
+
+// Edition 2024: explicit visibility
+export enum Status {
+  STATUS_UNSPECIFIED = 0;
+  OK = 1;
+  ERROR = 2;
+}
+
+local enum InternalCode {
+  INTERNAL_CODE_UNSPECIFIED = 0;
+  RETRY = 1;
+}
 ```
+
+:::info
+
+The optional [_SymbolVisibility_](#symbol-visibility) prefix (`export` or `local`) is
+only allowed in files using edition 2024 or later.
+
+:::
 
 Enums defined inside files using the proto3 syntax are considered **open**. That means
 that other numeric values, outside the set of named enum values, are acceptable. Enums
@@ -3241,16 +3310,16 @@ other hand, only supports _half duplex_ bidi-streaming, where the client must se
 of its input messages before the server may begin sending its output messages.)
 
 
-## Features in Edition 2023
+## Features in Editions 2023 and 2024
 
-This section describes the available feature fields in edition 2023. As future editions
-are released, this section will be expanded to include new fields from those editions.
+This section describes the available feature fields in editions 2023 and 2024. As
+future editions are released, this section will be expanded to include new fields
+from those editions.
 
 This section will generally _not_ include custom features -- ones that are specific to
 a particular language runtime or code generation plugin. The exceptions to this are
-the initial language-specific features that were introduced alongside edition 2023
-because they are needed to migrate files with proto2 or proto3 syntax to that initial
-edition.
+the language-specific features that are needed to migrate files to an edition. These
+are custom features that effectively replace options used by older editions or syntaxes.
 
 ### Field Presence
 
@@ -3534,6 +3603,147 @@ Most runtimes and plugins never look at this feature. It is primarily used by th
 compiler itself to decide whether JSON-name-related conflicts are an error or a
 warning. (Also see [JSON Name Conflicts](#json-name-conflicts).)
 
+### Default Symbol Visibility
+
+```protobuf title="Definition"
+message VisibilityFeature {
+  enum DefaultSymbolVisibility {
+    DEFAULT_SYMBOL_VISIBILITY_UNKNOWN = 0;
+    EXPORT_ALL = 1;
+    EXPORT_TOP_LEVEL = 2;
+    LOCAL_ALL = 3;
+    STRICT = 4;
+  }
+  reserved 1 to max;
+}
+
+optional VisibilityFeature.DefaultSymbolVisibility default_symbol_visibility = 8 [
+  retention = RETENTION_SOURCE,
+  targets = TARGET_TYPE_FILE,
+  feature_support = {
+    edition_introduced: EDITION_2024
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "EXPORT_ALL" },
+  edition_defaults = { edition: EDITION_2024, value: "EXPORT_TOP_LEVEL" }
+];
+```
+
+_Applies to_: Files
+
+```protobuf title="Example"
+edition = "2024";
+
+// highlight-start
+option features.default_symbol_visibility = LOCAL_ALL;
+// highlight-end
+
+export message PublicApi {
+  string id = 1;
+}
+
+// This message is local and not visible to importers.
+message InternalHelper {
+  int32 code = 1;
+}
+```
+
+In Editions syntax, this controls whether messages and enums defined in a file are
+exported (visible to files that import this file) by default. This feature has
+`RETENTION_SOURCE`, meaning it is not included in the compiled descriptor.
+
+The possible values are:
+* `EXPORT_ALL` (pre-2024 default): All messages and enums are exported, regardless
+  of nesting.
+* `EXPORT_TOP_LEVEL` (2024 default): Top-level messages and enums are exported.
+  Nested messages and enums are local (not visible to importers) by default.
+* `LOCAL_ALL`: All messages and enums are local by default, whether top-level or
+  nested.
+* `STRICT`: All messages and enums are local by default, and nested types cannot
+  be overridden to be exported.
+
+Individual messages and enums can override the file-level default by using the
+`export` or `local` keyword before the `message` or `enum` keyword, except in
+the `STRICT` mode where nested types cannot be exported.
+
+### Enforce Naming Style
+
+```protobuf title="Definition"
+optional EnforceNamingStyle enforce_naming_style = 7 [
+  retention = RETENTION_SOURCE,
+  targets = TARGET_TYPE_FILE,
+  targets = TARGET_TYPE_EXTENSION_RANGE,
+  targets = TARGET_TYPE_MESSAGE,
+  targets = TARGET_TYPE_FIELD,
+  targets = TARGET_TYPE_ONEOF,
+  targets = TARGET_TYPE_ENUM,
+  targets = TARGET_TYPE_ENUM_ENTRY,
+  targets = TARGET_TYPE_SERVICE,
+  targets = TARGET_TYPE_METHOD,
+  feature_support = {
+    edition_introduced: EDITION_2024
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "STYLE_LEGACY" },
+  edition_defaults = { edition: EDITION_2024, value: "STYLE2024" }
+];
+
+enum EnforceNamingStyle {
+  ENFORCE_NAMING_STYLE_UNKNOWN = 0;
+  STYLE2024 = 1;
+  STYLE_LEGACY = 2;
+}
+```
+
+_Applies to_: Files, Messages, Fields, Oneofs, Enums, Enum Values, Extension Ranges, Services, Methods
+
+```protobuf title="Example"
+edition = "2024";
+
+// highlight-start
+option features.enforce_naming_style = STYLE_LEGACY;
+// highlight-end
+
+// With STYLE_LEGACY, non-conforming names are allowed.
+message myMessage {
+  int32 MyField = 1;
+}
+```
+
+In Editions syntax, `protoc` uses this feature to enforce adherence to the Protobuf
+style guide for naming conventions. Other toolchains, such as `buf`, may ignore this
+feature since linting is a separate step in those tools and they provide more
+flexibility over linting behavior, including both configurability and extensibility.
+This feature has `RETENTION_SOURCE`, meaning it is not included in the compiled
+descriptor.
+
+The possible values are:
+* `STYLE2024` (2024 default): Enforces naming rules from the Protobuf style guide.
+  The required conventions for each element type are:
+
+  | Element      | Required Style                  | Example                 |
+  |--------------|-------------------------------- |-------------------------|
+  | Packages     | lower_snake_case, dot-delimited | `my_company.my_project` |
+  | Messages     | TitleCase                       | `MyMessage`             |
+  | Fields       | lower_snake_case                | `my_field`              |
+  | Oneofs       | lower_snake_case                | `my_oneof`              |
+  | Enums        | TitleCase                       | `MyEnum`                |
+  | Enum values  | UPPER_SNAKE_CASE                | `MY_ENUM_VALUE`         |
+  | Services     | TitleCase                       | `MyService`             |
+  | Methods      | TitleCase                       | `MyMethod`              |
+
+  TitleCase requires the name to start with an uppercase letter and contain only
+  alphanumeric characters (no underscores). The enforcement is permissive: names
+  like `ALLCAPS` or single-letter names like `M` are accepted.
+
+  In addition to the per-element casing rules, `STYLE2024` enforces the following
+  rules for underscore usage in identifiers that use `lower_snake_case` or
+  `UPPER_SNAKE_CASE`:
+  - Identifiers must not start or end with an underscore.
+  - Underscores must be followed by a letter, not a digit or another underscore.
+    For example, `bar_1` is invalid; use `bar_v1` or `bar1` instead.
+
+* `STYLE_LEGACY` (pre-2024 default): No naming style enforcement. This preserves
+  pre-2024 behavior where any valid identifier was accepted without style checks.
+
 ### C++: Legacy Closed Enum
 
 ```protobuf title="Definition"
@@ -3619,8 +3829,8 @@ as a field inside the `(pb.cpp)` extension.
 In Editions syntax, this can be used to configure the type used to represent
 a string or bytes field. This only impacts C++ generated code. This replaces the
 `ctype` field option. In edition 2023, a field can use _either_ this feature or
-the `ctype` field option. In future editions, the `ctype` field option will be
-disallowed and only this feature will be used to control C++ code generation.
+the `ctype` field option. In edition 2024 and later, the `ctype` field option is
+not allowed; only this feature is used to control C++ code generation.
 
 Note that this enum does _not_ have a value for `STRING_PIECE`, which was one of
 the possible values for the `ctype` option. This was only implemented inside of
@@ -3728,6 +3938,76 @@ have a [`utf8_validation` feature](#utf8-validation) set to `NONE` (by virtue of
 it being a proto2 file) but the Java runtime will check for valid UTF8 encoding
 anyway.
 
+This feature is deprecated as of edition 2024. Users should use the global
+[`utf8_validation` feature](#utf8-validation) instead.
+
+### Java: Nest in File Class {#java-nest-in-file-class}
+
+```protobuf title="Definition"
+message NestInFileClassFeature {
+  enum NestInFileClass {
+    NEST_IN_FILE_CLASS_UNKNOWN = 0;
+    NO = 1;
+    YES = 2;
+    LEGACY = 3 [feature_support = {
+      edition_introduced: EDITION_2024
+      edition_removed: EDITION_2024
+    }];
+  }
+  reserved 1 to max;
+}
+
+optional NestInFileClassFeature.NestInFileClass nest_in_file_class = 5 [
+  retention = RETENTION_RUNTIME,
+  targets = TARGET_TYPE_MESSAGE,
+  targets = TARGET_TYPE_ENUM,
+  targets = TARGET_TYPE_SERVICE,
+  feature_support = {
+    edition_introduced: EDITION_2024
+  },
+  edition_defaults = { edition: EDITION_LEGACY, value: "LEGACY" },
+  edition_defaults = { edition: EDITION_2024, value: "NO" }
+];
+```
+
+_Applies to_: Messages, Enums, and Services
+
+```protobuf title="Example"
+edition = "2024";
+import "google/protobuf/java_features.proto";
+
+// highlight-start
+message MyMessage {
+  option features.(pb.java).nest_in_file_class = YES;
+  // highlight-end
+  string name = 1;
+}
+```
+
+This custom feature is defined in the well-known import `"google/protobuf/java_features.proto"`
+as a field inside the `(pb.java)` extension.
+
+In Editions syntax, this controls whether generated top-level messages, enums, and
+services are nested inside the file-level outer Java class. This replaces the
+`java_multiple_files` file option (which is banned in edition 2024 and later).
+
+The possible values are:
+* `NO` (2024 default): Top-level types are generated as separate class files, not
+  nested inside the file class. This is equivalent to `java_multiple_files = true`.
+* `YES`: Top-level types are nested inside the file-level outer Java class. This
+  is equivalent to `java_multiple_files = false`.
+* `LEGACY`: Falls back to the behavior determined by the `java_multiple_files` file
+  option. This value is only available for migration purposes and is removed in
+  edition 2024 (it exists solely for the `EDITION_LEGACY` default).
+
+In addition to this feature, the default naming convention for the outer Java class
+changes in edition 2024. In earlier editions, the outer class name is derived from
+the file name in PascalCase (e.g., `bar_baz.proto` produces `BarBaz`), with
+`OuterClass` appended if the name conflicts with a top-level type. In edition 2024,
+the outer class name appends `Proto` by default (e.g., `bar_baz.proto` produces
+`BarBazProto`). The `java_outer_classname` file option can still be used to override
+this default in any edition.
+
 ### Go: Legacy UnmarshalJSON Enum
 
 ```protobuf title="Definition"
@@ -3767,3 +4047,4 @@ In Editions syntax, this can be used to configure whether a generated Go
 type representing an enum would include an `UnmarshalJSON` method. This only
 impacts Go generated code. This can be used to mimic the legacy behavior of a
 proto2 file, in which enum types had such a method generated.
+
