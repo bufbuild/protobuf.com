@@ -1565,7 +1565,7 @@ The [_SymbolVisibility_](./language-spec.md#symbol-visibility) production corres
 a value of the [`SymbolVisibility`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L1419)
 enum in `descriptor.proto`. This enum is used by the `visibility` field on both
 [`DescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L185) (field number 11)
-and [`EnumDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L386) (field number 6).
+and [`EnumDescriptorProto`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L384) (field number 6).
 
 These fields are only relevant for files using edition 2024 or later.
 

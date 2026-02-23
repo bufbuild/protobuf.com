@@ -4038,10 +4038,8 @@ enum Test {
 }
 ```
 
-This custom feature is **NOT** defined in a well-known import. It is defined in an
-import named `"google/protobuf/go_features.proto"` as a field inside the `(pb.go)`
-extension. The authoritative source for this file's content is the repo at
-https://github.com/protocolbuffers/protobuf-go.
+This custom feature is defined in the well-known import `"google/protobuf/go_features.proto"`
+as a field inside the `(pb.go)` extension.
 
 In Editions syntax, this can be used to configure whether a generated Go
 type representing an enum would include an `UnmarshalJSON` method. This only
