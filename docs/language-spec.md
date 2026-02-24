@@ -3659,7 +3659,11 @@ The possible values are:
 * `LOCAL_ALL`: All messages and enums are local by default, whether top-level or
   nested.
 * `STRICT`: All messages and enums are local by default, and nested types cannot
-  be overridden to be exported.
+  be overridden to be exported, with one exception: a nested enum inside a message
+  that has no other declarations except `reserved 1 to max;` may be exported.
+  This exception exists because nesting an enum inside such a wrapper message is a
+  common pattern for scoping enum value names without requiring a name prefix on
+  each value.
 
 Individual messages and enums can override the file-level default by using the
 `export` or `local` keyword before the `message` or `enum` keyword, except in
