@@ -16,7 +16,7 @@ message User {
   }
   Name name = 2;
 
-  export message Adddress {
+  export message Address {
     string street_line1 = 1;
     string street_line2 = 2;
     string city = 3;
@@ -35,8 +35,8 @@ service UserService {
 }
 
 message CreateUserRequest {
-  Name name = 1;
-  Address address = 2;
+  User.Name name = 1;
+  User.Address address = 2;
 }
 
 message CreateUserResponse {
