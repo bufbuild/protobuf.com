@@ -43,11 +43,13 @@ PackageDecl -> "package" PackageName ";"
 
 PackageName -> QualifiedIdentifier
 
-ImportDecl -> "import" ( "weak" | "public" ):? ImportedFileName ";"
+ImportDecl -> "import" ( "weak" | "public" | "option" ):? ImportedFileName ";"
 
 ImportedFileName -> StringLiteral
 
 TypeName -> ".":? QualifiedIdentifier
+
+SymbolVisibility -> "export" | "local"
 
 QualifiedIdentifier -> Identifier ( "." Identifier ):*
 
@@ -133,7 +135,7 @@ ListElement -> ScalarValue | MessageLiteral
 
 ListOfMessagesLiteral -> "[" ( MessageLiteral ( "," MessageLiteral ):* ):? "]"
 
-MessageDecl -> "message" MessageName "{" MessageElement:* "}"
+MessageDecl -> SymbolVisibility:? "message" MessageName "{" MessageElement:* "}"
 
 MessageName    -> Identifier
 
@@ -202,7 +204,7 @@ NameStrings -> StringLiteral ( "," StringLiteral ):*
 
 Names -> Identifier ( "," Identifier ):*
 
-EnumDecl -> "enum" EnumName "{" EnumElement:* "}"
+EnumDecl -> SymbolVisibility:? "enum" EnumName "{" EnumElement:* "}"
 
 EnumName    -> Identifier
 

@@ -55,6 +55,8 @@ SERVICE: 'service';
 RPC: 'rpc';
 STREAM: 'stream';
 RETURNS: 'returns';
+EXPORT: 'export';
+LOCAL: 'local';
 
 IDENTIFIER: LETTER ( LETTER | DECIMAL_DIGIT )*;
 
