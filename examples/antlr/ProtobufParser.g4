@@ -30,11 +30,13 @@ packageDecl: PACKAGE packageName SEMICOLON;
 
 packageName: qualifiedIdentifier;
 
-importDecl: IMPORT ( WEAK | PUBLIC )? importedFileName SEMICOLON;
+importDecl: IMPORT ( WEAK | PUBLIC | OPTION )? importedFileName SEMICOLON;
 
 importedFileName: stringLiteral;
 
 typeName: DOT? qualifiedIdentifier;
+
+symbolVisibility: EXPORT | LOCAL;
 
 qualifiedIdentifier: identifier ( DOT identifier )*;
 
@@ -121,7 +123,7 @@ listElement: scalarValue | messageLiteral;
 
 listOfMessagesLiteral: L_BRACKET ( messageLiteral ( COMMA messageLiteral )* )? R_BRACKET;
 
-messageDecl: MESSAGE messageName L_BRACE messageElement* R_BRACE;
+messageDecl: symbolVisibility? MESSAGE messageName L_BRACE messageElement* R_BRACE;
 
 messageName   : identifier;
 
@@ -190,7 +192,7 @@ nameStrings: stringLiteral ( COMMA stringLiteral )*;
 
 names: identifier ( COMMA identifier )*;
 
-enumDecl: ENUM enumName L_BRACE enumElement* R_BRACE;
+enumDecl: symbolVisibility? ENUM enumName L_BRACE enumElement* R_BRACE;
 
 enumName   : identifier;
 
@@ -279,7 +281,9 @@ alwaysIdent: IDENTIFIER
     | MAX
     | SERVICE
     | RPC
-    | RETURNS;
+    | RETURNS
+    | EXPORT
+    | LOCAL;
 
 sometimesIdent: MESSAGE
     | ENUM
