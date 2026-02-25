@@ -253,21 +253,21 @@ to match the keyword, per the rules below. All of the keyword token types below
 are *also* considered identifiers by the grammar. For example, a production in the
 grammar that references `identifier` will also accept `syntax` or `map`.
 ```ebnf
-syntax  = "syntax" .      oneof      = "oneof" .        int32    = "int32" .
-edition = "edition" .     map        = "map" .          int64    = "int64" .
-import  = "import" .      extensions = "extensions" .   uint32   = "uint32" .
-weak    = "weak" .        reserved   = "reserved" .     uint64   = "uint64" .
-public  = "public" .      rpc        = "rpc" .          sint32   = "sint32" .
-package = "package" .     stream     = "stream" .       sint64   = "sint64" .
-option  = "option" .      returns    = "returns" .      fixed32  = "fixed32" .
-inf     = "inf" .         to         = "to" .           fixed64  = "fixed64" .
-nan     = "nan" .         max        = "max" .          sfixed32 = "sfixed32" .
-message = "message" .     repeated   = "repeated" .     sfixed64 = "sfixed64" .
-enum    = "enum" .        optional   = "optional" .     bool     = "bool" .
-service = "service" .     required   = "required" .     float    = "float" .
-extend  = "extend" .      string     = "string" .       double   = "double" .
-group   = "group" .       bytes      = "bytes" .        export   = "export" .
-local   = "local" .
+syntax  = "syntax" .      group      = "group" .        string   = "string" .
+edition = "edition" .     oneof      = "oneof" .        bytes    = "bytes" .
+import  = "import" .      map        = "map" .          int32    = "int32" .
+weak    = "weak" .        extensions = "extensions" .   int64    = "int64" .
+public  = "public" .      reserved   = "reserved" .     uint32   = "uint32" .
+package = "package" .     rpc        = "rpc" .          uint64   = "uint64" .
+option  = "option" .      stream     = "stream" .       sint32   = "sint32" .
+inf     = "inf" .         returns    = "returns" .      sint64   = "sint64" .
+nan     = "nan" .         to         = "to" .           fixed32  = "fixed32" .
+export  = "export" .      max        = "max" .          fixed64  = "fixed64" .
+local   = "local" .       repeated   = "repeated" .     sfixed32 = "sfixed32" .
+message = "message" .     optional   = "optional" .     sfixed64 = "sfixed64" .
+enum    = "enum" .        required   = "required" .     float    = "float" .
+service = "service" .     bool       = "bool" .         double   = "double" .
+extend  = "extend" .
 ```
 
 #### Numeric Literals
