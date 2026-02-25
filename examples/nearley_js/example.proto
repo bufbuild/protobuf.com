@@ -1,18 +1,22 @@
-syntax = "proto3";
+edition = "2024";
 
 package test.users.v1;
+
+import option "buf/validate/validate.proto";
+
+option features.field_presence = IMPLICIT;
 
 message User {
   uint64 uid = 1;
 
-  message Name {
+  export message Name {
     string last_name = 1;
     string first_name = 2;
     string middle_initial = 3;
   }
   Name name = 2;
 
-  message Adddress {
+  export message Adddress {
     string street_line1 = 1;
     string street_line2 = 2;
     string city = 3;
