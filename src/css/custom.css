@@ -1,6 +1,6 @@
 /* stylelint-disable docusaurus/copyright-header */
 
-@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Work+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400&display=block");
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Work+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,wght@0,300;0,400;1,300;1,400&display=block");
 
 /*
  * These are Infima variables.
@@ -150,21 +150,11 @@ html[data-theme="dark"] .docusaurus-highlight-code-line {
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
-figure {
-  text-align: center;
-}
-
 /* Infima, the design system used by Docusaurus, sets vertical-align: middle on
    inline code, which causes it to sit below surrounding text. Override with
    baseline for natural text alignment. */
 code {
   vertical-align: baseline;
-}
-
-figcaption {
-  font-weight: 100;
-  font-size: 1.2rem;
-  text-align: right;
 }
 
 /* Admonition blocks */
