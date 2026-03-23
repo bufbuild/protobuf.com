@@ -47,6 +47,9 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
+          // "oldschool" converts -- to an em-dash (—), following the
+          // typewriter convention used throughout the docs content.
+          remarkPlugins: [[require("remark-smartypants").default, { dashes: "oldschool" }]],
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
