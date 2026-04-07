@@ -52,22 +52,18 @@ export default function NavbarContent() {
           {!mobileSidebar.disabled && <NavbarMobileSidebarToggle />}
           <NavbarLogo />
           <NavbarItems items={leftItems} />
-          <MaintainedBy className="desktop-only" />
+          <div className={styles.rightWrapper}>
+            <NavbarColorModeToggle className={styles.colorModeToggle} />
+            {autoAddSearchBar && (
+              <NavbarSearch>
+                <SearchBar />
+              </NavbarSearch>
+            )}
+            <MaintainedBy className="desktop-only" />
+          </div>
         </>
       }
-      right={
-        // TODO stop hardcoding items?
-        // Ask the user to add the respective navbar items => more flexible
-        <>
-          <NavbarItems items={rightItems} />
-          <NavbarColorModeToggle className={styles.colorModeToggle} />
-          {autoAddSearchBar && (
-            <NavbarSearch>
-              <SearchBar />
-            </NavbarSearch>
-          )}
-        </>
-      }
+      right={<NavbarItems items={rightItems} />}
     />
   );
 }

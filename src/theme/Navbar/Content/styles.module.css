@@ -1,5 +1,5 @@
 /*
-Hide color mode toggle in small viewports
+Hide color mode toggle and link list in small viewports
  */
 @media (max-width: 996px) {
   .colorModeToggle,
@@ -38,4 +38,10 @@ Hide color mode toggle in small viewports
   position: absolute;
   top: 100%;
   transform: translate(-50%, 50%);
+}
+
+.rightWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
