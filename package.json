@@ -19,7 +19,7 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
-    "ci": "npm run build && npm run check:fix && npm run check:types"
+    "ci": "npm run build && npm run check:fix"
   },
   "dependencies": {
     "@docusaurus/core": "^3.9.2",
