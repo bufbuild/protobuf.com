@@ -11,7 +11,7 @@ import type { Props as NavbarItemConfig } from "@theme/NavbarItem";
 import NavbarItem from "@theme/NavbarItem";
 import SearchBar from "@theme/SearchBar";
 import clsx from "clsx";
-import type React from "react";
+import type { JSX, ReactNode } from "react";
 import { MaintainedBy } from "../../components/maintained-by";
 import styles from "./styles.module.css";
 
@@ -30,7 +30,7 @@ function NavbarItems({ items }: { items: NavbarItemConfig[] }): JSX.Element {
   return <div className={styles.linkList}>{renderedItems}</div>;
 }
 
-function NavbarContentLayout({ left, right }: { left: React.ReactNode; right: React.ReactNode }) {
+function NavbarContentLayout({ left, right }: { left: ReactNode; right: ReactNode }) {
   return (
     <div className={clsx("navbar__inner", styles.inner)}>
       <div className="navbar__items">{left}</div>
