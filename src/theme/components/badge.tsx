@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import type { JSX } from "react";
 
 import styles from "./badge.module.css";
 

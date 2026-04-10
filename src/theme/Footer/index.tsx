@@ -15,7 +15,7 @@ import Link from "@docusaurus/Link";
 import { FooterLinkItem, useThemeConfig } from "@docusaurus/theme-common";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import clsx from "clsx";
-import React, { PropsWithChildren } from "react";
+import React, { type JSX, PropsWithChildren } from "react";
 
 import IconMail from "./icon-envelope--gray.svg";
 import IconLinkedIn from "./icon-linkedin--gray.svg";

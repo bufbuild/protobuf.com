@@ -9,7 +9,7 @@ import { useIsScrolled } from "@site/src/utils/use-is-scrolled";
 import type { Props } from "@theme/Navbar/Layout";
 import NavbarMobileSidebar from "@theme/Navbar/MobileSidebar";
 import clsx from "clsx";
-import type { ComponentProps } from "react";
+import type { ComponentProps, JSX } from "react";
 import styles from "./styles.module.css";
 
 function NavbarBackdrop(props: ComponentProps<"div">) {
