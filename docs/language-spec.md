@@ -784,23 +784,23 @@ package foo.bar;                              // foo.bar
 import "google/protobuf/descriptor.proto";    //
                                               //
 message Message {                             // foo.bar.Message
-    oneof id {                                // foo.bar.Message.id
-      string name = 1;                        // foo.bar.Message.name
-      uint64 num = 2;                         // foo.bar.Message.num
+  oneof id {                                  // foo.bar.Message.id
+    string name = 1;                          // foo.bar.Message.name
+    uint64 num = 2;                           // foo.bar.Message.num
+  }                                           //
+  message NestedMessage {                     // foo.bar.Message.NestedMessage
+    extend google.protobuf.MessageOptions {   //
+      string fizz = 49999;                    // foo.bar.Message.NestedMessage.fizz
     }                                         //
-    message NestedMessage {                   // foo.bar.Message.NestedMessage
-      extend google.protobuf.MessageOptions { //
-        string fizz = 49999;                  // foo.bar.Message.NestedMessage.fizz
-      }                                       //
-      option (NestedMessage.fizz) = "buzz";   //
-      enum Kind {                             // foo.bar.Message.NestedMessage.Kind
-        NULL = 0;                             // foo.bar.Message.NestedMessage.NULL
-        PRIMARY = 1;                          // foo.bar.Message.NestedMessage.PRIMARY
-        SECONDARY = 2;                        // foo.bar.Message.NestedMessage.SECONDARY
-      }                                       //
-      Kind kind = 1;                          // foo.bar.Message.NestedMessage.kind
+    option (NestedMessage.fizz) = "buzz";     //
+    enum Kind {                               // foo.bar.Message.NestedMessage.Kind
+      NULL = 0;                               // foo.bar.Message.NestedMessage.NULL
+      PRIMARY = 1;                            // foo.bar.Message.NestedMessage.PRIMARY
+      SECONDARY = 2;                          // foo.bar.Message.NestedMessage.SECONDARY
     }                                         //
-    NestedMessage extra = 3;                  // foo.bar.Message.extra
+    Kind kind = 1;                            // foo.bar.Message.NestedMessage.kind
+  }                                           //
+  NestedMessage extra = 3;                    // foo.bar.Message.extra
 }                                             //
                                               //
 enum Unit {                                   // foo.bar.Unit
@@ -1210,11 +1210,11 @@ The example below demonstrates both of these:
 option (google.api.http).custom.kind = "FETCH";
 option (google.api.http).custom.path = "/foo/bar/baz/{id}";
 option (google.api.http).additional_bindings = {
-    get: "/foo/bar/baz/{id}"
+  get: "/foo/bar/baz/{id}"
 };
 option (google.api.http).additional_bindings = {
-    post: "/foo/bar/baz/"
-    body: "*"
+  post: "/foo/bar/baz/"
+  body: "*"
 };
 ```
 
@@ -1222,19 +1222,19 @@ The following is equivalent to the above, and instead uses a single message
 literal instead of de-structuring:
 ```protobuf
 option (google.api.http) = {
-    custom: {
-        kind: "FETCH"
-        path: "/foo/bar/baz/{id}"
+  custom: {
+    kind: "FETCH"
+    path: "/foo/bar/baz/{id}"
+  }
+  additional_bindings: [
+    {
+      get: "/foo/bar/baz/{id}"
+    },
+    {
+      post: "/foo/bar/baz/"
+      body: "*"
     }
-    additional_bindings: [
-      {
-          get: "/foo/bar/baz/{id}"
-      },
-      {
-          post: "/foo/bar/baz/"
-          body: "*"
-      }
-    ]
+  ]
 };
 ```
 
@@ -1436,23 +1436,23 @@ package foo.bar;
 import "google/protobuf/descriptor.proto";
 
 extend google.protobuf.MessageOptions {
-    google.protobuf.Any extra = 33333;
+  google.protobuf.Any extra = 33333;
 }
 
 message MyOptionData {
-    string name = 1;
-    uint64 id = 3;
+  string name = 1;
+  uint64 id = 3;
 }
 
 message MyMessage {
-    // highlight-start
-    option (extra) = {
-        [type.googleapis.com/foo.bar.MyOptionData]: {
-            name: "foobar"
-            id: 42
-        }
-    };
-    // highlight-end
+  // highlight-start
+  option (extra) = {
+    [type.googleapis.com/foo.bar.MyOptionData]: {
+      name: "foobar"
+      id: 42
+    }
+  };
+  // highlight-end
 }
 ```
 
@@ -1654,24 +1654,24 @@ package foo.bar;                              //
 import "google/protobuf/descriptor.proto";    //
                                               //
 message Message {                             // file "example.proto"
-    oneof id {                                // message foo.bar.Message
-      string name = 1;                        // message foo.bar.Message
-      uint64 num = 2;                         // message foo.bar.Message
+  oneof id {                                  // message foo.bar.Message
+    string name = 1;                          // message foo.bar.Message
+    uint64 num = 2;                           // message foo.bar.Message
+  }                                           //
+  message NestedMessage {                     // message foo.bar.Message
+    extend google.protobuf.MessageOptions {   //
+      string fizz = 49999;                    // message foo.bar.Message.NestedMessage
     }                                         //
-    message NestedMessage {                   // message foo.bar.Message
-      extend google.protobuf.MessageOptions { //
-        string fizz = 49999;                  // message foo.bar.Message.NestedMessage
-      }                                       //
-      option (NestedMessage.fizz) = "buzz";   //
-      enum Kind {                             // message foo.bar.Message.NestedMessage
-        NULL = 0;                             // enum foo.bar.Message.NestedMessage.Kind
-        PRIMARY = 1;                          // enum foo.bar.Message.NestedMessage.Kind
-        SECONDARY = 2;                        // enum foo.bar.Message.NestedMessage.Kind
-      }                                       //
-      Kind kind = 1;                          // message foo.bar.Message.NestedMessage
+    option (NestedMessage.fizz) = "buzz";     //
+    enum Kind {                               // message foo.bar.Message.NestedMessage
+      NULL = 0;                               // enum foo.bar.Message.NestedMessage.Kind
+      PRIMARY = 1;                            // enum foo.bar.Message.NestedMessage.Kind
+      SECONDARY = 2;                          // enum foo.bar.Message.NestedMessage.Kind
     }                                         //
-    NestedMessage extra = 3;                  // message foo.bar.Message
-    extensions 1 to 100;                      // message foo.bar.Message
+    Kind kind = 1;                            // message foo.bar.Message.NestedMessage
+  }                                           //
+  NestedMessage extra = 3;                    // message foo.bar.Message
+  extensions 1 to 100;                        // message foo.bar.Message
 }                                             //
                                               //
 enum Unit {                                   // file "example.proto"
@@ -2386,18 +2386,18 @@ The following example demonstrates the way the synthetic message looks:
 ```protobuf
 // Map type:
 message Foo {
-    map<string, FooSettings> settings_by_name = 1;
+  map<string, FooSettings> settings_by_name = 1;
 }
 
 // Behaves as if:
 message Foo {
-    message SettingsByNameEntry {
-        option map_entry = true;
+  message SettingsByNameEntry {
+    option map_entry = true;
 
-        string key = 1;
-        FooSettings value = 2;
-    }
-    repeated SettingsByNameEntry settings_by_name = 1;
+    string key = 1;
+    FooSettings value = 2;
+  }
+  repeated SettingsByNameEntry settings_by_name = 1;
 }
 ```
 Note that the second message in the above example is hypothetical: it is
@@ -2437,23 +2437,23 @@ syntax = "proto3";
 import "google/protobuf/descriptor.proto";
 
 message MyOption {
-    map<string, string> switches = 1;
+  map<string, string> switches = 1;
 }
 
 extend google.protobuf.MessageOptions {
-    MyOption my_option = 33333;
+  MyOption my_option = 33333;
 }
 
 message MyMessage {
-    // highlight-start
-    option (my_option) = {
-        switches: [
-          { key: "foo"  value: "fizzle" }
-          { key: "bar"  value: "barrels" }
-          { key: "baz"  value: "bedazzle" }
-        ]
-    };
-    // highlight-end
+  // highlight-start
+  option (my_option) = {
+    switches: [
+      { key: "foo"  value: "fizzle" }
+      { key: "bar"  value: "barrels" }
+      { key: "baz"  value: "bedazzle" }
+    ]
+  };
+  // highlight-end
 }
 ```
 
@@ -2502,23 +2502,23 @@ synthetic message looks:
 ```protobuf
 // Group:
 message Foo {
-    optional group Bar = 1 [json_name = 'bbarr'] {
-        option deprecated = true;
+  optional group Bar = 1 [json_name = 'bbarr'] {
+    option deprecated = true;
 
-        optional uint32 id = 1;
-        optional string name = 2;
-    }
+    optional uint32 id = 1;
+    optional string name = 2;
+  }
 }
 
 // Behaves as if:
 message Foo {
-    message Bar {
-        option deprecated = true;
+  message Bar {
+    option deprecated = true;
 
-        optional uint32 id = 1;
-        optional string name = 2;
-    }
-    optional Bar bar = 1 [json_name = 'bbarr'];
+    optional uint32 id = 1;
+    optional string name = 2;
+  }
+  optional Bar bar = 1 [json_name = 'bbarr'];
 }
 ```
 The only functional difference between the above two messages is that the one
@@ -2536,18 +2536,18 @@ The nested message derived from the group behaves in all other respects as a
 normal nested message and can even be used as the type for other fields:
 ```protobuf
 message Foo {
-    optional group Bar = 1 {
-        optional uint32 id = 1;
-        optional string name = 2;
-    }
+  optional group Bar = 1 {
+    optional uint32 id = 1;
+    optional string name = 2;
+  }
 }
 
 message Baz {
-    // Allowed to reference the group as if it
-    // were a normal nested message
-    // highlight-start
-    optional Foo.Bar bar = 1;
-    // highlight-end
+  // Allowed to reference the group as if it
+  // were a normal nested message
+  // highlight-start
+  optional Foo.Bar bar = 1;
+  // highlight-end
 }
 ```
 Note that these other fields that refer to the message this way will use
