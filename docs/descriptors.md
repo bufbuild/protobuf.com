@@ -376,11 +376,11 @@ unmarshaling either are semantically equivalent.
 option (google.api.http).custom.kind = "FETCH";
 option (google.api.http).custom.path = "/foo/bar/baz/{id}";
 option (google.api.http).additional_bindings = {
-    get: "/foo/bar/baz/{id}"
+  get: "/foo/bar/baz/{id}"
 };
 option (google.api.http).additional_bindings = {
-    post: "/foo/bar/baz/"
-    body: "*"
+  post: "/foo/bar/baz/"
+  body: "*"
 };
 ```
 ```protobuf title="single-option.proto"
@@ -388,19 +388,19 @@ option (google.api.http).additional_bindings = {
 // option value as a message literal. It is semantically identical to
 // the above example.
 option (google.api.http) = {
-    custom: {
-        kind: "FETCH"
-        path: "/foo/bar/baz/{id}"
+  custom: {
+    kind: "FETCH"
+    path: "/foo/bar/baz/{id}"
+  }
+  additional_bindings: [
+    {
+      get: "/foo/bar/baz/{id}"
+    },
+    {
+      post: "/foo/bar/baz/"
+      body: "*"
     }
-    additional_bindings: [
-      {
-          get: "/foo/bar/baz/{id}"
-      },
-      {
-          post: "/foo/bar/baz/"
-          body: "*"
-      }
-    ]
+  ]
 };
 ```
 
@@ -521,7 +521,7 @@ package foo.bar;
 import "another/file.proto";
 
 message Foo {
-    some.OtherMessage message = 1;
+  some.OtherMessage message = 1;
 }
 ```
 ```json title="File descriptor"
@@ -582,10 +582,10 @@ on a message declaration, the `visibility` field (field number 11) of the
 
 ```protobuf title="example.proto"
 message Foo {
-    option deprecated = true;
+  option deprecated = true;
 
-    optional string name = 1;
-    optional uint64 id = 2;
+  optional string name = 1;
+  optional uint64 id = 2;
 }
 ```
 ```json title="File descriptor"
@@ -645,9 +645,9 @@ syntax = "proto2";
 import "foo/bar/extension_range_options.proto";
 
 message Foo {
-    // highlight-start
-    extensions 42, 100 to 200, 1000 to max [(foo.bar.ext) = true];
-    // highlight-end
+  // highlight-start
+  extensions 42, 100 to 200, 1000 to max [(foo.bar.ext) = true];
+  // highlight-end
 }
 ```
 ```json title="File descriptor"
@@ -712,10 +712,10 @@ for the start and "number+1" for the end.
 syntax = "proto2";
 
 message Foo {
-    // highlight-start
-    reserved 1, 2, 5-8;
-    reserved "foo", "bar", "baz";
-    // highlight-end
+  // highlight-start
+  reserved 1, 2, 5-8;
+  reserved "foo", "bar", "baz";
+  // highlight-end
 }
 ```
 ```json title="File descriptor"
@@ -799,17 +799,17 @@ syntax = "proto2";
 package foo.bar;
 
 message Foo {
-    // highlight-start
-    optional string foo = 1 [json_name="FOO"];
-    repeated int32 bar = 2;
-    optional float baz = 3 [deprecated = true, default=3.14159];
-    // highlight-end
-    extensions 100 to 200;
+  // highlight-start
+  optional string foo = 1 [json_name="FOO"];
+  repeated int32 bar = 2;
+  optional float baz = 3 [deprecated = true, default=3.14159];
+  // highlight-end
+  extensions 100 to 200;
 }
 
 // highlight-start
 extend Foo {
-    optional bytes buzz = 101;
+  optional bytes buzz = 101;
 }
 // highlight-end
 ```
@@ -914,11 +914,11 @@ import "google/protobuf/any.proto";
 import "google/protobuf/wrappers.proto";
 
 message Foo {
-    // highlight-start
-    google.protobuf.StringValue maybe_name = 1;
-    repeated google.protobuf.Any extras = 2;
-    bool is_new = 3;
-    // highlight-end
+  // highlight-start
+  google.protobuf.StringValue maybe_name = 1;
+  repeated google.protobuf.Any extras = 2;
+  bool is_new = 3;
+  // highlight-end
 }
 ```
 ```json title="File descriptor"
@@ -983,14 +983,14 @@ the same:
 ```protobuf
 // Explicit optional keyword:
 message Foo {
-    optional string bar = 1;
+  optional string bar = 1;
 }
 
 // Behaves as if:
 message Foo {
-    oneof _bar {
-      string bar = 1;
-    }
+  oneof _bar {
+    string bar = 1;
+  }
 }
 ```
 
@@ -1021,10 +1021,10 @@ The other elements that could conflict with the synthetic oneof's name are:
 syntax = "proto3";
 
 message Foo {
-    // highlight-start
-    optional string bar = 1;
-    optional double baz = 2;
-    // highlight-end
+  // highlight-start
+  optional string bar = 1;
+  optional double baz = 2;
+  // highlight-end
 }
 ```
 ```json title="File descriptor"
@@ -1086,18 +1086,18 @@ the descriptor: as a repeated field and a nested message. Here's that example ag
 ```protobuf
 // Map type:
 message Foo {
-    map<string, FooSettings> settings_by_name = 1;
+  map<string, FooSettings> settings_by_name = 1;
 }
 
 // Behaves as if:
 message Foo {
-    message SettingsByNameEntry {
-        option map_entry = true;
+  message SettingsByNameEntry {
+    option map_entry = true;
 
-        string key = 1;
-        FooSettings value = 2;
-    }
-    repeated SettingsByNameEntry settings_by_name = 1;
+    string key = 1;
+    FooSettings value = 2;
+  }
+  repeated SettingsByNameEntry settings_by_name = 1;
 }
 ```
 
@@ -1111,10 +1111,10 @@ field, they appear in the `nested_type` list after the synthetic message.
 syntax = "proto3";
 
 message Foo {
-    string name = 1;
-    // highlight-start
-    map<uint32, Foo> children_by_id = 2;
-    // highlight-end
+  string name = 1;
+  // highlight-start
+  map<uint32, Foo> children_by_id = 2;
+  // highlight-end
 }
 ```
 ```json title="File descriptor"
@@ -1189,23 +1189,23 @@ be `TYPE_GROUP` (not `TYPE_MESSAGE`). Here's that example again:
 ```protobuf
 // Group:
 message Foo {
-    optional group Bar = 1 [json_name = 'bbarr'] {
-        option deprecated = true;
+  optional group Bar = 1 [json_name = 'bbarr'] {
+    option deprecated = true;
 
-        optional uint32 id = 1;
-        optional string name = 2;
-    }
+    optional uint32 id = 1;
+    optional string name = 2;
+  }
 }
 
 // Behaves as if:
 message Foo {
-    message Bar {
-        option deprecated = true;
+  message Bar {
+    option deprecated = true;
 
-        optional uint32 id = 1;
-        optional string name = 2;
-    }
-    optional Bar bar = 1 [json_name = 'bbarr'];
+    optional uint32 id = 1;
+    optional string name = 2;
+  }
+  optional Bar bar = 1 [json_name = 'bbarr'];
 }
 ```
 The associated message is stored in the enclosing message's `nested_type` list in the
@@ -1219,12 +1219,12 @@ regarding the order of the associated field in the enclosing message's `field` l
 syntax = "proto2";
 
 message Foo {
-    // highlight-start
-    optional group Bar = 1 {
-        optional uint32 id = 1;
-        optional string name = 2;
-    }
-    // highlight-end
+  // highlight-start
+  optional group Bar = 1 {
+    optional uint32 id = 1;
+    optional string name = 2;
+  }
+  // highlight-end
 }
 ```
 ```json title="File descriptor"
@@ -1308,19 +1308,19 @@ _[Field Descriptors](#field-descriptors)_.
 syntax = "proto2";
 
 message Foo {
-    // highlight-start
-    oneof id {
-        string email = 1;
-        uint64 uid = 2;
-        int64 ssn = 3;
-        group FullName = 4 {
-          optional string first_name = 1;
-          optional string middle_initial = 2;
-          optional string last_name = 3;
-        }
-        string phone = 5;
+  // highlight-start
+  oneof id {
+    string email = 1;
+    uint64 uid = 2;
+    int64 ssn = 3;
+    group FullName = 4 {
+      optional string first_name = 1;
+      optional string middle_initial = 2;
+      optional string last_name = 3;
     }
-    // highlight-end
+    string phone = 5;
+  }
+  // highlight-end
 }
 ```
 ```json title="File descriptor"
@@ -1432,11 +1432,11 @@ on an enum declaration, the `visibility` field (field number 6) of the
 
 ```protobuf title="example.proto"
 enum Foo {
-    option allow_alias = true;
-    NULL = 0;
-    ZED = 0 [deprecated = true];
-    UNO = 1;
-    DOS = 2;
+  option allow_alias = true;
+  NULL = 0;
+  ZED = 0 [deprecated = true];
+  UNO = 1;
+  DOS = 2;
 }
 ```
 ```json title="File descriptor"
@@ -1493,16 +1493,16 @@ range where the start and end are equal to the specified number.
 
 ```protobuf title="example.proto"
 enum Stat {
-    UNKNOWN = 0;
-    PENDING = 1;
-    RUNNING = 2;
-    FAILED = 6;
-    COMPLETE = 7;
+  UNKNOWN = 0;
+  PENDING = 1;
+  RUNNING = 2;
+  FAILED = 6;
+  COMPLETE = 7;
 
-    // highlight-start
-    reserved 3 to 5, 8, 100 to max;
-    reserved "QUEUED", "IN_PROGRESS", "CANCELLED";
-    // highlight-end
+  // highlight-start
+  reserved 3 to 5, 8, 100 to max;
+  reserved "QUEUED", "IN_PROGRESS", "CANCELLED";
+  // highlight-end
 }
 ```
 ```json title="File descriptor"
@@ -1612,18 +1612,18 @@ message Empty {}
 
 // highlight-start
 service FooService {
-    option (custom.service.foo) = "abcdefg";
+  option (custom.service.foo) = "abcdefg";
 
-    rpc Unary(Foo) returns (Empty);
+  rpc Unary(Foo) returns (Empty);
 
-    rpc ClientStream(stream Foo) returns (Empty) {
-    }
+  rpc ClientStream(stream Foo) returns (Empty) {
+  }
 
-    rpc ServerStream(Empty) returns (stream Foo);
+  rpc ServerStream(Empty) returns (stream Foo);
 
-    rpc BidiStream(stream Foo) returns (stream Foo) {
-        option deprecated = true;
-    }
+  rpc BidiStream(stream Foo) returns (stream Foo) {
+    option deprecated = true;
+  }
 }
 // highlight-end
 ```
@@ -2054,16 +2054,16 @@ import "google/protobuf/descriptor.proto";
 
 // Here's a leading comment for FileOptions
 extend google.protobuf.FileOptions {
-    string file_foo = 1001;
-    string file_bar = 1002;
-    string file_baz = 1003;
+  string file_foo = 1001;
+  string file_bar = 1002;
+  string file_baz = 1003;
 }
 
 extend google.protobuf.FieldOptions {
-    // Here's a trailing comment for FieldOptions
+  // Here's a trailing comment for FieldOptions
 
-    string field_ext1 = 1001;
-    string field_ext2 = 1002;
+  string field_ext1 = 1001;
+  string field_ext2 = 1002;
 }
 ```
 ```json title="File descriptor"
@@ -2690,21 +2690,21 @@ syntax = "proto3";
 import "google/api/annotation.proto";
 
 message Foo {
-    repeated uint32 bar = 1 [
-        // highlight-start
-        json_name = "BAR",
-        packed = false
-        // highlight-end
-    ];
+  repeated uint32 bar = 1 [
+    // highlight-start
+    json_name = "BAR",
+    packed = false
+    // highlight-end
+  ];
 }
 
 service ExampleService {
-    rpc Baz(Foo) returns (Foo) {
-        // highlight-start
-        option (google.api.http).post = "/foo/bar/baz/";
-        option (google.api.http).body = "*";
-        // highlight-end
-    }
+  rpc Baz(Foo) returns (Foo) {
+    // highlight-start
+    option (google.api.http).post = "/foo/bar/baz/";
+    option (google.api.http).body = "*";
+    // highlight-end
+  }
 }
 ```
 ```json title="File descriptor"
