@@ -219,7 +219,7 @@ be replaced with fully-qualified references, which include a leading dot (`.`).
 
 ### Descriptor Kinds
 
-Each kind of named element in the language, other than packages, have a
+Each kind of named element in the language, other than packages, has a
 corresponding kind of descriptor. Source files also have a kind of
 descriptor that describes them.
 
@@ -471,7 +471,7 @@ value when the field is not present. A compiler may choose to issue a warning fo
 that have no syntax declaration.
 
 The [`edition`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L147)
-fields is only present if the _SyntaxDecl_ uses the "edition" keyword. In that case, it
+field is only present if the _SyntaxDecl_ uses the "edition" keyword. In that case, it
 is set to the _Edition_ value, and the `syntax` field is set to the string "editions".
 
 The [`package`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L106)
@@ -763,7 +763,7 @@ enclosing _ExtensionDecl_. For normal field declarations, the `extendee` field i
 absent.
 
 The [`label`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L290)
-field will always be present, even if the cardinality is omitted in the source file
+field will always be present, even if the cardinality is omitted in the source file.
 When absent in source, the value is `LABEL_OPTIONAL`. (So this default will be set for
 all _OneofFieldDecl_ productions, which never have an explicit cardinality in source.)
 
@@ -780,7 +780,7 @@ There are two fields, [`default_value`](https://github.com/protocolbuffers/proto
 and [`json_name`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L321),
 that are actually populated by options present in the field declaration. The spec refers
 to these as ["pseudo-options"](./language-spec.md#pseudo-options) because they aren't
-aren't actually fields on the `FieldOptions` proto. The pseudo-option `default` will
+actually fields on the `FieldOptions` proto. The pseudo-option `default` will
 populate the `default_value` field on the descriptor. The pseudo-option `json_name`
 populates the descriptor's field of the same name.
 
@@ -1291,11 +1291,11 @@ more details.
 
 The `OneofDescriptor` is mostly just a placeholder with a name. Its index in the
 enclosing message's [`oneof_decl`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L168)
-field. The relationship between the oneof and the fields declared inside it is the
+field identifies it. The relationship between the oneof and the fields declared inside it is the
 [`oneof_index`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L315)
 field of the enclosing `DescriptorProto`. This index, if present, indicates the
 index into the `oneof_decl` list for the field's enclosing `OneofDescriptorProto`.
-If the index is not present, the field was defined inside a oneof.
+If the index is not present, the field was not defined inside a oneof.
 
 The elements in the `oneof_decl` list are in the order they are declared in source.
 So the first oneof in a message will be the element at index zero of the list. All
@@ -2424,7 +2424,7 @@ message Foo {
 ### Reserved Ranges and Names {#source-code-info-for-reserved-ranges-and-names}
 
 Another case where there will be multiple locations in the source code info that all
-have the same path is when a message  includes multiple [_MessageReservedDecl_](./language-spec.md#reserved-names-and-numbers)
+have the same path is when a message includes multiple [_MessageReservedDecl_](./language-spec.md#reserved-names-and-numbers)
 declarations or an enum includes multiple [_EnumReservedDecl_](./language-spec.md#enum-reserved-names-and-numbers)
 declarations.
 

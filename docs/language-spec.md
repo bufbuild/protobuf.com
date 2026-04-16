@@ -520,7 +520,7 @@ Edition     = StringLiteral .
 ```
 
 ```txt title="Examples"
-syntax = "proto2":
+syntax = "proto2";
 syntax = "proto3";
 edition = "2023";
 edition = "2024";
@@ -1507,7 +1507,7 @@ Below are the meta-options:
    applies. This is described in more detail [below](#target-types).
 
 3. [`edition_defaults`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L795):
-   This option is required for feature fields and is used to to resolve feature values.
+   This option is required for feature fields and is used to resolve feature values.
    This is described in more detail [below](#feature-defaults).
 
 4. [`feature_support`](https://github.com/protocolbuffers/protobuf/blob/v32.0/src/google/protobuf/descriptor.proto#L804-L822):
@@ -1959,7 +1959,7 @@ feature field is referenced in an edition that is equal to or later than its
 configured `edition_removed` value, the compiler must emit an error. All
 features should include an `edition_introduced` value. But as seen in the
 example above, an `edition_removed` may not be present (an `edition_deprecated`
-might also not  be present), in which case `EDITION_MAX` is used (which
+might also not be present), in which case `EDITION_MAX` is used (which
 basically means the feature can be used in any edition that is later than
 or equal to the one in which it was introduced).
 
@@ -2767,7 +2767,7 @@ two independent projects whose Protobuf files are compiled separately that both 
 an extension for the same message and use the same number, the compiler couldn't report
 an error because it never sees both extensions in the same set of files.
 
-One possible way avoid conflicts of extension numbers would be to arrange for a global,
+One possible way to avoid conflicts of extension numbers would be to arrange for a global,
 monolithic compilation -- a single operation that compiles _every_ file that could be
 relevant and that could contain extensions. Depending on how project sources are laid
 out, this is often infeasible.
@@ -2786,7 +2786,7 @@ compiler reports an error if the extension's name and type don't match what's in
 the extension declaration. The downside to this mechanism is that it means that all
 users that can _define_ an extension must also be able to make (or propose) changes
 to the definition of the message being extended. Due to organization boundaries
-and/or source repository layout, this might not be feasible. And this mechanism does
+and/or source repository layout, this might not be feasible. And this mechanism
 does make it harder to change the extension later (like change its name or type).
 
 The declaration enforcement is enabled via an option named [`verification`](https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/descriptor.proto#L205-L216).
@@ -2804,12 +2804,12 @@ Each declaration has the following fields:
   name that is used to identity the type in source, for example `string`, `bytes`, `int64`,
   etc. If the type is a message or an enum, this must be the fully-qualified name of the
   type and must include a leading dot (`.`). If this value starts with a dot, it may be a
-  valid fully-qualified name. Otherwise, it must the name of one of the fifteen
+  valid fully-qualified name. Otherwise, it must be the name of one of the fifteen
   pre-declared scalar types. (See [_Field Types_](#field-types).)
 * `repeated`: Must be set to true only if the extension is a repeated field.
 * `reserved`: This is used to reserve a number and prevent its use. This is typically
   done for deleted extensions, to prevent later re-use of the number. If this value is
-  true, `full_name` and `type` must not be set. Conversely, if this value is true,
+  true, `full_name` and `type` must not be set. Conversely, if this value is false,
   `full_name` and `type` must be present.
 
 Unverified ranges may not have any declarations. So it is an error for the `verification`
@@ -2940,7 +2940,7 @@ Files using the proto2 or proto3 syntax are not allowed to include _Names_ eleme
 They must instead use _NameStrings_ elements. (In other words, they must use string
 literals instead of identifiers.)
 
-Conversely, files using that use Editions syntax are not allowed to include _NameStrings_
+Conversely, files that use Editions syntax are not allowed to include _NameStrings_
 elements. They must instead use _Names_ elements.
 
 :::
@@ -3155,7 +3155,7 @@ Files using the proto2 or proto3 syntax are not allowed to include _Names_ eleme
 They must instead use _NameStrings_ elements. (In other words, they must use string
 literals instead of identifiers.)
 
-Conversely, files using that use Editions syntax are not allowed to include _NameStrings_
+Conversely, files that use Editions syntax are not allowed to include _NameStrings_
 elements. They must instead use _Names_ elements.
 
 :::
