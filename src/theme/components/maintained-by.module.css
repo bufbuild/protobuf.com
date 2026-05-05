@@ -24,13 +24,19 @@
   gap: 0.5rem;
   border-radius: 2px;
   font-size: 12px;
+  color: #090a3a;
+}
+
+:global(html[data-theme="dark"]) .bufButton {
+  background-color: var(--buf-white-01);
+  border-color: var(--buf-grey-01);
+  color: var(--buf-ink-blue-03);
 }
 
 .bufButton span {
   font-family: var(--buf-mono-font);
   text-transform: uppercase;
   letter-spacing: 0.075rem;
-  color: #090a3a;
 }
 
 .bufButton:hover {

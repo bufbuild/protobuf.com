@@ -2,6 +2,7 @@
 // Note: type annotations allow type checking and IDEs autocompletion
 
 const lightCodeTheme = require("prism-react-renderer").themes.github;
+const darkCodeTheme = require("prism-react-renderer").themes.dracula;
 const gaTrackingID = process.env.GOOGLE_ANALYTICS_GTAG ?? "";
 
 /** @type {import('@docusaurus/types').Config} */
@@ -94,6 +95,7 @@ const config = {
       },
       prism: {
         theme: lightCodeTheme,
+        darkTheme: darkCodeTheme,
         additionalLanguages: ["protobuf", "ebnf"],
       },
       tableOfContents: {
@@ -101,7 +103,8 @@ const config = {
         maxHeadingLevel: 5,
       },
       colorMode: {
-        disableSwitch: true,
+        disableSwitch: false,
+        respectPrefersColorScheme: true,
       },
     }),
 };
