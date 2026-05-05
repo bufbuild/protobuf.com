@@ -1,7 +1,7 @@
 :root {
   --logo-img-h: 2.75rem;
   --buf-button-border-color: #d0e3e8;
-  --buf-button-border-color-dark: #1a8870;
+  --buf-button-border-color-dark: #5fdcff;
 }
 
 .bufLogo {
@@ -44,4 +44,9 @@
   text-decoration: none;
   border: 1px solid var(--buf-ink-blue-01-active);
   background-color: var(--buf-ink-blue-00);
+}
+
+:global(html[data-theme="dark"]) .bufButton:hover {
+  border-color: var(--buf-button-border-color-dark);
+  background-color: var(--buf-grey-01);
 }
